@@ -29,7 +29,7 @@
                 <li>Passwords are hashed with ASP.NET Core <code>PasswordHasher</code> before storage.</li>
                 <li>Failed sign-in returns a generic message so the response does not reveal whether the email exists.</li>
                 <li>The auth cookie is HTTP-only and uses sliding expiration. “Remember this device” can keep the session for 14 days.</li>
-                <li>Google OAuth is not configured. The UI reports that clearly instead of simulating a successful Google login.</li>
+                <li>Google OAuth uses official Google authentication when ClientId and ClientSecret are configured. Without those values, the Google buttons report that sign-in is unavailable.</li>
             </ul>
         </section>
 

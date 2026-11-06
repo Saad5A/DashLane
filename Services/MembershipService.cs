@@ -70,13 +70,74 @@ public class MembershipService
     public async Task<Member?> AuthenticateAsync(string email, string password)
     {
         var member = await FindByEmailAsync(email);
-        if (member == null)
+        if (member == null || string.IsNullOrEmpty(member.PasswordHash))
         {
             return null;
         }
 
         var result = _hasher.VerifyHashedPassword(member, member.PasswordHash, password);
         return result == PasswordVerificationResult.Failed ? null : member;
+    }
+
+    public async Task<(Member? Member, string? Error)> FindOrCreateGoogleAsync(string subjectId, string email, string fullName)
+    {
+        subjectId = subjectId.Trim();
+        fullName = string.IsNullOrWhiteSpace(fullName) ? "Google member" : fullName.Trim();
+        var normalized = NormalizeEmail(email);
+        if (string.IsNullOrWhiteSpace(subjectId) || !IsValidEmail(normalized))
+        {
+            return (null, "Google did not return a usable account email.");
+        }
+
+        var bySubject = await _db.Members.FirstOrDefaultAsync(member => member.GoogleSubjectId == subjectId);
+        if (bySubject != null)
+        {
+            if (!string.Equals(bySubject.Email, normalized, StringComparison.Ordinal))
+            {
+                bySubject.Email = normalized;
+            }
+
+            if (!string.IsNullOrWhiteSpace(fullName) && bySubject.FullName != fullName)
+            {
+                bySubject.FullName = fullName;
+                if (string.IsNullOrWhiteSpace(bySubject.LegalName))
+                {
+                    bySubject.LegalName = fullName;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return (bySubject, null);
+        }
+
+        var byEmail = await FindByEmailAsync(normalized);
+        if (byEmail != null)
+        {
+            byEmail.GoogleSubjectId = subjectId;
+            if (!string.IsNullOrWhiteSpace(fullName))
+            {
+                byEmail.FullName = fullName;
+                if (string.IsNullOrWhiteSpace(byEmail.LegalName))
+                {
+                    byEmail.LegalName = fullName;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return (byEmail, null);
+        }
+
+        var member = new Member
+        {
+            Email = normalized,
+            GoogleSubjectId = subjectId,
+            FullName = fullName,
+            LegalName = fullName,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+        _db.Members.Add(member);
+        await _db.SaveChangesAsync();
+        return (member, null);
     }
 
     public async Task SaveAsync(Member member)

@@ -16,7 +16,11 @@ public class DashLaneContext : DbContext
         modelBuilder.Entity<Member>(member =>
         {
             member.HasIndex(item => item.Email).IsUnique();
+            member.HasIndex(item => item.GoogleSubjectId)
+                .IsUnique()
+                .HasFilter("\"GoogleSubjectId\" IS NOT NULL");
             member.Property(item => item.Email).HasMaxLength(256);
+            member.Property(item => item.GoogleSubjectId).HasMaxLength(128);
             member.Property(item => item.FullName).HasMaxLength(120);
             member.Property(item => item.LegalName).HasMaxLength(120);
             member.Property(item => item.Gender).HasMaxLength(40);
