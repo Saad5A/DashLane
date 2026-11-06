@@ -88,23 +88,11 @@
 @Html.AntiForgeryToken()
 <input type="hidden" name="documentType" id="documentType" value="@Model.DocumentType" />
 <p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<!-- Country Selector -->
-<div class="mb-space-lg">
-<label class="block font-label-badge text-label-badge text-on-surface-variant uppercase tracking-wider mb-space-2xs" for="country-select">
-            Issuing Country / Region
-          </label>
-<div class="relative bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
-<div class="flex items-center gap-space-sm">
-<span class="text-[22px]">🇨🇦</span>
+<div class="mb-space-lg bg-surface-container-low rounded-xl p-space-sm flex items-center gap-space-sm shadow-sm">
+<span class="text-[22px]" aria-hidden="true">🇨🇦</span>
 <div>
-<input class="bg-transparent font-label-numeric text-label-numeric text-on-surface font-semibold outline-none w-full" id="country-select" name="issuingCountry" placeholder="Issuing country" value="@Model.IssuingCountry" />
-<div class="font-caption text-caption text-on-surface-variant">Enter the country that issued this document</div>
-</div>
-</div>
-<div class="flex items-center gap-space-2xs text-primary font-label-badge text-label-badge">
-<span>Change</span>
-<span class="material-symbols-outlined text-[18px]">unfold_more</span>
-</div>
+<div class="font-label-numeric text-label-numeric text-on-surface font-semibold">Canada</div>
+<div class="font-caption text-caption text-on-surface-variant">Canadian government ID only</div>
 </div>
 </div>
 <!-- Document Type Selector -->
@@ -225,7 +213,7 @@
 <span>Choose file</span>
 </label>
 <input class="hidden" id="documentFile" name="document" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
-<button class="inline-flex items-center gap-1 font-label-badge text-label-badge text-error hover:opacity-80 transition-opacity" type="button" data-unavailable-message="Removing this file is not available yet." data-status-target="flow-status">
+<button class="inline-flex items-center gap-1 font-label-badge text-label-badge text-error hover:opacity-80 transition-opacity" type="submit" name="removeDocument" value="true" formnovalidate>
 <span class="material-symbols-outlined text-[16px]">delete</span>
 <span>Remove</span>
 </button>

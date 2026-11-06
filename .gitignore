@@ -368,3 +368,8 @@ identifier.sqlite
 .DS_Store
 .idea/
 stitch_dashlane_ride_sharing_frontend/
+
+# Secrets
+.env
+.env.local
+*.env.local

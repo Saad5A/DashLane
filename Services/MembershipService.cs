@@ -215,14 +215,67 @@ public class MembershipService
     public static bool IsValidPassword(string password) =>
         password.Length >= 8 && password.Any(char.IsDigit) && password.Any(character => !char.IsLetterOrDigit(character));
 
-    public static bool IsValidEmail(string email) =>
-        email.Contains('@') && email.Split('@') is [var local, var domain] &&
-        local.Length > 0 && domain.Contains('.') && !email.Contains(' ');
+    public static bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email) || email.Contains(' ') || email.Contains(".."))
+        {
+            return false;
+        }
+
+        try
+        {
+            var parsed = new System.Net.Mail.MailAddress(email);
+            var domain = parsed.Host;
+            return string.Equals(parsed.Address, email, StringComparison.OrdinalIgnoreCase) &&
+                   domain.Contains('.') &&
+                   domain.Split('.').Last().Length >= 2 &&
+                   !domain.StartsWith('.') &&
+                   !domain.EndsWith('.');
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
 
     public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 
     public static string Digits(string? value) =>
         new string((value ?? "").Where(char.IsDigit).ToArray());
+
+    public static string? NormalizeCanadianPhone(string? value)
+    {
+        var digits = Digits(value);
+        if (digits.Length == 11 && digits.StartsWith('1'))
+        {
+            digits = digits[1..];
+        }
+
+        return digits.Length == 10 ? "+1" + digits : null;
+    }
+
+    public void ClearPhoto(Member member)
+    {
+        DeleteMemberFile(member, member.PhotoFileName);
+        member.PhotoFileName = null;
+    }
+
+    public void ClearDocument(Member member)
+    {
+        DeleteMemberFile(member, member.DocumentFileName);
+        member.DocumentFileName = null;
+        member.DocumentType = null;
+        member.DocumentSubmittedUtc = null;
+    }
+
+    private void DeleteMemberFile(Member member, string? fileName)
+    {
+        var path = MemberFilePath(member, fileName);
+        if (path != null && File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
 
     private string MemberDirectory(int memberId) =>
         Path.Combine(_environment.ContentRootPath, "App_Data", "members", memberId.ToString());
