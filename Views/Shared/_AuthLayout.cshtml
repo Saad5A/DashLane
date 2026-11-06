@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,10 +23,30 @@
                 </div>
             </div>
             <div class="header-tools">
-                <div class="lang-switch">
-                    <span class="material-symbols-outlined icon-18" aria-hidden="true">language</span>
-                    <span class="lang-label">English (US)</span>
-                    <span class="material-symbols-outlined icon-16 lang-chevron" aria-hidden="true">expand_more</span>
+                @{
+                    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+                    var languageLabel = currentCulture switch
+                    {
+                        "fr-CA" => "Français (CA)",
+                        "en-US" => "English (US)",
+                        _ => "English (CA)"
+                    };
+                }
+                <div class="lang-switch" id="lang-switch">
+                    <button type="button" class="lang-switch-button" id="lang-switch-toggle" aria-expanded="false" aria-controls="lang-menu">
+                        <span class="material-symbols-outlined icon-18" aria-hidden="true">language</span>
+                        <span class="lang-label" id="lang-label">@languageLabel</span>
+                        <span class="material-symbols-outlined icon-16 lang-chevron" aria-hidden="true">expand_more</span>
+                    </button>
+                    <div class="lang-menu" id="lang-menu" hidden>
+                        <form method="post" action="@Url.Action("SetLanguage", "Home")">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                            <button type="submit" name="culture" value="en-CA">English (CA)</button>
+                            <button type="submit" name="culture" value="fr-CA">Français (CA)</button>
+                            <button type="submit" name="culture" value="en-US">English (US)</button>
+                        </form>
+                    </div>
                 </div>
                 @if (User.Identity?.IsAuthenticated == true)
                 {

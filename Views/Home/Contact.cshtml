@@ -73,7 +73,7 @@
 </div>
 <div class="flex items-center gap-space-2xs bg-surface-container-low px-space-sm py-[4px] rounded-full text-on-surface-variant font-caption text-caption">
 <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-<span>No SMS provider</span>
+<span>@(ViewData["OtpChannel"] as string ?? "SMS")</span>
 </div>
 </div>
 <div class="max-w-[580px]">
@@ -102,9 +102,8 @@ else
 </div>
 <div>
 <div class="flex items-center gap-space-xs">
-<span aria-label="Canada / United States" class="text-[16px] leading-none" role="img">🇨🇦</span>
-<input class="bg-transparent font-label-numeric text-label-numeric text-on-surface outline-none w-48" form="contact-form" name="phoneNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="+1 000 000 0000" value="@Model.PhoneNumber" aria-label="Phone number" />
-<span class="bg-secondary-fixed/30 text-secondary font-caption text-caption px-space-2xs py-[1px] rounded-full">Canada/US</span>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant">+1</span>
+<input class="bg-transparent font-label-numeric text-label-numeric text-on-surface outline-none w-48" form="contact-form" name="phoneNumber" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="416 555 0199" value="@(Model.PhoneNumber is { Length: > 2 } ? Model.PhoneNumber[2..] : Model.PhoneNumber)" aria-label="Canadian mobile number" />
 </div>
 <div class="font-caption text-caption text-on-surface-variant mt-[2px] flex items-center gap-1">
 <span>@(Model.PhoneVerified ? "This number is verified." : "Not verified yet.")</span>
@@ -139,18 +138,8 @@ else
 <div class="flex items-start gap-space-xs">
 <span class="material-symbols-outlined text-primary text-[20px] mt-[1px]">help_center</span>
 <p class="font-body-sm text-body-sm text-on-surface-variant">
-                Having trouble receiving the SMS? Try alternate instant delivery methods.
+                DashLane is Canada-only. The 6-digit code is sent by SMS to the mobile number above.
               </p>
-</div>
-<div class="flex items-center gap-space-xs flex-shrink-0">
-<button class="px-space-sm py-[6px] rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-badge text-label-badge shadow-sm flex items-center gap-space-2xs transition-colors" type="button" data-unavailable-message="WhatsApp delivery is not available yet." data-status-target="flow-status">
-<span class="material-symbols-outlined text-[16px] text-primary">chat</span>
-<span>WhatsApp</span>
-</button>
-<button class="px-space-sm py-[6px] rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-badge text-label-badge shadow-sm flex items-center gap-space-2xs transition-colors" type="button" data-unavailable-message="Voice delivery is not available yet." data-status-target="flow-status">
-<span class="material-symbols-outlined text-[16px] text-primary">call</span>
-<span>Voice Call</span>
-</button>
 </div>
 </div>
 </div>

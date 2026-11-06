@@ -81,6 +81,7 @@ textarea {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 50;
+  overflow: visible;
   background: rgba(248, 249, 255, 0.8);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -1556,6 +1557,93 @@ textarea {
   .cert-lock {
     text-align: left;
   }
+}
+
+.lang-switch {
+  position: relative;
+}
+
+.lang-switch-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.header-tools {
+  overflow: visible;
+}
+
+.lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 160px;
+  padding: 8px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  z-index: 40;
+  display: block;
+}
+
+.lang-menu[hidden] {
+  display: none !important;
+}
+
+.lang-menu form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lang-menu button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--on-surface, #1a1c1e);
+  font-size: 13px;
+}
+
+.lang-menu button:hover {
+  background: color-mix(in srgb, var(--surface-container-low, #f1f3f8) 100%, transparent);
+}
+
+.city-suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  z-index: 30;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.city-suggestions li {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--on-surface, #1a1c1e);
+}
+
+.city-suggestions li:hover {
+  background: color-mix(in srgb, var(--surface-container-low, #f1f3f8) 100%, transparent);
 }
 
 .legal-main {

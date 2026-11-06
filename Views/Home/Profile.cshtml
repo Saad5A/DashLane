@@ -109,7 +109,7 @@ else
     <img class="w-full h-full object-cover" id="avatarImage" alt="" src="@Url.Action("Photo", "Home")" />
 }
 </div>
-<button aria-label="Quick camera shot" class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:bg-tertiary-container transition-transform active:scale-95" type="button" data-photo-pick="photoUploadInput">
+<button aria-label="Take photo" class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:bg-tertiary-container transition-transform active:scale-95" type="button" data-photo-pick="photoCameraInput">
 <span class="material-symbols-outlined text-[18px]">photo_camera</span>
 </button>
 </div>
@@ -121,11 +121,12 @@ else
 <span>Upload new photo</span>
 </label>
 <input accept="image/png, image/jpeg, image/webp" class="hidden" id="photoUploadInput" name="photo" type="file"/>
-<button class="bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric px-space-md py-space-xs rounded-full transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-photo-pick="photoUploadInput">
+<input accept="image/*" capture="environment" class="hidden" id="photoCameraInput" type="file"/>
+<button class="bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric px-space-md py-space-xs rounded-full transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-photo-pick="photoCameraInput">
 <span class="material-symbols-outlined text-[18px]">videocam</span>
 <span>Take photo</span>
 </button>
-<button class="text-error hover:bg-error-container/40 font-body-sm text-body-sm px-space-sm py-space-xs rounded-full transition-colors flex items-center gap-space-2xs" id="removePhotoBtn" type="button">
+<button class="text-error hover:bg-error-container/40 font-body-sm text-body-sm px-space-sm py-space-xs rounded-full transition-colors flex items-center gap-space-2xs" id="removePhotoBtn" type="submit" name="removePhoto" value="true" formnovalidate>
 <span class="material-symbols-outlined text-[16px]">delete_outline</span>
 <span>Remove</span>
 </button>
@@ -145,28 +146,36 @@ else
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tell your fellow passengers what you do, why you commute, or your overall vibe during highway journeys.</p>
 <div class="relative">
-<textarea class="w-full bg-surface-container-low p-space-md rounded-DEFAULT font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner resize-none" id="bioInput" name="bio" maxlength="300" rows="4">@Model.Bio</textarea>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-DEFAULT font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner resize-none" id="bioInput" name="bio" maxlength="300" rows="4" required>@Model.Bio</textarea>
 </div>
 </div>
 <!-- Languages Spoken -->
 <div class="mt-space-xl">
 <label class="font-headline-sm text-headline-sm text-on-surface font-semibold block mb-space-xs">Languages spoken</label>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Select languages you're comfortable using during trips.</p>
+@{
+    var defaultLanguages = new[] { "English", "French", "Spanish", "Mandarin" };
+    var extraLanguages = chosenLanguages.Where(language => !defaultLanguages.Contains(language, StringComparer.OrdinalIgnoreCase)).ToList();
+}
 <div class="flex flex-wrap items-center gap-space-xs" id="languageContainer">
-@foreach (var language in new[] { "English", "French", "Spanish", "Mandarin" })
+@foreach (var language in defaultLanguages.Concat(extraLanguages))
 {
     <button class="@LangClass(language)" type="button">
-        @if (chosenLanguages.Contains(language))
+        @if (chosenLanguages.Contains(language, StringComparer.OrdinalIgnoreCase))
         {
             <span class="material-symbols-outlined text-[14px]">check</span>
         }
         <span>@language</span>
     </button>
 }
-<button class="px-space-md py-space-xs rounded-full bg-surface-container-lowest text-primary hover:bg-primary-fixed/20 font-label-badge text-label-badge flex items-center gap-space-2xs shadow-sm transition-all" id="addLangBtn" type="button" data-unavailable-message="Adding more languages is not available yet." data-status-target="flow-status">
+<button class="px-space-md py-space-xs rounded-full bg-surface-container-lowest text-primary hover:bg-primary-fixed/20 font-label-badge text-label-badge flex items-center gap-space-2xs shadow-sm transition-all" id="addLangBtn" type="button">
 <span class="material-symbols-outlined text-[16px]">add</span>
 <span>Add language</span>
 </button>
+</div>
+<div class="mt-space-sm flex items-center gap-space-xs" id="custom-lang-row" hidden>
+<input class="flex-1 h-10 px-space-sm rounded-DEFAULT bg-surface-container-low text-on-surface font-body-sm text-body-sm outline-none" id="customLangInput" type="text" maxlength="40" placeholder="Language name" />
+<button class="px-space-md py-space-xs rounded-full bg-primary text-on-primary font-label-badge text-label-badge" id="customLangSave" type="button">Add</button>
 </div>
 </div>
 <!-- Travel Preferences Chips Grid -->
@@ -186,7 +195,7 @@ else
 <span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Conversation</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium" id="prefChatText">Chatty when spoken to</span>
 </div>
-<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
 </div>
 <!-- Pref 2: Music -->
 <div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
@@ -197,7 +206,7 @@ else
 <span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Audio &amp; Music</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium" id="prefAudioText">Podcasts &amp; Low music</span>
 </div>
-<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
 </div>
 <!-- Pref 3: Pets -->
 <div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
@@ -208,7 +217,7 @@ else
 <span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Pets</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium">Pet-friendly (in carrier)</span>
 </div>
-<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
 </div>
 <!-- Pref 4: Smoke -->
 <div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
@@ -219,7 +228,7 @@ else
 <span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Smoking</span>
 <span class="font-body-sm text-body-sm text-on-surface font-medium">Strictly no smoking</span>
 </div>
-<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
 </div>
 </div>
 </div>
