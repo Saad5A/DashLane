@@ -4,6 +4,7 @@ using DashLane.Models;
 using DashLane.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +14,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly MembershipService _membership;
+    private readonly GoogleAuthOptions _google;
 
-    public HomeController(ILogger<HomeController> logger, MembershipService membership)
+    public HomeController(ILogger<HomeController> logger, MembershipService membership, GoogleAuthOptions google)
     {
         _logger = logger;
         _membership = membership;
+        _google = google;
     }
 
     public async Task<IActionResult> Index()
@@ -36,6 +39,7 @@ public class HomeController : Controller
             return RedirectToAction(nameof(Community));
         }
 
+        ViewData["GoogleEnabled"] = _google.IsConfigured;
         return View();
     }
 
@@ -49,6 +53,7 @@ public class HomeController : Controller
         {
             ViewData["AuthNotice"] = "The email or password is incorrect.";
             ViewData["Email"] = email;
+            ViewData["GoogleEnabled"] = _google.IsConfigured;
             return View("SignIn");
         }
 
@@ -65,6 +70,7 @@ public class HomeController : Controller
         }
 
         ViewData["MemberCount"] = await _membership.CountAsync();
+        ViewData["GoogleEnabled"] = _google.IsConfigured;
         return View();
     }
 
@@ -79,6 +85,7 @@ public class HomeController : Controller
             ViewData["AuthNotice"] = "Agree to the Terms of Service and Privacy Policy to continue.";
             ViewData["FullName"] = fullName;
             ViewData["Email"] = email;
+            ViewData["GoogleEnabled"] = _google.IsConfigured;
             return View("SignUp");
         }
 
@@ -88,7 +95,70 @@ public class HomeController : Controller
             ViewData["AuthNotice"] = error;
             ViewData["FullName"] = fullName;
             ViewData["Email"] = email;
+            ViewData["GoogleEnabled"] = _google.IsConfigured;
             return View("SignUp");
+        }
+
+        await SignInMember(member, remember: true);
+        return RedirectToAction(nameof(Community));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GoogleStart(string? source, bool terms = false)
+    {
+        if (!_google.IsConfigured)
+        {
+            return await GoogleUnavailable(source);
+        }
+
+        if (string.Equals(source, "signup", StringComparison.OrdinalIgnoreCase) && !terms)
+        {
+            ViewData["AuthNotice"] = "Agree to the Terms of Service and Privacy Policy to continue with Google.";
+            ViewData["GoogleEnabled"] = true;
+            ViewData["MemberCount"] = await _membership.CountAsync();
+            return View("SignUp");
+        }
+
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = Url.Action(nameof(GoogleCallback), "Home")
+        };
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GoogleCallback()
+    {
+        if (!_google.IsConfigured)
+        {
+            return RedirectToAction(nameof(SignIn));
+        }
+
+        var external = await HttpContext.AuthenticateAsync("External");
+        if (!external.Succeeded || external.Principal == null)
+        {
+            ViewData["AuthNotice"] = "Google sign-in was cancelled or failed. Try again.";
+            ViewData["GoogleEnabled"] = true;
+            return View("SignIn");
+        }
+
+        var subject = external.Principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? external.Principal.FindFirstValue("sub");
+        var email = external.Principal.FindFirstValue(ClaimTypes.Email)
+            ?? external.Principal.FindFirstValue("email");
+        var name = external.Principal.FindFirstValue(ClaimTypes.Name)
+            ?? external.Principal.FindFirstValue("name")
+            ?? "";
+
+        await HttpContext.SignOutAsync("External");
+
+        var (member, error) = await _membership.FindOrCreateGoogleAsync(subject ?? "", email ?? "", name);
+        if (member == null)
+        {
+            ViewData["AuthNotice"] = error ?? "Google sign-in could not create an account.";
+            ViewData["GoogleEnabled"] = true;
+            return View("SignIn");
         }
 
         await SignInMember(member, remember: true);
@@ -102,6 +172,19 @@ public class HomeController : Controller
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<IActionResult> GoogleUnavailable(string? source)
+    {
+        ViewData["AuthNotice"] = "Google sign-in is not configured.";
+        ViewData["GoogleEnabled"] = false;
+        if (string.Equals(source, "signup", StringComparison.OrdinalIgnoreCase))
+        {
+            ViewData["MemberCount"] = await _membership.CountAsync();
+            return View("SignUp");
+        }
+
+        return View("SignIn");
     }
 
     [Authorize]

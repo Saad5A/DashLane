@@ -1,6 +1,7 @@
 using DashLane.Data;
 using DashLane.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,10 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 Directory.CreateDirectory(dataDirectory);
 
+var googleOptions = builder.Configuration.GetSection(GoogleAuthOptions.SectionName).Get<GoogleAuthOptions>()
+    ?? new GoogleAuthOptions();
+builder.Services.AddSingleton(googleOptions);
+
 builder.Services.AddDbContext<DashLaneContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DashLane")));
 builder.Services.AddScoped<MembershipService>();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+
+var authentication = builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
     .AddCookie(options =>
     {
         options.LoginPath = "/Home/SignIn";
@@ -19,20 +29,43 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "dashlane.auth";
         options.Cookie.HttpOnly = true;
         options.SlidingExpiration = true;
+    })
+    .AddCookie("External", options =>
+    {
+        options.Cookie.Name = "dashlane.external";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.Cookie.HttpOnly = true;
     });
+
+if (googleOptions.IsConfigured)
+{
+    authentication.AddGoogle(options =>
+    {
+        options.ClientId = googleOptions.ClientId;
+        options.ClientSecret = googleOptions.ClientSecret;
+        options.SignInScheme = "External";
+        options.CallbackPath = "/signin-google";
+        options.SaveTokens = false;
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    });
+}
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -47,7 +80,7 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DashLaneContext>();
-    db.Database.EnsureCreated();
+    await DatabaseInitializer.InitializeAsync(db);
 }
 
 app.Run();

@@ -408,7 +408,24 @@
     });
   }
 
-  if (google) {
+  var googleSignupForm = document.getElementById("google-signup-form");
+  if (googleSignupForm) {
+    googleSignupForm.addEventListener("submit", function (event) {
+      if (!terms || !terms.checked) {
+        event.preventDefault();
+        showStatus(signupStatus, "Agree to the Terms of Service and Privacy Policy to continue with Google.");
+        if (terms) {
+          terms.focus();
+        }
+        return;
+      }
+
+      var googleTerms = document.getElementById("google-terms");
+      if (googleTerms) {
+        googleTerms.value = "true";
+      }
+    });
+  } else if (google && google.getAttribute("data-google-unavailable") === "true") {
     google.addEventListener("click", function () {
       showStatus(signupStatus, AUTH_MESSAGE);
     });
