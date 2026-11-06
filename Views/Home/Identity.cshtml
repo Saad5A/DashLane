@@ -1,7 +1,9 @@
+@model Member
 @{
     ViewData["Title"] = "Identity verification - DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "flow-main";
+    var notice = ViewData["Notice"] as string;
 }
 
 <div class="flow-page">
@@ -82,6 +84,10 @@
             To keep our travel community safe, we confirm the identity of all passengers and drivers before booking or posting trips. Your documents remain strictly confidential and encrypted at rest.
           </p>
 </div>
+<form method="post" enctype="multipart/form-data" action="@Url.Action("Identity", "Home")">
+@Html.AntiForgeryToken()
+<input type="hidden" name="documentType" id="documentType" value="@Model.DocumentType" />
+<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
 <!-- Country Selector -->
 <div class="mb-space-lg">
 <label class="block font-label-badge text-label-badge text-on-surface-variant uppercase tracking-wider mb-space-2xs" for="country-select">
@@ -91,8 +97,8 @@
 <div class="flex items-center gap-space-sm">
 <span class="text-[22px]">🇨🇦</span>
 <div>
-<div class="font-label-numeric text-label-numeric text-on-surface font-semibold">Canada</div>
-<div class="font-caption text-caption text-on-surface-variant">Federal &amp; Provincial document formats supported</div>
+<input class="bg-transparent font-label-numeric text-label-numeric text-on-surface font-semibold outline-none w-full" id="country-select" name="issuingCountry" placeholder="Issuing country" value="@Model.IssuingCountry" />
+<div class="font-caption text-caption text-on-surface-variant">Enter the country that issued this document</div>
 </div>
 </div>
 <div class="flex items-center gap-space-2xs text-primary font-label-badge text-label-badge">
@@ -108,7 +114,7 @@
           </label>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm" id="docTypeGroup">
 <!-- Driver License Card -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-selected="false">
+<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Driver's Licence" data-selected="false">
 <div class="flex items-start justify-between mb-space-sm">
 <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
 <span class="material-symbols-outlined text-[20px]">directions_car</span>
@@ -121,12 +127,12 @@
 </div>
 </div>
 <!-- Passport Card (Selected Default) -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-high transition-all flex flex-col justify-between doc-card shadow-sm" data-selected="true">
+<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Passport" data-selected="false">
 <div class="flex items-start justify-between mb-space-sm">
-<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
 <span class="material-symbols-outlined text-[20px]">public</span>
 </div>
-<span class="material-symbols-outlined text-primary text-[20px] check-icon" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px] check-icon">radio_button_unchecked</span>
 </div>
 <div>
 <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-2xs">Passport</h3>
@@ -134,7 +140,7 @@
 </div>
 </div>
 <!-- National ID Card -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-selected="false">
+<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Provincial Photo ID" data-selected="false">
 <div class="flex items-start justify-between mb-space-sm">
 <div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
 <span class="material-symbols-outlined text-[20px]">badge</span>
@@ -152,12 +158,12 @@
 <div class="bg-surface-container-low rounded-xl p-space-lg mb-space-lg">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-md">
 <div>
-<span class="font-label-numeric text-label-numeric text-on-surface font-bold">Passport Identification Page</span>
+<span class="font-label-numeric text-label-numeric text-on-surface font-bold">Your document</span>
 <p class="font-caption text-caption text-on-surface-variant">Submit the full biographical spread including photo and machine-readable zone</p>
 </div>
 <div class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded-full bg-secondary-fixed/50 text-on-secondary-fixed font-label-badge text-label-badge self-start sm:self-auto">
 <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
-<span>Upload complete · 2.4 MB</span>
+<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No file uploaded" : "File saved")</span>
 </div>
 </div>
 <!-- Document Preview Card Mockup -->
@@ -167,10 +173,12 @@
 <div class="relative flex flex-col sm:flex-row gap-space-md items-center">
 <!-- Passport Photo Mockup -->
 <div class="relative w-full sm:w-44 h-48 sm:h-36 rounded-lg overflow-hidden flex-shrink-0 shadow-sm bg-surface-dim">
-<img class="w-full h-full object-cover" data-alt="Close up photograph of a realistic Canadian passport biometric page showing a traveler photo portrait under clean balanced studio illumination, sharp edges, official dark blue and golden security micro-engravings in the background with soft ambient studio lighting, warm natural skin tones, professional verification context." src="~/images/avatars/passport-sample.jpg"/>
+<div class="w-full h-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[40px]">id_card</span>
+</div>
 <div class="absolute bottom-1 right-1 px-space-2xs py-[1px] bg-inverse-surface/80 backdrop-blur rounded text-inverse-on-surface font-caption text-[10px] flex items-center gap-[2px]">
 <span class="material-symbols-outlined text-[10px] text-secondary-fixed">face</span>
-<span>Face Matched</span>
+<span>Not checked automatically</span>
 </div>
 </div>
 <!-- Passport Data Mockup Representation -->
@@ -186,11 +194,11 @@
 <div class="space-y-1.5 py-space-2xs">
 <div class="flex items-center gap-space-xs">
 <span class="font-caption text-caption text-on-surface-variant w-20">Surname:</span>
-<span class="font-label-numeric text-label-numeric font-bold text-on-surface">LECLERC</span>
+<span class="font-label-numeric text-label-numeric font-bold text-on-surface">@(string.IsNullOrWhiteSpace(Model.LegalName) ? "Not entered" : Model.LegalName)</span>
 </div>
 <div class="flex items-center gap-space-xs">
 <span class="font-caption text-caption text-on-surface-variant w-20">Given Names:</span>
-<span class="font-label-numeric text-label-numeric text-on-surface">JULIEN MARC</span>
+<span class="font-label-numeric text-label-numeric text-on-surface">@(Model.DocumentType ?? "Not selected")</span>
 </div>
 <div class="flex items-center gap-space-xs">
 <span class="font-caption text-caption text-on-surface-variant w-20">Doc Number:</span>
@@ -201,25 +209,22 @@
 </div>
 </div>
 </div>
-<!-- Machine-readable strip mockup -->
-<div class="bg-surface-container rounded p-space-2xs font-mono text-[10px] text-on-surface-variant tracking-widest truncate">
-                  P&lt;CANLECLERC&lt;&lt;JULIEN&lt;MARC&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
-                </div>
 </div>
 </div>
 <!-- Upload Meta & Inline Actions Bar -->
 <div class="mt-space-md pt-space-sm flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-low -mx-space-md -mb-space-md p-space-sm">
 <div class="flex items-center gap-space-2xs text-on-surface-variant font-caption text-caption">
 <span class="material-symbols-outlined text-[16px] text-secondary">image</span>
-<span>julien_passport_2025_scan.jpg</span>
+<span>@(Model.DocumentFileName ?? "No file yet")</span>
 <span>•</span>
-<span>High resolution 300 DPI</span>
+<span>Private to this account</span>
 </div>
 <div class="flex items-center gap-space-sm">
-<button class="inline-flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-primary-container transition-colors" type="button" data-unavailable-message="Replacing this file is not available yet." data-status-target="flow-status">
+<label class="inline-flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-primary-container transition-colors cursor-pointer" for="documentFile">
 <span class="material-symbols-outlined text-[16px]">cached</span>
-<span>Replace file</span>
-</button>
+<span>Choose file</span>
+</label>
+<input class="hidden" id="documentFile" name="document" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
 <button class="inline-flex items-center gap-1 font-label-badge text-label-badge text-error hover:opacity-80 transition-opacity" type="button" data-unavailable-message="Removing this file is not available yet." data-status-target="flow-status">
 <span class="material-symbols-outlined text-[16px]">delete</span>
 <span>Remove</span>
@@ -269,7 +274,7 @@
 <div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low text-on-surface-variant font-caption text-caption leading-relaxed">
 <span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0">lock</span>
 <p>
-            Your document is securely transmitted via end-to-end 256-bit encryption and processed solely for identity verification through our automated biometric gateway. We never display document numbers, addresses, or raw identification files on public profiles.
+            The file stays on this account. It is not shown on a public profile, and no automatic face match runs.
           </p>
 </div>
 <!-- Navigation Buttons -->
@@ -278,11 +283,12 @@
 <span class="material-symbols-outlined text-[18px]">arrow_back</span>
 <span>Back to Contact Info</span>
 </button>
-<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary font-label-numeric text-label-numeric shadow-md hover:bg-primary transition-all active:scale-95 flex items-center justify-center gap-space-xs font-semibold" id="submitBtn" data-flow='@Url.Action("Review", "Home")' type="button">
+<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary font-label-numeric text-label-numeric shadow-md hover:bg-primary transition-all active:scale-95 flex items-center justify-center gap-space-xs font-semibold" type="submit">
 <span class="material-symbols-outlined text-[18px]">verified_user</span>
 <span>Submit for Verification</span>
 </button>
 </div>
+</form>
 </section>
 </div>
 <!-- Right Sidebar Column (Trust, Benefits & Verification Metrics) -->

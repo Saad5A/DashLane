@@ -1,6 +1,116 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacy Policy - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "legal-main";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="legal-page">
+    <article class="legal-card">
+        <p class="legal-kicker">DashLane Mobility</p>
+        <h1 class="legal-title">Privacy Policy</h1>
+        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <p class="legal-lead">
+            This policy explains what DashLane collects in the current account and onboarding build, how that information is stored, and what is not shared publicly.
+        </p>
+
+        <section class="legal-section">
+            <h2>1. Who this applies to</h2>
+            <p>
+                This policy covers the DashLane web app running with a local SQLite database. If you deploy DashLane elsewhere, update this policy to match that hosting environment.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>2. Information we collect</h2>
+            <ul>
+                <li><strong>Account:</strong> full name, email address, and password hash.</li>
+                <li><strong>About you:</strong> legal name, date of birth, gender, home city, and preferred language.</li>
+                <li><strong>Profile:</strong> optional photo, bio, spoken languages, and travel preferences.</li>
+                <li><strong>Contact:</strong> phone number, whether it is verified, and a hashed verification code with an expiry time.</li>
+                <li><strong>Identity:</strong> document type, issuing country, uploaded document file name, and submission time.</li>
+                <li><strong>Session:</strong> an HTTP-only authentication cookie after you sign in.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. How we use the information</h2>
+            <ul>
+                <li>Create and sign you into your account</li>
+                <li>Confirm you are 18 or older</li>
+                <li>Save onboarding progress</li>
+                <li>Verify a phone number with a one-time code</li>
+                <li>Store a government document for later identity review</li>
+                <li>Show you the details you already entered on review screens</li>
+            </ul>
+            <p>
+                DashLane does not sell member data. There is no advertising network or analytics vendor wired into this build.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>4. What stays private</h2>
+            <ul>
+                <li>Date of birth is used for age checks and is not shown on public ride cards.</li>
+                <li>Document files are stored outside the public web folder and are not served as public profile images.</li>
+                <li>Passwords are hashed. Plain-text passwords are not written to the database or browser storage.</li>
+                <li>Verification codes are hashed after they are created. The code may be shown once on screen because no SMS provider is configured.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>5. Storage and security</h2>
+            <p>
+                Member records are saved in SQLite at <code>App_Data/dashlane.db</code> on the server machine.
+                Uploaded photos and documents are saved under <code>App_Data/members/</code>.
+                More detail is in the
+                <a class="legal-inline-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Sharing</h2>
+            <p>
+                This build does not send account data to Google, SMS gateways, biometric partners, payment processors, or analytics services.
+                Features that would require those providers are marked as not configured until they are connected.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>7. Cookies</h2>
+            <p>
+                DashLane uses a cookie named <code>dashlane.auth</code> to keep you signed in.
+                The cookie is HTTP-only. If you choose “Remember this device,” the cookie can last up to 14 days.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>8. Retention</h2>
+            <p>
+                Account data remains until the account is deleted from the local database or the database file is removed.
+                There is no automated purge workflow in this build.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>9. Your choices</h2>
+            <ul>
+                <li>You can edit onboarding details by returning to the earlier steps while signed in.</li>
+                <li>You can sign out from the header.</li>
+                <li>Requesting full account deletion currently requires removing the member record from the database until a self-serve delete flow is built.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>10. Changes</h2>
+            <p>
+                When this policy changes, the “Last updated” date above will change. Continued use after an update means you accept the revised policy for this development build.
+            </p>
+        </section>
+
+        <nav class="legal-nav" aria-label="Related policies">
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
+            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+        </nav>
+    </article>
+</div>

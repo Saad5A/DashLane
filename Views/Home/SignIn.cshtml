@@ -2,6 +2,7 @@
     ViewData["Title"] = "Log in - DashLane";
     Layout = "_AuthLayout";
     var authNotice = ViewData["AuthNotice"] as string;
+    var emailValue = ViewData["Email"] as string ?? "";
 }
 
 <div class="signin-page">
@@ -44,11 +45,11 @@
                     <label for="login-email">Email address</label>
                     <div class="input-shell">
                         <span class="material-symbols-outlined input-icon icon-20" aria-hidden="true">mail</span>
-                        <input class="text-input" id="login-email" type="email" inputmode="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="name@@example.com" value="elena.rostova@@mobility.io" aria-describedby="login-email-hint" aria-invalid="false" required />
+                        <input class="text-input" id="login-email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="name@@example.com" value="@emailValue" aria-describedby="login-email-hint" aria-invalid="false" required />
                     </div>
-                    <p id="login-email-hint" class="field-hint hint-success" aria-live="polite">
-                        <span class="material-symbols-outlined icon-14 hint-icon" aria-hidden="true">check_circle</span>
-                        <span class="hint-text">Valid commuter credentials recognized</span>
+                    <p id="login-email-hint" class="field-hint hint-error" aria-live="polite" hidden>
+                        <span class="material-symbols-outlined icon-14 hint-icon" aria-hidden="true">error</span>
+                        <span class="hint-text"></span>
                     </p>
                 </div>
 
@@ -59,7 +60,7 @@
                     </div>
                     <div class="input-shell">
                         <span class="material-symbols-outlined input-icon icon-20" aria-hidden="true">lock</span>
-                        <input class="text-input password-input" id="login-password" type="password" autocomplete="off" spellcheck="false" placeholder="Enter your password" value="TransitSafe2025#" aria-describedby="login-password-hint" aria-invalid="false" required />
+                        <input class="text-input password-input" id="login-password" name="password" type="password" autocomplete="current-password" spellcheck="false" placeholder="Enter your password" aria-describedby="login-password-hint" aria-invalid="false" required />
                         <button type="button" class="visibility-btn" id="toggle-password-btn" aria-label="Show password" aria-pressed="false" aria-controls="login-password">
                             <span class="material-symbols-outlined icon-20" id="password-visibility-icon">visibility</span>
                         </button>
@@ -72,12 +73,12 @@
 
                 <div class="form-meta">
                     <label class="remember">
-                        <input type="checkbox" checked />
+                        <input type="checkbox" name="remember" value="true" checked />
                         <span>Remember this device</span>
                     </label>
                     <span class="tls-note">
                         <span class="material-symbols-outlined icon-13" aria-hidden="true">encrypted</span>
-                        <span>TLS 1.3 Active</span>
+                        <span>Local account</span>
                     </span>
                 </div>
 
@@ -108,15 +109,15 @@
                     </div>
                     <div>
                         <h2>Grounded, verified peer-to-peer travel.</h2>
-                        <p class="assurance-lead">Connecting drivers with verified commuters across 140+ intercity corridors with zero platform markups.</p>
+                        <p class="assurance-lead">Connecting drivers with co-travelers so they can share a ride and split travel costs.</p>
                     </div>
                     <div class="feature feature-offset">
                         <div class="feature-icon">
                             <span class="material-symbols-outlined icon-20" aria-hidden="true">badge</span>
                         </div>
                         <div>
-                            <h3>100% ID-verified community</h3>
-                            <p>Drivers and co-travelers submit biometric government identity before boarding.</p>
+                            <h3>Identity checks before booking</h3>
+                            <p>Members confirm a phone number and upload a government document during setup.</p>
                         </div>
                     </div>
                     <div class="feature">
@@ -133,8 +134,8 @@
                             <span class="material-symbols-outlined icon-20" aria-hidden="true">health_and_safety</span>
                         </div>
                         <div>
-                            <h3>5M+ passenger trip protection</h3>
-                            <p>Comprehensive roadside assistance and emergency re-route vouchers on every ride.</p>
+                            <h3>Identity checks before a trip</h3>
+                            <p>Members confirm a phone number and upload a government document before booking is available.</p>
                         </div>
                     </div>
                 </div>
@@ -142,23 +143,15 @@
 
             <div class="trip-card">
                 <div class="trip-person">
-                    <div class="avatar avatar-md">
-                        <img src="~/images/avatars/mark-sofia.jpg" alt="Close up warm portrait of a friendly professional female rideshare driver wearing a neat dark sweater inside a clean modern vehicle with soft morning sunlight streaming through the passenger window." />
+                    <div class="avatar avatar-md" aria-hidden="true">
+                        <span class="material-symbols-outlined icon-18">route</span>
                     </div>
                     <div>
                         <div class="trip-name">
-                            <span>Mark &amp; Sofia</span>
-                            <span class="material-symbols-outlined icon-16" aria-hidden="true">verified</span>
+                            <span>No completed trips yet</span>
                         </div>
-                        <span class="trip-route">Completed Portland → Seattle • Today</span>
+                        <span class="trip-route">Rides will show here after members post them.</span>
                     </div>
-                </div>
-                <div class="trip-score">
-                    <div class="trip-rating">
-                        <span class="material-symbols-outlined icon-16 icon-fill" aria-hidden="true">star</span>
-                        <span>4.98</span>
-                    </div>
-                    <span class="trip-count">320 trips logged</span>
                 </div>
             </div>
         </aside>
