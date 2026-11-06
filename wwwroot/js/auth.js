@@ -121,7 +121,7 @@
     }
   });
 
-  if (google) {
+  if (google && google.getAttribute("data-google-unavailable") === "true") {
     google.addEventListener("click", function () {
       showStatus(status, AUTH_MESSAGE);
     });
