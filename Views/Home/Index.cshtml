@@ -1,8 +1,168 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "DashLane";
+    Layout = "_AuthLayout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="welcome-page">
+    <div class="welcome-stage">
+        <div class="glow glow-mint" aria-hidden="true"></div>
+        <div class="glow glow-aqua" aria-hidden="true"></div>
+
+        <div class="welcome-card">
+            <div class="welcome-copy">
+                <div>
+                    <div class="network-pill">
+                        <span class="pulse-dot" aria-hidden="true"></span>
+                        <span>Intercity Ridesharing Network</span>
+                    </div>
+                    <h1 class="hero-title">Share the<br class="hero-break" /> journey.</h1>
+                    <p class="hero-copy">Find people heading your way. Book a verified seat or offer empty spots on your next cross-country trip.</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" href="@Url.Action("SignUp", "Home")">
+                            <span>Get started</span>
+                            <span class="material-symbols-outlined icon-20 btn-arrow" aria-hidden="true">arrow_forward</span>
+                        </a>
+                        <a class="btn btn-ghost" href="@Url.Action("SignIn", "Home")">Log in</a>
+                    </div>
+                </div>
+
+                <div class="social-proof">
+                    <div class="proof-people">
+                        <div class="avatar-stack">
+                            <div class="avatar avatar-sm">
+                                <img src="~/images/avatars/commuter-1.jpg" alt="Portrait photo of a friendly smiling young professional woman wearing casual attire against a clean neutral background" />
+                            </div>
+                            <div class="avatar avatar-sm">
+                                <img src="~/images/avatars/commuter-2.jpg" alt="Portrait photo of an approachable mid-30s man smiling warmly with natural lighting and soft backdrop" />
+                            </div>
+                            <div class="avatar avatar-sm">
+                                <img src="~/images/avatars/commuter-3.jpg" alt="Warm smiling portrait of a confident driver in natural sunlight with crisp detailing" />
+                            </div>
+                        </div>
+                        <div>
+                            <div class="stars" aria-hidden="true">
+                                <span class="material-symbols-outlined icon-16 icon-fill">star</span>
+                                <span class="material-symbols-outlined icon-16 icon-fill">star</span>
+                                <span class="material-symbols-outlined icon-16 icon-fill">star</span>
+                                <span class="material-symbols-outlined icon-16 icon-fill">star</span>
+                                <span class="material-symbols-outlined icon-16 icon-fill">star</span>
+                            </div>
+                            <p class="proof-score">4.9/5 from 18,000+ commuters</p>
+                        </div>
+                    </div>
+                    <div class="verified-note">
+                        <span class="material-symbols-outlined icon-16" aria-hidden="true">verified</span>
+                        <span>Government ID Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="route-panel">
+                <div class="route-panel-body">
+                    <div class="route-heading">
+                        <span class="eyebrow">Trending Route</span>
+                        <span class="co2-chip">
+                            <span class="material-symbols-outlined icon-14" aria-hidden="true">eco</span>
+                            <span>-64% CO₂</span>
+                        </span>
+                    </div>
+
+                    <div class="route-card">
+                        <div class="route-top">
+                            <div class="route-line">
+                                <div class="route-rail" aria-hidden="true">
+                                    <span class="origin-dot"><span class="origin-core"></span></span>
+                                    <span class="rail"></span>
+                                    <span class="dest-dot">
+                                        <span class="material-symbols-outlined icon-10">location_on</span>
+                                    </span>
+                                </div>
+                                <div class="route-places">
+                                    <div>
+                                        <p class="place">Toronto, ON</p>
+                                        <p class="place-sub">Union Station Bay St.</p>
+                                    </div>
+                                    <div>
+                                        <p class="place">Montreal, QC</p>
+                                        <p class="place-sub">Gare Centrale Downtown</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="route-price">
+                                <span class="price-label">From</span>
+                                <span class="price-value">$38</span>
+                                <span class="save-label">Save 70%</span>
+                            </div>
+                        </div>
+
+                        <div class="trajectory">
+                            <svg viewBox="0 0 280 48" fill="none" aria-hidden="true">
+                                <path d="M 12 36 C 80 8, 180 44, 268 12" stroke="currentColor" stroke-dasharray="4 4" stroke-linecap="round" stroke-width="2.5" opacity="0.3"></path>
+                                <path d="M 12 36 C 80 8, 140 24, 170 27" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+                                <circle cx="170" cy="27" r="7" fill="#005c55"></circle>
+                                <circle cx="170" cy="27" r="3" fill="#ffffff"></circle>
+                                <circle cx="12" cy="36" r="4" fill="#005c55"></circle>
+                                <circle cx="268" cy="12" r="4" fill="#006a61"></circle>
+                            </svg>
+                            <div class="trajectory-meta">
+                                <span class="caption">5h 20m • 542 km</span>
+                                <span class="direct-ride">
+                                    <span class="material-symbols-outlined icon-14" aria-hidden="true">bolt</span>
+                                    <span>Direct ride</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="driver-row">
+                            <div class="driver-id">
+                                <div class="avatar avatar-sm">
+                                    <img src="~/images/avatars/marcus.jpg" alt="Close up driver avatar profile showing an authentic, friendly young professional with headset ready for travel" />
+                                </div>
+                                <div>
+                                    <p class="driver-name">Marcus K.</p>
+                                    <p class="driver-meta">Tesla Model Y • Top Driver</p>
+                                </div>
+                            </div>
+                            <div class="seat-chip">
+                                <span class="material-symbols-outlined icon-14" aria-hidden="true">airline_seat_recline_normal</span>
+                                <span>2 seats left</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="perks">
+                        <div class="perk">
+                            <div class="perk-icon">
+                                <span class="material-symbols-outlined icon-16" aria-hidden="true">payments</span>
+                            </div>
+                            <div>
+                                <p class="perk-title">Zero Hidden Fees</p>
+                                <p class="perk-sub">Transparent split</p>
+                            </div>
+                        </div>
+                        <div class="perk">
+                            <div class="perk-icon">
+                                <span class="material-symbols-outlined icon-16" aria-hidden="true">security</span>
+                            </div>
+                            <div>
+                                <p class="perk-title">Instant Cover</p>
+                                <p class="perk-sub">$5M Passenger policy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legal-row">
+            <span>DashLane Mobility Inc.</span>
+            <span class="legal-sep" aria-hidden="true">•</span>
+            <button type="button" class="inline-link" data-unavailable-message="This page is not available yet." data-status-target="welcome-legal-status">Terms of Service</button>
+            <span class="legal-sep" aria-hidden="true">•</span>
+            <button type="button" class="inline-link" data-unavailable-message="This page is not available yet." data-status-target="welcome-legal-status">Privacy Policy</button>
+            <span class="legal-sep" aria-hidden="true">•</span>
+            <button type="button" class="inline-link" data-unavailable-message="This page is not available yet." data-status-target="welcome-legal-status">Community Standards</button>
+        </div>
+        <p id="welcome-legal-status" class="status-note welcome-status" role="status" aria-live="polite" hidden></p>
+    </div>
 </div>

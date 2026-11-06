@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/stitch.css" asp-append-version="true" />
+</head>
+<body class="auth-body">
+    <header class="auth-header">
+        <div class="auth-header-inner">
+            <div class="brand-cluster">
+                <div class="brand">
+                    <span class="material-symbols-outlined brand-mark icon-26" aria-hidden="true">alt_route</span>
+                    <span class="brand-name">DashLane</span>
+                </div>
+                <span class="header-rule" aria-hidden="true"></span>
+                <div class="encrypt-badge">
+                    <span class="material-symbols-outlined icon-14" aria-hidden="true">verified_user</span>
+                    <span>256-bit Encrypted</span>
+                </div>
+            </div>
+            <div class="header-tools">
+                <div class="lang-switch">
+                    <span class="material-symbols-outlined icon-18" aria-hidden="true">language</span>
+                    <span class="lang-label">English (US)</span>
+                    <span class="material-symbols-outlined icon-16 lang-chevron" aria-hidden="true">expand_more</span>
+                </div>
+                <div class="profile-badge" aria-hidden="true">
+                    <span class="material-symbols-outlined icon-18">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-main @ViewData["MainClass"]">
+        @RenderBody()
+    </main>
+
+    <footer class="auth-footer">
+        <div class="auth-footer-inner">
+            <div class="cert-lock">
+                <span class="material-symbols-outlined icon-14" aria-hidden="true">lock</span>
+                <span>DashLane Zero-Knowledge Platform • ISO/IEC 27001 Certified</span>
+            </div>
+            <nav class="footer-nav" aria-label="Footer">
+                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Terms of Service</button>
+                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Privacy Policy</button>
+                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Security Whitepaper</button>
+                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Help Center</button>
+            </nav>
+        </div>
+        <p id="footer-status" class="status-note footer-status" role="status" aria-live="polite" hidden></p>
+    </footer>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    <script src="~/js/flow.js" asp-append-version="true"></script>
+</body>
+</html>

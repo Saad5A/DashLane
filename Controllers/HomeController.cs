@@ -18,6 +18,66 @@ namespace DashLane.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult SignIn()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("SignIn")]
+        public IActionResult SignInPost()
+        {
+            ViewData["AuthNotice"] = "Authentication is not connected yet.";
+            return View("SignIn");
+        }
+
+        [HttpGet]
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("SignUp")]
+        public IActionResult SignUpPost()
+        {
+            ViewData["AuthNotice"] = "Account creation is not connected yet.";
+            return View("SignUp");
+        }
+
+        public IActionResult Community()
+        {
+            return View();
+        }
+
+        public IActionResult AboutYou()
+        {
+            return View();
+        }
+
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        public IActionResult Identity()
+        {
+            return View();
+        }
+
+        public IActionResult Review()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
