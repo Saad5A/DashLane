@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Community Standards - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "legal-main";
+}
+
+<div class="legal-page">
+    <article class="legal-card">
+        <p class="legal-kicker">DashLane Mobility</p>
+        <h1 class="legal-title">Community Standards</h1>
+        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <p class="legal-lead">
+            DashLane is a Canada-focused ride-sharing community. These standards apply to every member who creates an account, completes onboarding, or later posts or books a trip.
+        </p>
+
+        <section class="legal-section">
+            <h2>1. Be who you say you are</h2>
+            <p>
+                Use your real name, a recognizable photo, and accurate contact details. Do not create accounts for other people or upload identity documents that are not yours.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>2. Travel considerately</h2>
+            <ul>
+                <li>Be on time for pickups and drop-offs.</li>
+                <li>Follow the travel preferences you and your co-riders share.</li>
+                <li>Keep vehicles clean and respect luggage, pets, and quiet-ride choices.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. Zero harassment</h2>
+            <p>
+                Harassment, hate speech, threats, discrimination, or unwanted contact are not allowed. Report unsafe behaviour; accounts that break this rule can be suspended.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>4. Keep rides lawful</h2>
+            <p>
+                Do not use DashLane to move illegal goods, drive without required licensing or insurance when posting trips, or pressure others into unsafe plans.
+            </p>
+        </section>
+
+        <nav class="legal-nav" aria-label="Related pages">
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
+            <a class="legal-nav-link" href="@Url.Action("Community", "Home")">Back to getting started</a>
+        </nav>
+    </article>
+</div>

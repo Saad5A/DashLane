@@ -124,10 +124,10 @@
 </div>
 <!-- Action Footer Area -->
 <div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-xs">
-<button type="button" data-unavailable-message="This page is not available yet." data-status-target="flow-status" data-stop-label class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 inline-flex items-center gap-space-2xs group order-2 sm:order-1" >
+<a href="@Url.Action("CommunityStandards", "Home")" class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 inline-flex items-center gap-space-2xs group order-2 sm:order-1">
 <span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary transition-colors">menu_book</span>
 <span class="underline decoration-outline-variant underline-offset-4 group-hover:decoration-primary">Review community guidelines</span>
-</button>
+</a>
 <button class="w-full sm:w-auto h-12 px-space-xl bg-primary hover:bg-primary-container active:scale-[0.98] text-on-primary font-headline-sm text-headline-sm rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-space-xs order-1 sm:order-2 cursor-pointer" id="btn-complete-profile" data-flow='@Url.Action("AboutYou", "Home")' type="button">
 <span>Complete my profile</span>
 <span class="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>

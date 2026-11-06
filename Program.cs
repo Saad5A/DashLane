@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
+EnvFile.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
@@ -13,9 +15,32 @@ var googleOptions = builder.Configuration.GetSection(GoogleAuthOptions.SectionNa
     ?? new GoogleAuthOptions();
 builder.Services.AddSingleton(googleOptions);
 
+var otpOptions = builder.Configuration.GetSection(OtpOptions.SectionName).Get<OtpOptions>() ?? new OtpOptions();
+builder.Services.AddSingleton(otpOptions);
+if (!otpOptions.HasTwilio)
+{
+    Console.WriteLine("Warning: Twilio SMS OTP is not configured. Add Otp__Twilio* keys to .env.");
+}
+builder.Services.AddHttpClient("twilio");
+builder.Services.AddHttpClient("nominatim", client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("DashLane/1.0 (local ride-sharing app)");
+    client.Timeout = TimeSpan.FromSeconds(8);
+});
+
 builder.Services.AddDbContext<DashLaneContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DashLane")));
 builder.Services.AddScoped<MembershipService>();
+builder.Services.AddScoped<OtpSender>();
+builder.Services.AddLocalization();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = new[] { "en-CA", "fr-CA", "en-US" };
+    options.SetDefaultCulture("en-CA")
+        .AddSupportedCultures(cultures)
+        .AddSupportedUICultures(cultures);
+    options.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.CookieRequestCultureProvider());
+});
 
 var authentication = builder.Services.AddAuthentication(options =>
     {
@@ -69,6 +94,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseRequestLocalization();
 
 app.UseAuthentication();
 app.UseAuthorization();

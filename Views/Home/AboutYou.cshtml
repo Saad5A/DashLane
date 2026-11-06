@@ -190,7 +190,7 @@ else
 <span>Non-binary</span>
 </button>
 <button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span>Self-describe</span>
+<span>Other</span>
 </button>
 <button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
 <span>Prefer not to say</span>
@@ -204,12 +204,13 @@ else
 <label class="font-label-numeric text-label-numeric text-on-surface" for="homeCity">
                 Home city
               </label>
-<div class="relative">
-<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Search your city" type="text" name="homeCity" value="@Model.HomeCity"/>
+<div class="relative" id="city-autocomplete">
+<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Start typing a Canadian city" type="text" name="homeCity" value="@Model.HomeCity" autocomplete="off" aria-autocomplete="list" aria-controls="city-suggestions" />
 <span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-primary-container">location_on</span>
+<ul class="city-suggestions" id="city-suggestions" role="listbox" hidden></ul>
 </div>
 <p class="font-caption text-caption text-on-surface-variant">
-                Your primary hub for departure and arrival route suggestions.
+                Canadian cities only. Suggestions appear as you type.
               </p>
 </div>
 <!-- Field 5: Preferred Language -->
