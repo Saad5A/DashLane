@@ -1,0 +1,30 @@
+.flow-page button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  background-image: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.flow-page input,
+.flow-page select,
+.flow-page textarea {
+  margin: 0;
+  color: inherit;
+}
+
+@tailwind utilities;
+
+.rounded-DEFAULT {
+  border-radius: 1rem;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
