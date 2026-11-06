@@ -1,0 +1,270 @@
+@{
+    ViewData["Title"] = "Contact verification - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "flow-main";
+}
+
+<div class="flow-page">
+<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
+<div class="flex flex-col w-full">
+<div class="relative w-full max-w-[1040px] mx-auto pb-space-2xl">
+<div class="mb-space-xl">
+<div class="flex items-center justify-between gap-space-sm overflow-x-auto pb-space-xs scrollbar-none">
+<div class="flex items-center gap-space-xs group cursor-pointer flex-shrink-0">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-badge text-label-badge shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Step 1</span>
+<span class="font-label-badge text-label-badge text-on-surface">About you</span>
+</div>
+</div>
+<div class="h-[2px] flex-1 min-w-[28px] bg-secondary-container rounded-full mx-space-xs"></div>
+<div class="flex items-center gap-space-xs group cursor-pointer flex-shrink-0">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-badge text-label-badge shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Step 2</span>
+<span class="font-label-badge text-label-badge text-on-surface">Profile</span>
+</div>
+</div>
+<div class="h-[2px] flex-1 min-w-[28px] bg-primary rounded-full mx-space-xs"></div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-badge text-label-badge shadow-md">
+<span class="material-symbols-outlined text-[17px]" style="font-variation-settings: 'FILL' 1;">sms</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-primary font-bold uppercase tracking-wider">Step 3</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Contact</span>
+</div>
+</div>
+<div class="h-[2px] flex-1 min-w-[28px] bg-surface-container-high rounded-full mx-space-xs"></div>
+<div class="flex items-center gap-space-xs opacity-50 flex-shrink-0">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-badge text-label-badge">
+<span>4</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Step 4</span>
+<span class="font-label-badge text-label-badge text-on-surface-variant">Identity</span>
+</div>
+</div>
+<div class="h-[2px] flex-1 min-w-[28px] bg-surface-container-high rounded-full mx-space-xs"></div>
+<div class="flex items-center gap-space-xs opacity-50 flex-shrink-0">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-badge text-label-badge">
+<span>5</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Step 5</span>
+<span class="font-label-badge text-label-badge text-on-surface-variant">Review</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-lg p-space-xl shadow-md relative overflow-hidden">
+<div class="flex flex-wrap items-center justify-between gap-space-xs mb-space-md">
+<div class="inline-flex items-center gap-space-2xs bg-secondary-fixed/40 text-on-secondary-fixed px-space-sm py-[4px] rounded-full font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">security</span>
+<span>Step 3 of 5 · Contact Verification</span>
+</div>
+<div class="flex items-center gap-space-2xs bg-surface-container-low px-space-sm py-[4px] rounded-full text-on-surface-variant font-caption text-caption">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span>Live SMS Dispatch</span>
+</div>
+</div>
+<div class="max-w-[580px]">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mb-space-xs">
+              Verify your phone number
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              We use SMS verification for instant ride updates, pickup notifications, and account security. Your number is never shared publicly with other passengers or drivers.
+            </p>
+</div>
+<div class="mt-space-lg bg-surface-container-low rounded-DEFAULT p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">phone_iphone</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<span aria-label="Canada / United States" class="text-[16px] leading-none" role="img">🇨🇦</span>
+<span class="font-label-numeric text-label-numeric text-on-surface">+1 (416) 555-0192</span>
+<span class="bg-secondary-fixed/30 text-secondary font-caption text-caption px-space-2xs py-[1px] rounded-full">Canada/US</span>
+</div>
+<div class="font-caption text-caption text-on-surface-variant mt-[2px] flex items-center gap-1">
+<span>Masked destination:</span>
+<span class="font-mono tracking-wider text-on-surface font-semibold">+1 ••• ••• 0192</span>
+</div>
+</div>
+</div>
+<button class="self-start sm:self-auto px-space-sm py-space-xs rounded-full bg-surface-container-lowest hover:bg-surface-container text-primary font-label-badge text-label-badge transition-colors shadow-sm flex items-center gap-space-2xs" type="button" data-unavailable-message="Changing this number is not available yet." data-status-target="flow-status">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span>Change number</span>
+</button>
+</div>
+<div class="mt-space-lg">
+<div class="flex items-center justify-between mb-space-xs">
+<label class="font-label-badge text-label-badge text-on-surface">Enter 6-digit authentication token</label>
+<span class="font-caption text-caption text-on-surface-variant">Code expires in 10 mins</span>
+</div>
+<div class="flex items-center justify-between gap-space-xs sm:gap-space-sm max-w-[440px]">
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-low flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold shadow-inner">
+                4
+              </div>
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-low flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold shadow-inner">
+                8
+              </div>
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-low flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold shadow-inner">
+                2
+              </div>
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-low flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold shadow-inner">
+                9
+              </div>
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-low flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-on-surface font-bold shadow-inner">
+                1
+              </div>
+<div class="w-12 h-14 sm:w-14 sm:h-16 rounded-DEFAULT bg-surface-container-lowest flex items-center justify-center font-display-hero-mobile text-display-hero-mobile text-primary font-bold shadow-md relative">
+<span class="w-[2px] h-7 bg-primary animate-pulse inline-block"></span>
+</div>
+</div>
+<div class="mt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Code sent via SMS. Carrier standard rates apply.</span>
+</div>
+<div class="flex items-center gap-space-2xs text-on-surface-variant font-label-badge text-label-badge bg-surface-container-low px-space-sm py-[4px] rounded-full">
+<span class="material-symbols-outlined text-[16px] animate-spin text-primary">schedule</span>
+<span>Resend SMS code in <span class="font-mono text-on-surface font-bold" id="countdown-timer">0:42</span></span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md bg-gradient-to-r from-surface-container-low/40 via-surface-container-low to-transparent p-space-md rounded-DEFAULT flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px] mt-[1px]">help_center</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Having trouble receiving the SMS? Try alternate instant delivery methods.
+              </p>
+</div>
+<div class="flex items-center gap-space-xs flex-shrink-0">
+<button class="px-space-sm py-[6px] rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-badge text-label-badge shadow-sm flex items-center gap-space-2xs transition-colors" type="button" data-unavailable-message="WhatsApp delivery is not available yet." data-status-target="flow-status">
+<span class="material-symbols-outlined text-[16px] text-primary">chat</span>
+<span>WhatsApp</span>
+</button>
+<button class="px-space-sm py-[6px] rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-badge text-label-badge shadow-sm flex items-center gap-space-2xs transition-colors" type="button" data-unavailable-message="Voice delivery is not available yet." data-status-target="flow-status">
+<span class="material-symbols-outlined text-[16px] text-primary">call</span>
+<span>Voice Call</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-secondary-container/40 flex items-center justify-center text-secondary flex-shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-[24px]">mark_email_read</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-headline-sm text-headline-sm text-on-surface">elena.rostova@@example.com</span>
+<span class="inline-flex items-center gap-[3px] bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge px-space-xs py-[2px] rounded-full">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span>Email verified</span>
+</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-[2px]">
+                Booking receipts and real-time travel itineraries will be delivered here automatically.
+              </span>
+</div>
+</div>
+<div class="flex items-center gap-space-2xs text-secondary font-caption text-caption self-end md:self-auto bg-surface-container-low px-space-sm py-space-xs rounded-full">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>OAuth SSO Synced</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-md relative overflow-hidden">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-headline-sm text-headline-sm text-on-surface">Profile Confidence</span>
+<span class="font-label-numeric text-label-numeric text-primary font-bold">60%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mb-space-md">
+<div class="bg-primary h-full rounded-full transition-all duration-500 ease-out" style="width: 60%;"></div>
+</div>
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between text-body-sm">
+<span class="flex items-center gap-space-2xs text-on-surface font-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                Name &amp; Bio details
+              </span>
+<span class="text-secondary font-label-badge text-label-badge">+20%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm">
+<span class="flex items-center gap-space-2xs text-on-surface font-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+                Email confirmed
+              </span>
+<span class="text-secondary font-label-badge text-label-badge">+20%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm">
+<span class="flex items-center gap-space-2xs text-primary font-bold font-body-sm">
+<span class="material-symbols-outlined text-primary text-[18px] animate-pulse">radio_button_checked</span>
+                Phone validation
+              </span>
+<span class="bg-secondary-fixed/40 text-on-secondary-fixed font-label-badge text-label-badge px-space-2xs py-[1px] rounded-full">+20%</span>
+</div>
+<div class="flex items-center justify-between text-body-sm opacity-60">
+<span class="flex items-center gap-space-2xs text-on-surface-variant font-body-sm">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span>
+                Government ID upload
+              </span>
+<span class="font-caption text-caption text-on-surface-variant">Next Step</span>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md bg-surface-container-low rounded-DEFAULT p-space-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant">
+              DashLane drivers only accept bookings from passengers with verified contact credentials.
+            </p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-space-lg shadow-sm">
+<div class="flex items-center gap-space-xs text-on-surface mb-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">privacy_tip</span>
+<span class="font-label-badge text-label-badge font-bold">Privacy Guarantee</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant leading-relaxed">
+            DashLane masks passenger and driver phone numbers during all route coordination calls and direct SMS threads using our secure relay gateway.
+          </p>
+<div class="mt-space-md flex items-center justify-between font-caption text-caption text-on-surface-variant bg-surface-container-lowest p-space-xs rounded-full shadow-inner px-space-sm">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+              Virtual Relay Active
+            </span>
+<span class="font-mono text-[10px] text-outline font-bold">TLS 1.3</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-xl bg-surface-container-lowest rounded-lg p-space-md sm:p-space-lg shadow-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<button class="w-full sm:w-auto px-space-lg h-12 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface font-label-numeric text-label-numeric transition-all duration-150 flex items-center justify-center gap-space-2xs shadow-sm" type="button" data-flow='@Url.Action("Profile", "Home")'>
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back</span>
+</button>
+<div class="flex flex-col sm:flex-row items-center gap-space-md w-full sm:w-auto">
+<div class="flex items-center gap-space-2xs text-on-surface-variant font-caption text-caption text-center sm:text-left">
+<span class="material-symbols-outlined text-primary text-[16px]">verified_user</span>
+<span>256-bit encrypted SMS gateway · ISO/IEC 27001 compliant</span>
+</div>
+<button class="w-full sm:w-auto px-space-xl h-12 rounded-full bg-primary hover:bg-primary-container text-on-primary font-label-numeric text-label-numeric shadow-md active:scale-98 transition-all flex items-center justify-center gap-space-2xs" type="button" data-flow='@Url.Action("Identity", "Home")'>
+<span>Verify &amp; Continue</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>

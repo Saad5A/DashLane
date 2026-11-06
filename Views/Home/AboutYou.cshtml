@@ -1,0 +1,305 @@
+@{
+    ViewData["Title"] = "About you - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "flow-main";
+}
+
+<div class="flow-page">
+<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
+<div class="flex flex-col w-full">
+<div class="w-full max-w-[1100px] mx-auto py-space-md">
+<!-- Top Progress Breadcrumb Strip -->
+<div class="mb-space-xl px-space-xs">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-caption text-caption uppercase tracking-wider">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge font-bold">1</span>
+<span>Personal Dossier Setup</span>
+</div>
+<div class="flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>Draft autosynced</span>
+</div>
+</div>
+<!-- Segmented Stepper Bar -->
+<nav aria-label="Onboarding Progress" class="grid grid-cols-5 gap-space-xs">
+<!-- Step 1 (Active) -->
+<div class="flex flex-col gap-space-2xs">
+<div class="h-1.5 w-full bg-primary-container rounded-full shadow-sm"></div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-badge text-label-badge text-primary-container font-bold">1. About You</span>
+<span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">trip_origin</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col gap-space-2xs">
+<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
+<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
+<span class="font-label-badge text-label-badge">2. Profile</span>
+<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col gap-space-2xs">
+<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
+<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
+<span class="font-label-badge text-label-badge">3. Contact</span>
+<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col gap-space-2xs">
+<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
+<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
+<span class="font-label-badge text-label-badge">4. Identity</span>
+<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col gap-space-2xs">
+<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
+<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
+<span class="font-label-badge text-label-badge">5. Review</span>
+<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
+</div>
+</div>
+</nav>
+</div>
+<!-- Main Asymmetric Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<!-- Primary Form Card (8 Columns) -->
+<section class="lg:col-span-8 bg-surface-container-lowest rounded-lg shadow-xl p-space-lg md:p-space-2xl flex flex-col gap-space-xl">
+<!-- Header Unit -->
+<div>
+<div class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-low text-secondary font-label-badge text-label-badge mb-space-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">badge</span>
+<span>Step 1 of 5 • Basic Information</span>
+</div>
+<h1 class="font-display-hero text-headline-lg md:text-display-hero text-on-surface tracking-tight mb-space-xs">
+            Tell us a bit about yourself
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+            This helps build trust and ensures our shared transit network remains secure, transparent, and age-compliant.
+          </p>
+</div>
+<form class="flex flex-col gap-space-xl">
+<!-- Field 1: Full Legal Name -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-numeric text-label-numeric text-on-surface flex items-center gap-1.5" for="legalName">
+                Full legal name
+                <span class="text-error font-bold">*</span>
+</label>
+<span class="inline-flex items-center gap-1 font-caption text-caption text-secondary">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+                Verified in step 4
+              </span>
+</div>
+<div class="relative">
+<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pl-11 outline-none transition-all focus:bg-surface-container-lowest focus:shadow-md" id="legalName" name="legalName" placeholder="First and last name" type="text" value="Elena Rostova"/>
+<span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-outline">person_outline</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
+<span class="material-symbols-outlined text-[15px] text-outline">info</span>
+<span>Must match your official government ID (Driver's license or passport).</span>
+</div>
+</div>
+<!-- Field 2: Date of Birth -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-numeric text-label-numeric text-on-surface flex items-center gap-1.5">
+                Date of birth
+                <span class="text-error font-bold">*</span>
+</label>
+<span class="font-caption text-caption text-on-surface-variant">Min. 18 years required</span>
+</div>
+<div class="grid grid-cols-12 gap-space-sm">
+<!-- Day -->
+<div class="col-span-3">
+<div class="relative">
+<input aria-label="Day of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobDay" max="31" min="1" placeholder="DD" type="number" value="14"/>
+<span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">D</span>
+</div>
+</div>
+<!-- Month -->
+<div class="col-span-5">
+<div class="relative">
+<select aria-label="Month of birth" class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer" id="dobMonth">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option selected="" value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Year -->
+<div class="col-span-4">
+<div class="relative">
+<input aria-label="Year of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobYear" max="2007" min="1900" placeholder="YYYY" type="number" value="1994"/>
+<span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">Y</span>
+</div>
+</div>
+</div>
+<!-- Privacy Guarantee Micro-Card -->
+<div class="flex items-start gap-space-xs bg-surface-container-low/70 rounded-DEFAULT p-space-sm mt-1">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">lock_clock</span>
+<p class="font-caption text-caption text-on-surface-variant leading-relaxed">
+                Used strictly to verify age eligibility (18+). Your date of birth is kept strictly private and is never visible on public ride cards or search feeds.
+              </p>
+</div>
+</div>
+<!-- Field 3: Gender Identity -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-numeric text-label-numeric text-on-surface">
+                Gender identity
+              </label>
+<span class="font-caption text-caption text-on-surface-variant">Helps power Women-Only ride preferences</span>
+</div>
+<div aria-label="Gender Identity selection" class="flex flex-wrap gap-space-xs" role="radiogroup">
+<!-- Selected: Woman -->
+<button aria-checked="true" class="gender-pill px-space-md py-2.5 rounded-full bg-primary-container text-on-primary font-label-badge text-label-badge shadow-sm transition-transform active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Woman</span>
+</button>
+<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
+<span>Man</span>
+</button>
+<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
+<span>Non-binary</span>
+</button>
+<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
+<span>Self-describe</span>
+</button>
+<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
+<span>Prefer not to say</span>
+</button>
+</div>
+</div>
+<!-- Dual Column: City & Language -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Field 4: Home City -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-numeric text-label-numeric text-on-surface" for="homeCity">
+                Home city
+              </label>
+<div class="relative">
+<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Search your city" type="text" value="Toronto, ON"/>
+<span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-primary-container">location_on</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant">
+                Your primary hub for departure and arrival route suggestions.
+              </p>
+</div>
+<!-- Field 5: Preferred Language -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-numeric text-label-numeric text-on-surface" for="preferredLanguage">
+                Preferred language
+              </label>
+<div class="relative">
+<select class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer transition-all" id="preferredLanguage">
+<option selected="" value="en-CA">English (Canada)</option>
+<option value="fr-CA">Français (Canada)</option>
+<option value="es">Español</option>
+<option value="en-US">English (US)</option>
+</select>
+<span class="material-symbols-outlined absolute left-3.5 top-3.5 text-[18px] text-outline pointer-events-none">translate</span>
+<span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant">
+                Determines confirmation SMS and default driver match notifications.
+              </p>
+</div>
+</div>
+<!-- Action Footer Section -->
+<div class="pt-space-md mt-space-xs flex flex-col-reverse sm:flex-row items-center justify-between gap-space-md">
+<button class="w-full sm:w-auto h-12 px-space-lg rounded-full bg-surface-container-low text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs transition-colors" type="button" data-flow='@Url.Action("Community", "Home")'>
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back</span>
+</button>
+<div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
+<div class="hidden md:flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
+<span class="material-symbols-outlined text-[16px] text-secondary">cloud_done</span>
+<span>Draft saved automatically</span>
+</div>
+<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary hover:bg-primary font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs shadow-md transition-all active:scale-[0.98]" type="button" data-flow='@Url.Action("Profile", "Home")'>
+<span>Continue to Profile</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</form>
+</section>
+<!-- Contextual Sidebar / Trust Column (4 Columns) -->
+<aside class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Identity Trust Box -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed/40 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">shield_person</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-tight">Verified DashLane ID</h2>
+<span class="font-caption text-caption text-secondary font-medium">Standard Safety Layer 2.0</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            By collecting your real name and verified date of birth, DashLane guarantees zero anonymous bookings on high-speed express routes.
+          </p>
+<div class="space-y-space-xs pt-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+<span>Zero-knowledge birthdate encryption</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+<span>Prevents fraudulent duplicate accounts</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
+<span>Required for regional transit insurance</span>
+</div>
+</div>
+</div>
+<!-- Community Member Snapshot -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant font-bold">Community Standard</span>
+<span class="text-caption font-caption text-secondary flex items-center gap-1 font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span> 99.4% Verified
+            </span>
+</div>
+<div class="flex items-center gap-space-sm">
+<img class="w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Close up warm lifestyle portrait of a happy smiling woman commuter in her early thirties sitting in passenger seat with warm sun rays and scenic highway view, editorial natural lighting with alpine green tones" src="~/images/avatars/sarah-k.jpg"/>
+<div>
+<p class="font-label-numeric text-label-numeric text-on-surface">Sarah K. • Top Driver</p>
+<p class="font-caption text-caption text-on-surface-variant">"Knowing passengers have confirmed legal names makes long highway journeys feel effortless and safe."</p>
+</div>
+</div>
+</div>
+<!-- Hub City Micro Visualizer -->
+<div class="bg-surface-container-lowest rounded-lg p-space-md shadow-md flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">route</span>
+</div>
+<div>
+<p class="font-label-badge text-label-badge text-on-surface font-bold">Toronto Hub Connected</p>
+<p class="font-caption text-caption text-on-surface-variant">1,480 daily intercity routes active</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">north_east</span>
+</div>
+</aside>
+</div>
+</div>
+</div>
+</div>
