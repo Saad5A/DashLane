@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var AUTH_MESSAGE = "Authentication is not connected yet.";
+  var AUTH_MESSAGE = "Google sign-in is not configured.";
 
   function showStatus(target, message) {
     if (!target) {
@@ -73,7 +73,7 @@
       return false;
     }
 
-    setHint(emailHint, email, "Valid commuter credentials recognized", "success");
+    setHint(emailHint, email, "", "");
     return true;
   }
 
@@ -110,19 +110,15 @@
   });
 
   form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
     var emailOk = validateEmail(true);
     var passwordOk = validatePassword(true);
 
     if (!emailOk || !passwordOk) {
+      event.preventDefault();
       status.hidden = true;
       status.textContent = "";
       (emailOk ? password : email).focus();
-      return;
     }
-
-    showStatus(status, AUTH_MESSAGE);
   });
 
   if (google) {

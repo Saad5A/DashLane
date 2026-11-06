@@ -1,7 +1,10 @@
+@model Member
 @{
     ViewData["Title"] = "About you - DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "flow-main";
+    var notice = ViewData["Notice"] as string;
+    var dob = Model.DateOfBirth;
 }
 
 <div class="flow-page">
@@ -81,7 +84,9 @@
             This helps build trust and ensures our shared transit network remains secure, transparent, and age-compliant.
           </p>
 </div>
-<form class="flex flex-col gap-space-xl">
+<form class="flex flex-col gap-space-xl" method="post" action="@Url.Action("AboutYou", "Home")">
+@Html.AntiForgeryToken()
+<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
 <!-- Field 1: Full Legal Name -->
 <div class="flex flex-col gap-space-xs">
 <div class="flex items-center justify-between">
@@ -95,7 +100,7 @@
               </span>
 </div>
 <div class="relative">
-<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pl-11 outline-none transition-all focus:bg-surface-container-lowest focus:shadow-md" id="legalName" name="legalName" placeholder="First and last name" type="text" value="Elena Rostova"/>
+<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pl-11 outline-none transition-all focus:bg-surface-container-lowest focus:shadow-md" id="legalName" name="legalName" placeholder="First and last name" type="text" value="@Model.LegalName"/>
 <span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-outline">person_outline</span>
 </div>
 <div class="flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
@@ -116,26 +121,34 @@
 <!-- Day -->
 <div class="col-span-3">
 <div class="relative">
-<input aria-label="Day of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobDay" max="31" min="1" placeholder="DD" type="number" value="14"/>
+<input aria-label="Day of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobDay" name="dobDay" max="31" min="1" placeholder="DD" type="number" value="@(dob?.Day)"/>
 <span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">D</span>
 </div>
 </div>
 <!-- Month -->
 <div class="col-span-5">
 <div class="relative">
-<select aria-label="Month of birth" class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer" id="dobMonth">
-<option value="1">January</option>
-<option value="2">February</option>
-<option value="3">March</option>
-<option value="4">April</option>
-<option value="5">May</option>
-<option value="6">June</option>
-<option value="7">July</option>
-<option selected="" value="8">August</option>
-<option value="9">September</option>
-<option value="10">October</option>
-<option value="11">November</option>
-<option value="12">December</option>
+<select aria-label="Month of birth" class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer" id="dobMonth" name="dobMonth">
+@if (dob == null)
+{
+    <option value="" selected>Month</option>
+}
+else
+{
+    <option value="">Month</option>
+}
+@foreach (var month in new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" })
+{
+    var number = Array.IndexOf(new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }, month) + 1;
+    if (dob?.Month == number)
+    {
+        <option value="@number" selected>@month</option>
+    }
+    else
+    {
+        <option value="@number">@month</option>
+    }
+}
 </select>
 <span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
 </div>
@@ -143,7 +156,7 @@
 <!-- Year -->
 <div class="col-span-4">
 <div class="relative">
-<input aria-label="Year of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobYear" max="2007" min="1900" placeholder="YYYY" type="number" value="1994"/>
+<input aria-label="Year of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobYear" name="dobYear" max="2008" min="1900" placeholder="YYYY" type="number" value="@(dob?.Year)"/>
 <span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">Y</span>
 </div>
 </div>
@@ -164,10 +177,10 @@
               </label>
 <span class="font-caption text-caption text-on-surface-variant">Helps power Women-Only ride preferences</span>
 </div>
+<input type="hidden" name="gender" id="gender" value="@Model.Gender" />
 <div aria-label="Gender Identity selection" class="flex flex-wrap gap-space-xs" role="radiogroup">
 <!-- Selected: Woman -->
-<button aria-checked="true" class="gender-pill px-space-md py-2.5 rounded-full bg-primary-container text-on-primary font-label-badge text-label-badge shadow-sm transition-transform active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5" role="radio" type="button">
 <span>Woman</span>
 </button>
 <button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
@@ -192,7 +205,7 @@
                 Home city
               </label>
 <div class="relative">
-<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Search your city" type="text" value="Toronto, ON"/>
+<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Search your city" type="text" name="homeCity" value="@Model.HomeCity"/>
 <span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-primary-container">location_on</span>
 </div>
 <p class="font-caption text-caption text-on-surface-variant">
@@ -205,17 +218,34 @@
                 Preferred language
               </label>
 <div class="relative">
-<select class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer transition-all" id="preferredLanguage">
-<option selected="" value="en-CA">English (Canada)</option>
-<option value="fr-CA">Français (Canada)</option>
-<option value="es">Español</option>
-<option value="en-US">English (US)</option>
+<select class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer transition-all" id="preferredLanguage" name="preferredLanguage">
+@{
+    var languages = new[]
+    {
+        ("en-CA", "English (Canada)"),
+        ("fr-CA", "Français (Canada)"),
+        ("es", "Español"),
+        ("en-US", "English (US)")
+    };
+}
+@foreach (var language in languages)
+{
+    var selectedLanguage = Model.PreferredLanguage == language.Item1 || (string.IsNullOrEmpty(Model.PreferredLanguage) && language.Item1 == "en-CA");
+    if (selectedLanguage)
+    {
+        <option value="@language.Item1" selected>@language.Item2</option>
+    }
+    else
+    {
+        <option value="@language.Item1">@language.Item2</option>
+    }
+}
 </select>
 <span class="material-symbols-outlined absolute left-3.5 top-3.5 text-[18px] text-outline pointer-events-none">translate</span>
 <span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
 </div>
 <p class="font-caption text-caption text-on-surface-variant">
-                Determines confirmation SMS and default driver match notifications.
+                Saved on your account.
               </p>
 </div>
 </div>
@@ -228,9 +258,9 @@
 <div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
 <div class="hidden md:flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
 <span class="material-symbols-outlined text-[16px] text-secondary">cloud_done</span>
-<span>Draft saved automatically</span>
+<span>Saved when you continue</span>
 </div>
-<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary hover:bg-primary font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs shadow-md transition-all active:scale-[0.98]" type="button" data-flow='@Url.Action("Profile", "Home")'>
+<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary hover:bg-primary font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs shadow-md transition-all active:scale-[0.98]" type="submit">
 <span>Continue to Profile</span>
 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
 </button>
@@ -252,7 +282,7 @@
 </div>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-            By collecting your real name and verified date of birth, DashLane guarantees zero anonymous bookings on high-speed express routes.
+            Your legal name and date of birth stay on your account and are used to confirm you are 18 or older.
           </p>
 <div class="space-y-space-xs pt-space-xs">
 <div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
@@ -274,14 +304,16 @@
 <div class="flex items-center justify-between">
 <span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant font-bold">Community Standard</span>
 <span class="text-caption font-caption text-secondary flex items-center gap-1 font-semibold">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> 99.4% Verified
+<span class="w-2 h-2 rounded-full bg-secondary"></span> Your details stay on your account
             </span>
 </div>
 <div class="flex items-center gap-space-sm">
-<img class="w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Close up warm lifestyle portrait of a happy smiling woman commuter in her early thirties sitting in passenger seat with warm sun rays and scenic highway view, editorial natural lighting with alpine green tones" src="~/images/avatars/sarah-k.jpg"/>
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[22px]">groups</span>
+</div>
 <div>
-<p class="font-label-numeric text-label-numeric text-on-surface">Sarah K. • Top Driver</p>
-<p class="font-caption text-caption text-on-surface-variant">"Knowing passengers have confirmed legal names makes long highway journeys feel effortless and safe."</p>
+<p class="font-label-numeric text-label-numeric text-on-surface">No public quotes yet</p>
+<p class="font-caption text-caption text-on-surface-variant">Other members' comments will show here after they finish trips.</p>
 </div>
 </div>
 </div>
@@ -292,8 +324,8 @@
 <span class="material-symbols-outlined text-[22px]">route</span>
 </div>
 <div>
-<p class="font-label-badge text-label-badge text-on-surface font-bold">Toronto Hub Connected</p>
-<p class="font-caption text-caption text-on-surface-variant">1,480 daily intercity routes active</p>
+<p class="font-label-badge text-label-badge text-on-surface font-bold">@(string.IsNullOrWhiteSpace(Model.HomeCity) ? "Home city not set" : Model.HomeCity)</p>
+<p class="font-caption text-caption text-on-surface-variant">No published routes yet</p>
 </div>
 </div>
 <span class="material-symbols-outlined text-outline-variant text-[20px]">north_east</span>

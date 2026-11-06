@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local accounts, uploads, and editor files
+App_Data/
+identifier.sqlite
+.DS_Store
+.idea/
+stitch_dashlane_ride_sharing_frontend/

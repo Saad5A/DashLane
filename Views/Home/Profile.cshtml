@@ -1,11 +1,18 @@
+@model Member
 @{
     ViewData["Title"] = "Profile - DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "flow-main";
+    var notice = ViewData["Notice"] as string;
+    var chosenLanguages = Model.LanguageList;
+    var chosenPreferences = Model.PreferenceList;
+    string LangClass(string language) => chosenLanguages.Contains(language)
+        ? "lang-pill px-space-md py-space-xs rounded-full bg-secondary text-on-secondary font-label-badge text-label-badge flex items-center gap-space-2xs transition-all shadow-sm"
+        : "lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-badge text-label-badge flex items-center gap-space-2xs transition-all";
 }
 
 <div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
+<p id="flow-status" class="flow-status" role="status" aria-live="polite" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
 <div class="flex flex-col w-full max-w-[1200px] mx-auto pb-space-2xl">
 <!-- Interactive Progress Stepper -->
 <section class="w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm mb-space-xl">
@@ -78,8 +85,13 @@
 </div>
 <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Help people get to know you</h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-space-2xs max-w-xl">
-          Drivers and co-travelers like to know who they're sharing a ride with. A friendly profile increases booking acceptances by up to 84%.
+          Drivers and co-travelers see the name, photo, city, and bio you save here.
         </p>
+<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
+<form id="profile-form" method="post" enctype="multipart/form-data" action="@Url.Action("Profile", "Home")">
+@Html.AntiForgeryToken()
+<input type="hidden" name="languages" id="languagesField" value="@Model.Languages" />
+<input type="hidden" name="preferences" id="preferencesField" value="@Model.Preferences" />
 <!-- Profile Photo Uploader Section -->
 <div class="mt-space-xl pt-space-lg border-t-0">
 <label class="font-headline-sm text-headline-sm text-on-surface block mb-space-xs font-semibold">Profile Photo</label>
@@ -88,7 +100,14 @@
 <!-- Circular Photo Wrapper with Overlay Trigger -->
 <div class="relative group shrink-0">
 <div class="w-28 h-28 rounded-full overflow-hidden shadow-md ring-0 bg-surface-container">
-<img class="w-full h-full object-cover" data-alt="Warm natural headshot portrait of a friendly professional smiling woman with natural daytime ambient lighting, looking directly into camera with clear framing, high key aesthetic against soft muted background" id="avatarImage" src="~/images/avatars/profile-avatar.jpg"/>
+@if (string.IsNullOrEmpty(Model.PhotoFileName))
+{
+    <img class="w-full h-full object-cover" id="avatarImage" alt="" style="display:none" />
+}
+else
+{
+    <img class="w-full h-full object-cover" id="avatarImage" alt="" src="@Url.Action("Photo", "Home")" />
+}
 </div>
 <button aria-label="Quick camera shot" class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:bg-tertiary-container transition-transform active:scale-95" type="button" data-photo-pick="photoUploadInput">
 <span class="material-symbols-outlined text-[18px]">photo_camera</span>
@@ -101,7 +120,7 @@
 <span class="material-symbols-outlined text-[18px]">upload</span>
 <span>Upload new photo</span>
 </label>
-<input accept="image/png, image/jpeg" class="hidden" id="photoUploadInput" type="file"/>
+<input accept="image/png, image/jpeg, image/webp" class="hidden" id="photoUploadInput" name="photo" type="file"/>
 <button class="bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric px-space-md py-space-xs rounded-full transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-photo-pick="photoUploadInput">
 <span class="material-symbols-outlined text-[18px]">videocam</span>
 <span>Take photo</span>
@@ -122,11 +141,11 @@
 <div class="mt-space-xl">
 <div class="flex items-center justify-between mb-space-xs">
 <label class="font-headline-sm text-headline-sm text-on-surface font-semibold" for="bioInput">Short bio</label>
-<span class="font-label-numeric text-label-numeric text-on-surface-variant" id="charCount">128 / 300 characters</span>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant" id="charCount">@(Model.Bio?.Length ?? 0) / 300 characters</span>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tell your fellow passengers what you do, why you commute, or your overall vibe during highway journeys.</p>
 <div class="relative">
-<textarea class="w-full bg-surface-container-low p-space-md rounded-DEFAULT font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner resize-none" id="bioInput" maxlength="300" rows="4">Architect commuting between Toronto and Montreal on bi-weekly trips. Love calm podcasts, architecture discussions, or quiet rides.</textarea>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-DEFAULT font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner resize-none" id="bioInput" name="bio" maxlength="300" rows="4">@Model.Bio</textarea>
 </div>
 </div>
 <!-- Languages Spoken -->
@@ -134,20 +153,16 @@
 <label class="font-headline-sm text-headline-sm text-on-surface font-semibold block mb-space-xs">Languages spoken</label>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Select languages you're comfortable using during trips.</p>
 <div class="flex flex-wrap items-center gap-space-xs" id="languageContainer">
-<button class="lang-pill px-space-md py-space-xs rounded-full bg-secondary text-on-secondary font-label-badge text-label-badge flex items-center gap-space-2xs transition-all shadow-sm" type="button">
-<span class="material-symbols-outlined text-[14px]">check</span>
-<span>English</span>
-</button>
-<button class="lang-pill px-space-md py-space-xs rounded-full bg-secondary text-on-secondary font-label-badge text-label-badge flex items-center gap-space-2xs transition-all shadow-sm" type="button">
-<span class="material-symbols-outlined text-[14px]">check</span>
-<span>French</span>
-</button>
-<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-badge text-label-badge flex items-center gap-space-2xs transition-all" type="button">
-<span>Spanish</span>
-</button>
-<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-badge text-label-badge flex items-center gap-space-2xs transition-all" type="button">
-<span>Mandarin</span>
-</button>
+@foreach (var language in new[] { "English", "French", "Spanish", "Mandarin" })
+{
+    <button class="@LangClass(language)" type="button">
+        @if (chosenLanguages.Contains(language))
+        {
+            <span class="material-symbols-outlined text-[14px]">check</span>
+        }
+        <span>@language</span>
+    </button>
+}
 <button class="px-space-md py-space-xs rounded-full bg-surface-container-lowest text-primary hover:bg-primary-fixed/20 font-label-badge text-label-badge flex items-center gap-space-2xs shadow-sm transition-all" id="addLangBtn" type="button" data-unavailable-message="Adding more languages is not available yet." data-status-target="flow-status">
 <span class="material-symbols-outlined text-[16px]">add</span>
 <span>Add language</span>
@@ -158,7 +173,7 @@
 <div class="mt-space-xl">
 <div class="flex items-center justify-between mb-space-xs">
 <label class="font-headline-sm text-headline-sm text-on-surface font-semibold">Travel preferences</label>
-<span class="font-caption text-caption text-secondary font-medium">Automatic co-rider matching</span>
+<span class="font-caption text-caption text-secondary font-medium">Saved with your profile</span>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Set expectations in advance so co-travelers share your comfort preferences.</p>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
@@ -208,17 +223,18 @@
 </div>
 </div>
 </div>
-</div>
 <!-- Action Navigation Buttons -->
 <div class="flex items-center justify-between pt-space-xs pb-space-md">
 <button class="px-space-lg py-space-sm rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-flow='@Url.Action("AboutYou", "Home")'>
 <span class="material-symbols-outlined text-[18px]">arrow_back</span>
 <span>Back</span>
 </button>
-<button class="px-space-xl py-space-sm rounded-full bg-primary-container hover:bg-primary text-on-primary font-label-numeric text-label-numeric shadow-md transition-all active:scale-98 flex items-center gap-space-sm" type="button" data-flow='@Url.Action("Contact", "Home")'>
+<button class="px-space-xl py-space-sm rounded-full bg-primary-container hover:bg-primary text-on-primary font-label-numeric text-label-numeric shadow-md transition-all active:scale-98 flex items-center gap-space-sm" type="submit">
 <span>Continue to Contact Verification</span>
 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
 </button>
+</div>
+</form>
 </div>
 </div>
 <!-- Right Column / Sticky Live Preview (5 Cols on desktop) -->
@@ -240,7 +256,14 @@
 <div class="flex items-end justify-between mb-space-md">
 <div class="relative">
 <div class="w-20 h-20 rounded-full overflow-hidden bg-surface-container shadow-md">
-<img class="w-full h-full object-cover" data-alt="Professional passenger avatar profile photo headshot of a smiling young Canadian female architect traveler with approachable expression, daytime natural lighting" id="previewAvatar" src="~/images/avatars/profile-preview.jpg"/>
+@if (string.IsNullOrEmpty(Model.PhotoFileName))
+{
+    <img class="w-full h-full object-cover" id="previewAvatar" alt="" style="display:none" />
+}
+else
+{
+    <img class="w-full h-full object-cover" id="previewAvatar" alt="" src="@Url.Action("Photo", "Home")" />
+}
 </div>
 <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
 <span class="material-symbols-outlined text-[14px]">verified</span>
@@ -249,52 +272,52 @@
 <!-- Ride Statistics Summary -->
 <div class="flex items-center gap-space-sm bg-surface-container-low px-space-sm py-space-xs rounded-full">
 <div class="flex items-center gap-1 text-on-surface font-label-numeric text-label-numeric">
-<span class="material-symbols-outlined text-amber-500 text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span>5.0</span>
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>0</span>
 </div>
-<span class="text-on-surface-variant text-caption font-caption">New Co-rider</span>
+<span class="text-on-surface-variant text-caption font-caption">No trips yet</span>
 </div>
 </div>
 <!-- Name & Origin -->
 <div class="mb-space-md">
 <div class="flex items-center gap-space-xs">
-<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Elena R.</h2>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold" id="previewName">@Model.PublicName</h2>
 <span class="material-symbols-outlined text-secondary text-[20px]" title="Community identity checked">check_circle</span>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-2xs mt-[2px]">
 <span class="material-symbols-outlined text-[16px]">location_on</span>
-<span>Toronto, ON · Commuter</span>
+<span id="previewCity">@(string.IsNullOrWhiteSpace(Model.HomeCity) ? "City not set" : Model.HomeCity)</span>
 </p>
 </div>
 <!-- Verification Badges Row -->
 <div class="flex flex-wrap items-center gap-space-xs mb-space-md">
 <span class="inline-flex items-center gap-space-2xs bg-secondary-fixed/40 text-on-secondary-fixed px-space-sm py-[3px] rounded-full font-label-badge text-label-badge">
 <span class="material-symbols-outlined text-[14px]">smartphone</span>
-<span>Phone verified</span>
+<span>@(Model.PhoneVerified ? "Phone verified" : "Phone not verified")</span>
 </span>
 <span class="inline-flex items-center gap-space-2xs bg-surface-container-high text-on-surface-variant px-space-sm py-[3px] rounded-full font-label-badge text-label-badge">
 <span class="material-symbols-outlined text-[14px]">pending</span>
-<span>ID under review</span>
-</span>
-<span class="inline-flex items-center gap-space-2xs bg-surface-container-low text-on-surface-variant px-space-sm py-[3px] rounded-full font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[14px]">verified_user</span>
-<span>Zero cancellation rate</span>
+<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No document uploaded" : Model.DocumentType)</span>
 </span>
 </div>
 <!-- Bio Block Preview -->
 <div class="bg-surface-container-low/60 p-space-md rounded-DEFAULT mb-space-md">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">About Elena</span>
-<p class="font-body-md text-body-md text-on-surface italic" id="previewBio">
-              "Architect commuting between Toronto and Montreal on bi-weekly trips. Love calm podcasts, architecture discussions, or quiet rides."
-            </p>
+<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">About @Model.PublicName</span>
+<p class="font-body-md text-body-md text-on-surface italic" id="previewBio">@(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio provided yet." : "\"" + Model.Bio + "\"")</p>
 </div>
 <!-- Spoken Languages & Commute Vibe -->
 <div class="space-y-space-sm">
 <div>
 <span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">Languages</span>
 <div class="flex items-center gap-space-xs" id="previewLangChips">
-<span class="bg-surface-container px-space-sm py-[2px] rounded-full font-caption text-caption text-on-surface font-medium">English</span>
-<span class="bg-surface-container px-space-sm py-[2px] rounded-full font-caption text-caption text-on-surface font-medium">French</span>
+@if (!chosenLanguages.Any())
+{
+    <span class="text-caption font-caption text-on-surface-variant italic">None selected</span>
+}
+@foreach (var language in chosenLanguages)
+{
+    <span class="bg-surface-container px-space-sm py-[2px] rounded-full font-caption text-caption text-on-surface font-medium">@language</span>
+}
 </div>
 </div>
 <div>

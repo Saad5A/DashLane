@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var AUTH_MESSAGE = "Authentication is not connected yet.";
+  var AUTH_MESSAGE = "Google sign-in is not configured.";
   var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   document.querySelectorAll("[data-stop-label]").forEach(function (button) {
@@ -80,6 +80,16 @@
     });
   });
 
+  var savedGender = document.getElementById("gender");
+  if (savedGender && savedGender.value) {
+    document.querySelectorAll(".gender-pill").forEach(function (button) {
+      var label = button.querySelector("span:last-child");
+      if (label && label.textContent.trim() === savedGender.value) {
+        selectGender(button);
+      }
+    });
+  }
+
   function selectGender(button) {
     var group = button.closest('[role="radiogroup"]');
     var buttons = group.querySelectorAll(".gender-pill");
@@ -95,6 +105,11 @@
 
     button.setAttribute("aria-checked", "true");
     button.className = "gender-pill px-space-md py-2.5 rounded-full bg-primary-container text-on-primary font-label-badge text-label-badge shadow-sm transition-transform active:scale-95 flex items-center gap-1.5";
+    var genderInput = document.getElementById("gender");
+    if (genderInput) {
+      var label = button.querySelector("span:last-child");
+      genderInput.value = label ? label.textContent.trim() : button.textContent.trim();
+    }
     var icon = document.createElement("span");
     icon.className = "material-symbols-outlined text-[16px]";
     icon.textContent = "check_circle";
@@ -183,9 +198,11 @@
       reader.onload = function () {
         if (avatarImage) {
           avatarImage.src = reader.result;
+          avatarImage.style.display = "block";
         }
         if (previewAvatar) {
           previewAvatar.src = reader.result;
+          previewAvatar.style.display = "block";
         }
       };
       reader.readAsDataURL(file);
@@ -248,6 +265,10 @@
 
       card.classList.remove("bg-surface-container-low");
       card.classList.add("bg-surface-container-high", "shadow-sm");
+      var documentType = document.getElementById("documentType");
+      if (documentType) {
+        documentType.value = card.getAttribute("data-document-type") || "";
+      }
       var selected = card.querySelector(".check-icon");
       if (selected) {
         selected.textContent = "check_circle";
@@ -276,20 +297,59 @@
     });
   }
 
-  var finishBtn = document.getElementById("finishBtn");
-  var reviewStatus = document.getElementById("review-status");
-  if (finishBtn) {
-    finishBtn.addEventListener("click", function () {
-      var original = finishBtn.innerHTML;
-      finishBtn.classList.add("opacity-90");
-      finishBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>Redirecting to Feed...</span>';
-      window.setTimeout(function () {
-        finishBtn.innerHTML = original;
-        finishBtn.classList.remove("opacity-90");
-        showStatus(reviewStatus, "The ride feed is not available yet.");
-      }, 900);
+  var profileForm = document.getElementById("profile-form");
+  if (profileForm) {
+    profileForm.addEventListener("submit", function () {
+      var languages = [];
+      document.querySelectorAll(".lang-pill.bg-secondary").forEach(function (pill) {
+        var textSpan = pill.querySelector("span:last-child");
+        if (textSpan) {
+          languages.push(textSpan.textContent.trim());
+        }
+      });
+      var languagesField = document.getElementById("languagesField");
+      if (languagesField) {
+        languagesField.value = languages.join(", ");
+      }
+
+      var preferences = [];
+      document.querySelectorAll(".pref-card.is-selected").forEach(function (card) {
+        var label = card.querySelector(".font-medium");
+        if (label) {
+          preferences.push(label.textContent.trim());
+        }
+      });
+      var preferencesField = document.getElementById("preferencesField");
+      if (preferencesField) {
+        preferencesField.value = preferences.join(", ");
+      }
     });
   }
+
+  var savedPreferences = document.getElementById("preferencesField");
+  if (savedPreferences) {
+    var saved = savedPreferences.value.split(",").map(function (item) { return item.trim(); });
+    document.querySelectorAll(".pref-card").forEach(function (card) {
+      var label = card.querySelector(".font-medium");
+      var text = label ? label.textContent.trim() : "";
+      var icon = card.querySelector(".material-symbols-outlined:last-child");
+      var selected = saved.indexOf(text) >= 0;
+      card.classList.toggle("is-selected", selected);
+      if (icon) {
+        icon.textContent = selected ? "check_circle" : "radio_button_unchecked";
+      }
+    });
+  }
+
+  document.querySelectorAll(".pref-card").forEach(function (card) {
+    card.addEventListener("click", function () {
+      card.classList.toggle("is-selected");
+      var icon = card.querySelector(".material-symbols-outlined:last-child");
+      if (icon) {
+        icon.textContent = card.classList.contains("is-selected") ? "check_circle" : "radio_button_unchecked";
+      }
+    });
+  });
 
   var signup = document.getElementById("signup-form");
   if (!signup) {
@@ -355,42 +415,38 @@
   }
 
   signup.addEventListener("submit", function (event) {
-    event.preventDefault();
     var nameValue = fullName.value.trim();
     var emailValue = email.value.trim();
     var passwordValue = passwordInput.value;
 
+    function reject(message, field) {
+      event.preventDefault();
+      showStatus(signupStatus, message);
+      field.focus();
+    }
+
     if (!nameValue) {
-      showStatus(signupStatus, "Enter your full name.");
-      fullName.focus();
+      reject("Enter your full name.", fullName);
       return;
     }
 
     if (!emailValue) {
-      showStatus(signupStatus, "Enter your email address.");
-      email.focus();
+      reject("Enter your email address.", email);
       return;
     }
 
     if (!emailPattern.test(emailValue)) {
-      showStatus(signupStatus, "Enter a valid email address.");
-      email.focus();
+      reject("Enter a valid email address.", email);
       return;
     }
 
     if (!(passwordValue.length >= 8 && /[0-9]/.test(passwordValue) && /[^A-Za-z0-9]/.test(passwordValue))) {
-      showStatus(signupStatus, "Use at least 8 characters, one number, and one special character.");
-      passwordInput.focus();
+      reject("Use at least 8 characters, one number, and one special character.", passwordInput);
       return;
     }
 
     if (!terms.checked) {
-      showStatus(signupStatus, "Agree to the Terms of Service and Privacy Policy to continue.");
-      terms.focus();
-      return;
+      reject("Agree to the Terms of Service and Privacy Policy to continue.", terms);
     }
-
-    showStatus(signupStatus, "");
-    go(signup.getAttribute("data-next"));
   });
 })();
