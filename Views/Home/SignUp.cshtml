@@ -3,6 +3,9 @@
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "flow-main";
     var authNotice = ViewData["AuthNotice"] as string;
+    var fullNameValue = ViewData["FullName"] as string ?? "";
+    var emailValue = ViewData["Email"] as string ?? "";
+    var memberCount = (int?)ViewData["MemberCount"] ?? 0;
 }
 
 <div class="flow-page">
@@ -20,20 +23,20 @@
 <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">eco</span>
 <span>Collective Transit Impact</span>
 </span>
-<span class="font-caption text-caption text-outline">Real-time stats</span>
+<span class="font-caption text-caption text-outline">From the database</span>
 </div>
 <div class="flex flex-col gap-space-2xs">
 <div class="flex items-baseline gap-space-xs">
-<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight tabular-nums">418,200</span>
-<span class="font-label-numeric text-label-numeric text-secondary font-semibold">kg CO₂ saved</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight tabular-nums">@memberCount</span>
+<span class="font-label-numeric text-label-numeric text-secondary font-semibold">@(memberCount == 1 ? "member" : "members")</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Shared passenger miles prevent thousands of solo commuter journeys weekly across intercity corridors.</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trip counts and emissions will be calculated from rides that members actually publish.</p>
 </div>
 <!-- Mini Inline Sparkline / Flow Visualization -->
 <div class="w-full h-16 bg-surface-container-low rounded p-space-xs flex items-center justify-between gap-space-xs">
 <div class="flex flex-col">
-<span class="font-caption text-caption text-outline">Active Routes Today</span>
-<span class="font-label-numeric text-label-numeric text-on-surface font-semibold">1,482 Corridors</span>
+<span class="font-caption text-caption text-outline">Published routes</span>
+<span class="font-label-numeric text-label-numeric text-on-surface font-semibold">None yet</span>
 </div>
 <svg class="w-32 h-10 text-primary-container" fill="none" viewbox="0 0 128 40" xmlns="http://www.w3.org/2000/svg">
 <path d="M2 30C18 30 24 12 40 18C56 24 64 6 80 14C96 22 108 4 126 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
@@ -82,17 +85,12 @@
 </div>
 <!-- Social Proof Testimonial Pill -->
 <div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm flex items-center gap-space-md">
-<img class="w-12 h-12 rounded-full object-cover shrink-0" data-alt="Close up photographic portrait of a smiling young professional woman wearing a dark coat outdoors with warm golden hour urban lighting." src="~/images/avatars/signup-marcus.jpg"/>
-<div class="flex flex-col min-w-0">
-<div class="flex items-center gap-1 text-tertiary-container mb-0.5">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-[22px]">reviews</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface italic truncate">“Cut my weekly Seattle-Portland commute costs by 65%.”</p>
-<span class="font-caption text-caption text-outline">Marcus V. • Verified Member</span>
+<div class="flex flex-col min-w-0">
+<p class="font-body-sm text-body-sm text-on-surface">Member reviews will appear after completed trips.</p>
+<span class="font-caption text-caption text-outline">No reviews saved yet</span>
 </div>
 </div>
 </div>
@@ -131,7 +129,7 @@
 <label class="font-body-sm text-body-sm font-semibold text-on-surface" for="full-name">Full name</label>
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-space-sm text-outline pointer-events-none text-[20px]">badge</span>
-<input class="w-full h-12 pl-11 pr-space-md rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="full-name" placeholder="e.g. Elena Rostova" required="" type="text"/>
+<input class="w-full h-12 pl-11 pr-space-md rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="full-name" name="fullName" placeholder="Your name" required="" type="text" value="@fullNameValue" autocomplete="name"/>
 </div>
 </div>
 <!-- Email Address -->
@@ -139,7 +137,7 @@
 <label class="font-body-sm text-body-sm font-semibold text-on-surface" for="email-address">Email address</label>
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-space-sm text-outline pointer-events-none text-[20px]">mail</span>
-<input class="w-full h-12 pl-11 pr-space-md rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="email-address" placeholder="elena@@example.com" required="" type="email"/>
+<input class="w-full h-12 pl-11 pr-space-md rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="email-address" name="email" placeholder="name@@example.com" required="" type="email" value="@emailValue" autocomplete="email"/>
 </div>
 </div>
 <!-- Create Password -->
@@ -150,7 +148,7 @@
 </div>
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-space-sm text-outline pointer-events-none text-[20px]">key</span>
-<input class="w-full h-12 pl-11 pr-12 rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="password" autocomplete="off" placeholder="••••••••••••" required="" type="password"/>
+<input class="w-full h-12 pl-11 pr-12 rounded bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all font-body-md text-body-md shadow-sm" id="password" name="password" autocomplete="new-password" placeholder="••••••••••••" required="" type="password"/>
 <button aria-label="Show password" aria-pressed="false" class="absolute right-space-sm text-outline hover:text-on-surface transition-colors p-1 flex items-center justify-center" id="toggle-password" type="button">
 <span class="material-symbols-outlined text-[20px]" id="eye-icon">visibility</span>
 </button>
@@ -177,10 +175,10 @@
 <!-- Terms & Privacy Checkbox -->
 <div class="flex items-start gap-space-sm pt-space-xs">
 <div class="flex items-center h-5">
-<input class="w-4 h-4 rounded text-primary-container focus:ring-0 cursor-pointer accent-primary-container" id="terms" required="" type="checkbox"/>
+<input class="w-4 h-4 rounded text-primary-container focus:ring-0 cursor-pointer accent-primary-container" id="terms" name="terms" value="true" required="" type="checkbox"/>
 </div>
 <label class="font-body-sm text-body-sm text-on-surface-variant leading-tight cursor-pointer" for="terms">
-                I agree to the <button type="button" data-unavailable-message="This page is not available yet." data-status-target="signup-status" data-stop-label class="text-primary-container font-semibold hover:underline" >Terms of Service</button> and acknowledge the <button type="button" data-unavailable-message="This page is not available yet." data-status-target="signup-status" data-stop-label class="text-primary-container font-semibold hover:underline" >Privacy Policy</button>.
+                I agree to the <a class="text-primary-container font-semibold hover:underline" href="@Url.Action("Terms", "Home")" target="_blank" rel="noopener" onclick="event.stopPropagation()">Terms of Service</a> and acknowledge the <a class="text-primary-container font-semibold hover:underline" href="@Url.Action("Privacy", "Home")" target="_blank" rel="noopener" onclick="event.stopPropagation()">Privacy Policy</a>.
               </label>
 </div>
 <p id="signup-status" class="font-body-sm text-body-sm text-error" role="status" aria-live="polite" @(string.IsNullOrEmpty(authNotice) ? "hidden" : null)>@authNotice</p>

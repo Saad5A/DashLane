@@ -19,7 +19,7 @@
                 <span class="header-rule" aria-hidden="true"></span>
                 <div class="encrypt-badge">
                     <span class="material-symbols-outlined icon-14" aria-hidden="true">verified_user</span>
-                    <span>256-bit Encrypted</span>
+                    <span>Local database</span>
                 </div>
             </div>
             <div class="header-tools">
@@ -28,9 +28,20 @@
                     <span class="lang-label">English (US)</span>
                     <span class="material-symbols-outlined icon-16 lang-chevron" aria-hidden="true">expand_more</span>
                 </div>
-                <div class="profile-badge" aria-hidden="true">
-                    <span class="material-symbols-outlined icon-18">person</span>
-                </div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="lang-label">@User.Identity.Name</span>
+                    <form method="post" action="@Url.Action("SignOut", "Home")">
+                        @Html.AntiForgeryToken()
+                        <button type="button" class="footer-link" onclick="this.form.submit()">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <div class="profile-badge" aria-hidden="true">
+                        <span class="material-symbols-outlined icon-18">person</span>
+                    </div>
+                }
             </div>
         </div>
     </header>
@@ -43,12 +54,12 @@
         <div class="auth-footer-inner">
             <div class="cert-lock">
                 <span class="material-symbols-outlined icon-14" aria-hidden="true">lock</span>
-                <span>DashLane Zero-Knowledge Platform • ISO/IEC 27001 Certified</span>
+                <span>DashLane • Accounts are stored in the local database</span>
             </div>
             <nav class="footer-nav" aria-label="Footer">
-                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Terms of Service</button>
-                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Privacy Policy</button>
-                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Security Whitepaper</button>
+                <a class="footer-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
+                <a class="footer-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
+                <a class="footer-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
                 <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Help Center</button>
             </nav>
         </div>

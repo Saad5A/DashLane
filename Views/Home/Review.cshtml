@@ -1,11 +1,16 @@
+@model Member
 @{
     ViewData["Title"] = "Review - DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "flow-main";
+    var notice = ViewData["Notice"] as string;
+    var percent = Model.CompletedSteps * 25;
+    var dobText = Model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "Not entered";
+    var locale = string.Join(" · ", new[] { Model.Gender, Model.HomeCity, Model.PreferredLanguage }.Where(part => !string.IsNullOrWhiteSpace(part)));
 }
 
 <div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
+<p id="flow-status" class="flow-status" role="status" aria-live="polite" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
 <div class="flex flex-col w-full">
 <!-- Stepper Header -->
 <div class="w-full max-w-4xl mx-auto mb-space-xl">
@@ -88,7 +93,7 @@
                 </span>
 </div>
 <p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
-                Your profile is ready! Identity documents are currently being checked by our automated verification partner. You can browse trips now; booking and posting will unlock automatically upon approval.
+                These are the details saved on your account. The ride feed is not available yet.
               </p>
 </div>
 </div>
@@ -96,11 +101,11 @@
 <div class="shrink-0 flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-space-sm rounded-DEFAULT self-start md:self-auto shadow-sm">
 <svg class="w-10 h-10 -rotate-90 text-primary" viewbox="0 0 36 36">
 <path class="text-surface-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
-<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="85, 100" stroke-linecap="round" stroke-width="3.5"></path>
+<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="@percent, 100" stroke-linecap="round" stroke-width="3.5"></path>
 </svg>
 <div class="flex flex-col">
-<span class="font-label-numeric text-label-numeric text-on-surface font-bold">85% Complete</span>
-<span class="font-caption text-caption text-outline">Automated Check</span>
+<span class="font-label-numeric text-label-numeric text-on-surface font-bold">@(percent)% Complete</span>
+<span class="font-caption text-caption text-outline">@Model.CompletedSteps of 4 steps</span>
 </div>
 </div>
 </div>
@@ -122,18 +127,18 @@
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md pt-space-xs">
 <div class="flex flex-col">
 <span class="font-caption text-caption text-on-surface-variant uppercase">Full Legal Name</span>
-<span class="font-body-md text-body-md text-on-surface font-medium mt-0.5">Elena Rostova</span>
+<span class="font-body-md text-body-md text-on-surface font-medium mt-0.5">@(string.IsNullOrWhiteSpace(Model.LegalName) ? "Not entered" : Model.LegalName)</span>
 </div>
 <div class="flex flex-col">
 <span class="font-caption text-caption text-on-surface-variant uppercase">Date of Birth</span>
 <div class="flex items-center gap-space-xs mt-0.5">
-<span class="font-label-numeric text-label-numeric text-on-surface tracking-wider">••/••/1994</span>
+<span class="font-label-numeric text-label-numeric text-on-surface tracking-wider">@dobText</span>
 <span class="font-caption text-caption text-outline-variant bg-surface-container px-1.5 py-0.5 rounded-full text-on-surface-variant">Private</span>
 </div>
 </div>
 <div class="flex flex-col">
 <span class="font-caption text-caption text-on-surface-variant uppercase">Demographics &amp; Locale</span>
-<span class="font-body-md text-body-md text-on-surface mt-0.5">Woman · Toronto, ON · English (CA)</span>
+<span class="font-body-md text-body-md text-on-surface mt-0.5">@(string.IsNullOrWhiteSpace(locale) ? "Not entered" : locale)</span>
 </div>
 </div>
 </div>
@@ -152,36 +157,41 @@
 <div class="flex flex-col md:flex-row items-start gap-space-lg pt-space-xs">
 <div class="flex items-center gap-space-sm shrink-0">
 <div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container shadow-inner">
-<img class="w-full h-full object-cover" data-alt="High quality editorial headshot portrait of Elena Rostova, a 30-year-old female architect with warm approachable smile, soft studio lighting with deep alpine emerald subtle background tones and crisp focus." src="~/images/avatars/elena-rostova.jpg"/>
+@if (string.IsNullOrEmpty(Model.PhotoFileName))
+{
+    <span class="material-symbols-outlined text-[32px] text-on-surface-variant flex h-full items-center justify-center">person</span>
+}
+else
+{
+    <img class="w-full h-full object-cover" alt="" src="@Url.Action("Photo", "Home")" />
+}
 </div>
 <div class="flex flex-col">
-<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Elena R.</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">@Model.PublicName</span>
 <div class="flex items-center gap-1 text-secondary font-caption text-caption">
 <span class="material-symbols-outlined text-[14px]">format_image_left</span>
-<span>ID In Verification</span>
+<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No document" : "Document saved")</span>
 </div>
 </div>
 </div>
 <div class="flex flex-col gap-space-xs flex-1">
 <div>
 <span class="font-caption text-caption text-on-surface-variant uppercase">Bio for Co-Travelers</span>
-<p class="font-body-md text-body-md text-on-surface mt-0.5 italic">
-                  “Architect commuting between Toronto and Montreal on bi-weekly trips. Love calm podcasts, architecture discussions, or quiet rides.”
-                </p>
+<p class="font-body-md text-body-md text-on-surface mt-0.5 italic">@(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio yet." : Model.Bio)</p>
 </div>
 <div class="flex flex-wrap gap-space-xs pt-space-xs">
-<span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-primary">chat</span>
-                  Chatty when spoken to
-                </span>
-<span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-primary">headphones</span>
-                  Podcasts &amp; Low music
-                </span>
-<span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-primary">pets</span>
-                  Pet-friendly
-                </span>
+@if (!Model.LanguageList.Any() && !Model.PreferenceList.Any())
+{
+    <span class="font-label-badge text-label-badge text-on-surface-variant">No languages or preferences saved.</span>
+}
+@foreach (var language in Model.LanguageList)
+{
+    <span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant">@language</span>
+}
+@foreach (var preference in Model.PreferenceList)
+{
+    <span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant">@preference</span>
+}
 </div>
 </div>
 </div>
@@ -204,12 +214,12 @@
 <span class="material-symbols-outlined text-primary text-[20px]">phone_iphone</span>
 <div class="flex flex-col">
 <span class="font-caption text-caption text-on-surface-variant uppercase">Mobile Phone</span>
-<span class="font-label-numeric text-label-numeric text-on-surface">+1 (416) ••• - 0192</span>
+<span class="font-label-numeric text-label-numeric text-on-surface">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not entered" : Model.PhoneNumber)</span>
 </div>
 </div>
 <span class="bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge px-space-xs py-0.5 rounded-full flex items-center gap-1 font-semibold">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                SMS Verified
+                @(Model.PhoneVerified ? "Verified" : "Not verified")
               </span>
 </div>
 <div class="flex items-center justify-between bg-surface-container-low p-space-sm rounded-DEFAULT">
@@ -217,12 +227,12 @@
 <span class="material-symbols-outlined text-primary text-[20px]">alternate_email</span>
 <div class="flex flex-col">
 <span class="font-caption text-caption text-on-surface-variant uppercase">Email Address</span>
-<span class="font-body-md text-body-md text-on-surface font-medium truncate max-w-[180px] sm:max-w-none">elena.rostova@@example.com</span>
+<span class="font-body-md text-body-md text-on-surface font-medium truncate max-w-[180px] sm:max-w-none">@Model.Email</span>
 </div>
 </div>
 <span class="bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge px-space-xs py-0.5 rounded-full flex items-center gap-1 font-semibold">
 <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                Verified
+                Account email
               </span>
 </div>
 </div>
@@ -245,13 +255,13 @@
 <span class="material-symbols-outlined text-[22px] text-primary">front_hand</span>
 </div>
 <div class="flex flex-col">
-<span class="font-headline-sm text-headline-sm text-on-surface font-medium">Canadian Passport</span>
-<span class="font-label-numeric text-label-numeric text-on-surface-variant tracking-wider">•••••••• 8421</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-medium">@(Model.DocumentType ?? "No document")</span>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant tracking-wider">@(string.IsNullOrWhiteSpace(Model.IssuingCountry) ? "Country not set" : Model.IssuingCountry)</span>
 </div>
 </div>
 <div class="flex items-center gap-space-xs bg-secondary-fixed/30 px-space-md py-space-xs rounded-full">
 <span class="material-symbols-outlined text-secondary text-[18px]">hourglass_top</span>
-<span class="font-label-badge text-label-badge text-on-secondary-fixed font-semibold">Under review</span>
+<span class="font-label-badge text-label-badge text-on-secondary-fixed font-semibold">@(string.IsNullOrEmpty(Model.DocumentFileName) ? "Not uploaded" : "Saved")</span>
 </div>
 </div>
 </div>
@@ -263,10 +273,13 @@
 <span>Download verification receipt (PDF)</span>
 </button>
 <div class="flex items-center gap-space-sm w-full sm:w-auto">
-<button class="w-full sm:w-auto bg-primary-container text-on-primary hover:bg-primary font-headline-sm text-headline-sm px-space-xl py-space-sm rounded-full shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-space-xs cursor-pointer active:scale-95" id="finishBtn" type="button">
-<span>Finish setup &amp; Explore Rides</span>
+<form method="post" action="@Url.Action("ReviewConfirm", "Home")">
+@Html.AntiForgeryToken()
+<button class="w-full sm:w-auto bg-primary-container text-on-primary hover:bg-primary font-headline-sm text-headline-sm px-space-xl py-space-sm rounded-full shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-space-xs cursor-pointer active:scale-95" type="submit">
+<span>Finish setup</span>
 <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
 </button>
+</form>
 <p id="review-status" class="font-body-sm text-body-sm text-error w-full" role="status" aria-live="polite" hidden></p>
 </div>
 </div>
@@ -278,7 +291,7 @@
 <span class="font-semibold text-on-surface">DashLane Community Guarantee</span>
 </div>
 <span class="hidden sm:inline">·</span>
-<span>Zero-knowledge identity handling &amp; bank-grade data encryption</span>
+<span>Account details are stored in the local database.</span>
 </div>
 </div>
 </div>

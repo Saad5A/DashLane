@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "Terms of Service - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "legal-main";
+}
+
+<div class="legal-page">
+    <article class="legal-card">
+        <p class="legal-kicker">DashLane Mobility</p>
+        <h1 class="legal-title">Terms of Service</h1>
+        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <p class="legal-lead">
+            These terms describe how you may use the DashLane account and onboarding screens that are available today.
+            Features that are not built yet, such as ride search, booking, payments, and messaging, are not covered as working services.
+        </p>
+
+        <section class="legal-section">
+            <h2>1. Acceptance</h2>
+            <p>
+                By creating an account or continuing to use DashLane, you agree to these Terms of Service and the
+                <a class="legal-inline-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>.
+                If you do not agree, do not create an account.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>2. Eligibility</h2>
+            <p>
+                You must be at least 18 years old. During onboarding you provide a date of birth so DashLane can check that age requirement.
+                You must provide accurate account information and keep it current.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. Accounts</h2>
+            <ul>
+                <li>You are responsible for the email and password you use to sign in.</li>
+                <li>Passwords are stored as irreversible hashes. DashLane does not store your password in plain text.</li>
+                <li>Do not share your account. Tell us if you believe someone else can access it.</li>
+                <li>Google sign-in is not configured in this build and is not offered as a working login method.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>4. Onboarding and identity checks</h2>
+            <p>
+                Before booking or posting rides is available, DashLane asks you to complete profile steps that may include:
+            </p>
+            <ul>
+                <li>Legal name, date of birth, gender, home city, and preferred language</li>
+                <li>A profile photo, bio, languages, and travel preferences</li>
+                <li>A phone number and a verification code</li>
+                <li>A government document upload for identity review</li>
+            </ul>
+            <p>
+                There is no SMS provider in this build. When a verification code is created, it is shown on screen so you can enter it.
+                Document files are stored with your account and are not shown on a public profile.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>5. Acceptable use</h2>
+            <ul>
+                <li>Use DashLane only for lawful purposes.</li>
+                <li>Do not upload false identity documents or pretend to be someone else.</li>
+                <li>Do not attempt to access another member’s account, files, or data.</li>
+                <li>Do not abuse, harass, or threaten other members when ride features become available.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Services that are not available yet</h2>
+            <p>
+                The ride feed, booking, payments, driver posting, live messaging, insurance, and call or SMS relays are not available in this build.
+                Finishing onboarding saves your profile; it does not unlock a marketplace that has not been built.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>7. Local development storage</h2>
+            <p>
+                This application currently stores member accounts in a local SQLite database on the machine running the server.
+                Treat that environment as a development or demonstration system unless you deploy it under your own hosting and legal review.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>8. Suspension</h2>
+            <p>
+                DashLane may refuse, suspend, or delete an account that provides false information, uploads abusive content, or violates these terms.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>9. Disclaimer</h2>
+            <p>
+                DashLane is provided as-is for the features that exist today. We do not promise uninterrupted service, availability of future ride features, or third-party certifications that are not implemented.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>10. Contact</h2>
+            <p>
+                Questions about these terms can be raised through the product owner for this project until a public support channel is published.
+            </p>
+        </section>
+
+        <nav class="legal-nav" aria-label="Related policies">
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
+            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+        </nav>
+    </article>
+</div>

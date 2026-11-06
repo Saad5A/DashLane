@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Security Whitepaper - DashLane";
+    Layout = "_AuthLayout";
+    ViewData["MainClass"] = "legal-main";
+}
+
+<div class="legal-page">
+    <article class="legal-card">
+        <p class="legal-kicker">DashLane Mobility</p>
+        <h1 class="legal-title">Security Whitepaper</h1>
+        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <p class="legal-lead">
+            This page describes the security controls that exist in the current DashLane build.
+            It does not claim certifications, SMS encryption products, or biometric gateways that are not implemented.
+        </p>
+
+        <section class="legal-section">
+            <h2>1. Scope</h2>
+            <p>
+                DashLane today covers account creation, cookie sign-in, and a five-step onboarding flow.
+                Ride marketplace, payments, messaging, and third-party identity APIs are out of scope until they are built.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>2. Authentication</h2>
+            <ul>
+                <li>Email and password sign-in uses ASP.NET Core cookie authentication.</li>
+                <li>Passwords are hashed with ASP.NET Core <code>PasswordHasher</code> before storage.</li>
+                <li>Failed sign-in returns a generic message so the response does not reveal whether the email exists.</li>
+                <li>The auth cookie is HTTP-only and uses sliding expiration. “Remember this device” can keep the session for 14 days.</li>
+                <li>Google OAuth is not configured. The UI reports that clearly instead of simulating a successful Google login.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. Data storage</h2>
+            <ul>
+                <li>Member records live in SQLite at <code>App_Data/dashlane.db</code>.</li>
+                <li>Email addresses are stored normalized and unique.</li>
+                <li>Uploaded photos and documents are saved under <code>App_Data/members/{id}/</code>, outside <code>wwwroot</code>.</li>
+                <li>Profile photos are returned only to the signed-in owner through a controller action.</li>
+                <li>Document files are not publicly linked from profile pages.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>4. Phone verification</h2>
+            <ul>
+                <li>Phone numbers are stored after digit normalization.</li>
+                <li>One-time codes are generated with a cryptographic random number generator.</li>
+                <li>Codes are hashed before storage and expire after 10 minutes.</li>
+                <li>No SMS, WhatsApp, or voice provider is connected. The generated code is shown in the page notice so development testing can continue.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>5. Uploads</h2>
+            <ul>
+                <li>Photos accept JPEG, PNG, and WebP.</li>
+                <li>Documents also accept PDF.</li>
+                <li>Uploads are limited to 10 MB.</li>
+                <li>Saved paths are checked so files cannot leave the member’s own folder.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Application protections</h2>
+            <ul>
+                <li>Form posts that change account data use anti-forgery tokens.</li>
+                <li>Onboarding pages after signup require an authenticated cookie.</li>
+                <li>Passwords are never written to browser <code>localStorage</code> or <code>sessionStorage</code> by DashLane scripts.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>7. What this build does not provide</h2>
+            <ul>
+                <li>No ISO/IEC 27001 certification claim</li>
+                <li>No automatic face match or biometric gateway</li>
+                <li>No encrypted SMS relay or virtual telephony bridge</li>
+                <li>No production hosting hardening beyond the local development server</li>
+            </ul>
+            <p>
+                Those items can be added later with real providers and an updated whitepaper.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>8. Responsible use of the local database</h2>
+            <p>
+                Anyone with filesystem access to the server can read <code>App_Data</code>.
+                Use this build on trusted machines, keep the database out of public repositories, and rotate credentials if the database file is copied.
+            </p>
+        </section>
+
+        <nav class="legal-nav" aria-label="Related policies">
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+        </nav>
+    </article>
+</div>
