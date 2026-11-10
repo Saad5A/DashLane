@@ -1,154 +1,62 @@
 @{
-    ViewData["Title"] = "Getting started - DashLane";
+    ViewData["Title"] = T("Welcome") + " — DashLane";
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "flow-main";
+    var name = (User.Identity?.Name ?? "").Trim();
+    var first = string.IsNullOrEmpty(name) ? "" : name.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];
 }
 
-<div class="flow-page my-auto">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
-<div class="flex flex-col w-full items-center justify-center py-space-md my-auto">
-<!-- Subtle decorative ambient radial glow -->
-<div class="absolute w-[680px] h-[680px] rounded-full bg-secondary-fixed/20 blur-3xl pointer-events-none -z-10 transform -translate-y-12"></div>
-<!-- Main Onboarding Modal Container -->
-<div class="w-full max-w-[820px] bg-surface-container-lowest rounded-lg shadow-xl overflow-hidden flex flex-col transition-all duration-300">
-<!-- Top Progress & Header Bar -->
-<div class="bg-surface-container-low px-space-xl py-space-lg flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-<div class="flex items-center gap-space-sm">
-<div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-on-primary text-[20px]">alt_route</span>
-</div>
-<div>
-<span class="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface">DashLane</span>
-<span class="font-caption text-caption text-on-surface-variant block uppercase tracking-wider">Mobility Network</span>
-</div>
-</div>
-<div class="flex items-center gap-space-xs self-start sm:self-auto bg-surface-container-lowest px-space-md py-space-xs rounded-full shadow-sm">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-<span class="font-label-badge text-label-badge text-primary font-semibold">Step 1 of 6</span>
-<span class="text-on-surface-variant font-caption text-caption">· Getting Started</span>
-</div>
-</div>
-<!-- Core Introduction Content Area -->
-<div class="px-space-xl pt-space-xl pb-space-lg flex flex-col">
-<!-- Headline & Introduction -->
-<div class="max-w-[660px] flex flex-col gap-space-xs mb-space-xl">
-<div class="inline-flex items-center gap-space-xs text-secondary font-label-badge text-label-badge uppercase tracking-wider mb-space-2xs">
-<span class="material-symbols-outlined text-[16px]">groups</span>
-<span>Community Standards &amp; Transit Network</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold leading-tight">
-          A better trip starts with good company.
-        </h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mt-space-2xs">
-          DashLane connects people travelling in the same direction so they can share a ride and split travel costs comfortably.
-        </p>
-</div>
-<!-- 3 Guidance Value Cards Grid -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mb-space-xl">
-<!-- Card 1: Find your route -->
-<div class="bg-surface-container-low/70 hover:bg-surface-container-low transition-colors duration-200 rounded-DEFAULT p-space-lg flex flex-col justify-between group">
-<div>
-<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-space-md shadow-sm group-hover:scale-105 transition-transform duration-200">
-<span class="material-symbols-outlined text-[24px]">explore</span>
-</div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-xs">
-              Find your route
-            </h2>
-<p class="font-body-md text-body-md text-on-surface-variant leading-normal">
-              Choose verified trips that match your schedule and pickup preferences.
-            </p>
-</div>
-<div class="pt-space-md mt-space-sm flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[15px]">pin_drop</span>
-<span>Intelligent Waypoints</span>
-</div>
-</div>
-<!-- Card 2: Get to know your driver -->
-<div class="bg-surface-container-low/70 hover:bg-surface-container-low transition-colors duration-200 rounded-DEFAULT p-space-lg flex flex-col justify-between group">
-<div>
-<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-space-md shadow-sm group-hover:scale-105 transition-transform duration-200">
-<span class="material-symbols-outlined text-[24px]">badge</span>
-</div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-xs">
-              Get to know your driver
-            </h2>
-<p class="font-body-md text-body-md text-on-surface-variant leading-normal">
-              Review government-checked profiles, vehicle specs, and coordinate curbside pickup.
-            </p>
-</div>
-<div class="pt-space-md mt-space-sm flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[15px]">verified</span>
-<span>Phone and document checks</span>
-</div>
-</div>
-<!-- Card 3: Travel considerately -->
-<div class="bg-surface-container-low/70 hover:bg-surface-container-low transition-colors duration-200 rounded-DEFAULT p-space-lg flex flex-col justify-between group">
-<div>
-<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary mb-space-md shadow-sm group-hover:scale-105 transition-transform duration-200">
-<span class="material-symbols-outlined text-[24px]">handshake</span>
-</div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-xs">
-              Travel considerately
-            </h2>
-<p class="font-body-md text-body-md text-on-surface-variant leading-normal">
-              Be punctual, respect shared vehicle guidelines, and communicate along the way.
-            </p>
-</div>
-<div class="pt-space-md mt-space-sm flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[15px]">schedule</span>
-<span>Reliable Timing</span>
-</div>
-</div>
-</div>
-<!-- Trust Visual & Verification Notice Container -->
-<div class="bg-surface-container rounded-DEFAULT p-space-md sm:p-space-lg flex flex-col sm:flex-row items-center gap-space-lg mb-space-xl">
-<div class="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-DEFAULT overflow-hidden shadow-sm">
-<img class="w-full h-full object-cover" data-alt="Close portrait of a cheerful, trustworthy urban commuter looking out of an electric car passenger window in soft early-morning warm natural lighting. Crisp clean atmosphere featuring muted alpine emerald and off-white styling tones with authentic photographic realism." src="~/images/avatars/community-rider.jpg"/>
-<div class="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary shadow">
-<span class="material-symbols-outlined text-[14px]">shield</span>
-</div>
-</div>
-<div class="flex-1 flex flex-col gap-space-2xs">
-<div class="flex items-center gap-space-xs text-on-surface font-label-numeric text-label-numeric font-semibold">
-<span class="material-symbols-outlined text-primary text-[20px]">privacy_tip</span>
-<span>Mandatory Passenger &amp; Driver Baseline</span>
-</div>
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-            Profile setup and basic identity verification are required before you can book a seat or post a ride. This protects everyone on the road.
-          </p>
-<div class="flex items-center gap-space-md mt-space-2xs font-caption text-caption text-secondary font-medium">
-<span class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[14px]">timer</span> Takes under 2 minutes</span>
-<span class="flex items-center gap-[4px]"><span class="material-symbols-outlined text-[14px]">lock_reset</span> Secure and private</span>
-</div>
-</div>
-</div>
-<!-- Action Footer Area -->
-<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-xs">
-<a href="@Url.Action("CommunityStandards", "Home")" class="font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 inline-flex items-center gap-space-2xs group order-2 sm:order-1">
-<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary transition-colors">menu_book</span>
-<span class="underline decoration-outline-variant underline-offset-4 group-hover:decoration-primary">Review community guidelines</span>
-</a>
-<button class="w-full sm:w-auto h-12 px-space-xl bg-primary hover:bg-primary-container active:scale-[0.98] text-on-primary font-headline-sm text-headline-sm rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-space-xs order-1 sm:order-2 cursor-pointer" id="btn-complete-profile" data-flow='@Url.Action("AboutYou", "Home")' type="button">
-<span>Complete my profile</span>
-<span class="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
-</button>
-</div>
-</div>
-<!-- Bottom Metric Ticker -->
-<div class="bg-surface-container-high/40 px-space-xl py-space-sm flex flex-wrap items-center justify-around gap-space-sm text-on-surface-variant font-caption text-caption">
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[16px]">eco</span>
-<span>No shared trips have been posted yet</span>
-</div>
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[16px]">sentiment_satisfied</span>
-<span>Reviews appear after completed trips</span>
-</div>
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[16px]">security</span>
-<span>Zero-tolerance harassment policy</span>
-</div>
-</div>
-</div>
-</div>
+<div class="welcome">
+    <p class="eyebrow eyebrow-accent rise">@(string.IsNullOrEmpty(first) ? T("Welcome to DashLane") : T("Welcome, {0}", first))</p>
+    <h1 class="display rise rise-1">@T("Good trips start with good company.")</h1>
+    <p class="lede rise rise-2">@T("DashLane connects people travelling in the same direction so they can share the drive. A few ground rules first — then five quick setup steps.")</p>
+
+    <div class="journey-road rise rise-3" role="img" aria-label="@T("Five setup steps. Each one unlocks the next.")">
+        <div class="jr-track" aria-hidden="true"><span class="jr-lane"></span><span class="jr-car">@Icon.Get("car", 18)</span></div>
+        <ol class="jr-stops" aria-hidden="true">
+            <li class="is-next"><span class="jr-pin">01</span><span class="jr-label">@T("About you")</span><span class="jr-note">@T("Start here")</span></li>
+            <li><span class="jr-pin">@Icon.Get("lock", 12)</span><span class="jr-label">@T("Profile")</span></li>
+            <li><span class="jr-pin">@Icon.Get("lock", 12)</span><span class="jr-label">@T("Phone")</span></li>
+            <li><span class="jr-pin">@Icon.Get("lock", 12)</span><span class="jr-label">@T("Identity")</span></li>
+            <li><span class="jr-pin">@Icon.Get("lock", 12)</span><span class="jr-label">@T("Review")</span></li>
+        </ol>
+        <p class="jr-caption">@Icon.Get("lock", 13) @T("Each step unlocks the next — you can't skip ahead.")</p>
+    </div>
+
+    <div class="principles rise rise-4">
+        <section class="principle">
+            <span class="num">01</span>
+            <h2>@T("Be who you say you are")</h2>
+            <p>@T("Real name, a recognizable photo, and a verified phone and ID before anyone books.")</p>
+        </section>
+        <section class="principle">
+            <span class="num">02</span>
+            <h2>@T("Show up on time")</h2>
+            <p>@T("Pickups are scheduled. If plans change, tell your co-riders as early as you can.")</p>
+        </section>
+        <section class="principle">
+            <span class="num">03</span>
+            <h2>@T("Respect the ride")</h2>
+            <p>@T("Honour the preferences everyone set — quiet, music, pets, no smoking. Zero tolerance for harassment.")</p>
+        </section>
+    </div>
+
+    <div class="card checklist rise rise-5">
+        <div>
+            <p class="fs-title">@T("What we'll ask for")</p>
+            <ul class="checklist-items">
+                <li>@Icon.Get("user", 15) @T("Name & birthday")</li>
+                <li>@Icon.Get("camera", 15) @T("Photo & bio")</li>
+                <li>@Icon.Get("phone", 15) @T("Mobile number")</li>
+                <li>@Icon.Get("id-card", 15) @T("Government ID")</li>
+            </ul>
+        </div>
+        <a class="btn btn-accent btn-lg" id="btn-complete-profile" href="@Url.Action("AboutYou", "Home")">
+            <span>@T("Start setup")</span>
+            @Icon.Get("arrow-right", 16, "i-nudge")
+        </a>
+    </div>
+
+    <p class="welcome-foot rise rise-5">
+        <a class="link-quiet" href="@Url.Action("CommunityStandards", "Home")">@T("Read the full community standards →")</a>
+    </p>
 </div>

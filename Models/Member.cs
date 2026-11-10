@@ -31,6 +31,12 @@ public class Member
     public string? DocumentFileName { get; set; }
     public DateTime? DocumentSubmittedUtc { get; set; }
 
+    /// <summary>Automated document check result: accept, review, reject, or null when no check ran.</summary>
+    public string? DocumentCheckDecision { get; set; }
+    public string? DocumentCheckSummary { get; set; }
+    public string? DocumentCheckId { get; set; }
+    public DateTime? DocumentCheckedUtc { get; set; }
+
     public DateTime? OnboardingCompletedUtc { get; set; }
 
     public IReadOnlyList<string> LanguageList =>
