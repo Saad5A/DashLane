@@ -136,6 +136,75 @@
     });
   });
 
+  /* ---------- Long documents: build the table of contents and track the active section ---------- */
+
+  var toc = document.querySelector("[data-toc]");
+  if (toc) {
+    var list = toc.querySelector("ol");
+    var sections = all(".legal-section > h2");
+    sections.forEach(function (heading, index) {
+      var section = heading.parentElement;
+      if (!section.id) section.id = "s" + (index + 1);
+      var item = document.createElement("li");
+      var link = document.createElement("a");
+      link.href = "#" + section.id;
+      link.textContent = heading.textContent.replace(/^\d+\.\s*/, "");
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+    if ("IntersectionObserver" in window) {
+      var links = all("a", list);
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (l) { l.classList.toggle("is-active", l.getAttribute("href") === "#" + entry.target.id); });
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      sections.forEach(function (h) { spy.observe(h.parentElement); });
+    }
+  }
+
+  // Give table cells their column name so small screens can show each row as a stacked card.
+  all(".legal-table").forEach(function (table) {
+    var heads = all("thead th", table).map(function (th) { return th.textContent.trim(); });
+    all("tbody tr", table).forEach(function (row) {
+      all("td", row).forEach(function (cell, i) { if (heads[i]) cell.setAttribute("data-label", heads[i]); });
+    });
+  });
+
+  /* ---------- Help centre search ---------- */
+
+  var helpSearch = $("help-search");
+  if (helpSearch) {
+    var faqs = all(".faq");
+    var groups = all(".faq-group");
+    var empty = $("help-empty");
+    var filter = function () {
+      var q = helpSearch.value.trim().toLowerCase();
+      var shown = 0;
+      faqs.forEach(function (faq) {
+        var hit = !q || faq.textContent.toLowerCase().indexOf(q) >= 0;
+        faq.hidden = !hit;
+        if (hit) shown++;
+        if (q && hit) faq.open = true;
+        if (!q) faq.open = false;
+      });
+      groups.forEach(function (group) { group.hidden = !all(".faq", group).some(function (f) { return !f.hidden; }); });
+      empty.hidden = shown > 0;
+    };
+    helpSearch.addEventListener("input", filter);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "/" && document.activeElement !== helpSearch && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+        event.preventDefault();
+        helpSearch.focus();
+      }
+    });
+    if (location.hash && location.hash.length > 1) {
+      var target = document.getElementById(location.hash.slice(1));
+      if (target && target.tagName === "DETAILS") target.open = true;
+    }
+  }
+
   /* ---------- Password reveal ---------- */
 
   all("[data-reveal]").forEach(function (button) {
