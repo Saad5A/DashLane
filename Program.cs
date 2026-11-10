@@ -23,6 +23,8 @@ if (!otpOptions.IsConfigured)
     Console.WriteLine("Warning: SMS codes are not configured. Add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN to .env.");
 }
 
+builder.Services.AddSingleton(builder.Configuration.GetSection(SiteOptions.SectionName).Get<SiteOptions>() ?? new SiteOptions());
+
 var idCheckOptions = builder.Configuration.GetSection(IdCheckOptions.SectionName).Get<IdCheckOptions>() ?? new IdCheckOptions();
 builder.Services.AddSingleton(idCheckOptions);
 if (!idCheckOptions.IsConfigured)

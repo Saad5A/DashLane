@@ -1,0 +1,264 @@
+@{
+    ViewData["Title"] = T("Help Centre") + " — DashLane";
+    Layout = "_AuthLayout";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="help">
+    <header class="help-hero rise">
+        <p class="legal-kicker">@T("Help Centre")</p>
+        <h1 class="legal-title">@T("How can we help?")</h1>
+        <p class="sheet-lede">@T("Answers about your account, verification, privacy and safety on DashLane.")</p>
+        @if (IsFrench)
+        {
+            <p class="notice legal-lang-note">@T("The answers below are currently available in English only.")</p>
+        }
+        <div class="help-search">
+            @Icon.Get("search", 18)
+            <input class="input" id="help-search" type="search" placeholder="@T("Search help")" aria-label="@T("Search help")" autocomplete="off" />
+            <kbd>/</kbd>
+        </div>
+    </header>
+
+    <nav class="help-cats rise rise-1" aria-label="@T("Help topics")">
+        <a class="help-cat" href="#getting-started"><span class="option-icon">@Icon.Get("sparkle", 16)</span><b>@T("Getting started")</b><span>@T("Who can join and how setup works")</span></a>
+        <a class="help-cat" href="#account"><span class="option-icon">@Icon.Get("key", 16)</span><b>@T("Account & sign-in")</b><span>@T("Passwords, Google and signing out")</span></a>
+        <a class="help-cat" href="#verification"><span class="option-icon">@Icon.Get("shield", 16)</span><b>@T("Verification")</b><span>@T("SMS codes and government ID")</span></a>
+        <a class="help-cat" href="#privacy"><span class="option-icon">@Icon.Get("lock", 16)</span><b>@T("Privacy & data")</b><span>@T("What others see and your choices")</span></a>
+    </nav>
+
+    <div class="help-body">
+        <div>
+            <p class="help-empty" id="help-empty" hidden>@T("No answers match that search. Try a different word.")</p>
+
+            <section class="faq-group" id="getting-started">
+                <h2>@Icon.Get("sparkle", 18) Getting started</h2>
+                <details class="faq" id="who-can-join">
+                    <summary>Who can join DashLane? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>DashLane is built for trips between Canadian cities. To finish setup you need to:</p>
+                        <ul>
+                            <li>be <strong>18 or older</strong> (checked against the date of birth you enter);</li>
+                            <li>have a <strong>10-digit mobile number</strong> in the +1 format that can receive SMS;</li>
+                            <li>hold a <strong>Canadian government photo ID</strong>: a driver's licence, a passport, or a provincial photo ID card.</li>
+                        </ul>
+                        <p>Creating an account is free.</p>
+                    </div>
+                </details>
+                <details class="faq" id="setup-steps">
+                    <summary>What are the setup steps? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>There are five steps, completed in order:</p>
+                        <ul>
+                            <li><strong>About you</strong> — legal name, date of birth, and optionally gender, home city and preferred language.</li>
+                            <li><strong>Profile</strong> — a photo, a short bio (up to 300 characters), the languages you speak and your ride preferences.</li>
+                            <li><strong>Phone</strong> — confirm your mobile number with a 6-digit SMS code.</li>
+                            <li><strong>Identity</strong> — upload a photo or PDF of your government ID.</li>
+                            <li><strong>Review</strong> — check everything and confirm.</li>
+                        </ul>
+                    </div>
+                </details>
+                <details class="faq" id="locked-steps">
+                    <summary>Why can't I skip ahead to a later step? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Each step unlocks the next one so every member goes through the same checks. Locked steps show a padlock in the sidebar. If you open a locked step directly, you'll be taken back to the first step you haven't finished. You can always go back to edit a step you've already completed.</p>
+                    </div>
+                </details>
+                <details class="faq" id="rides">
+                    <summary>When can I book or offer a ride? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>The ride feed, booking and payments aren't open yet. Today you can create your account and complete verification so you're ready when they launch. Nothing you do now commits you to a trip or a payment.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section class="faq-group" id="account">
+                <h2>@Icon.Get("key", 18) Account &amp; sign-in</h2>
+                <details class="faq" id="password-rules">
+                    <summary>What are the password requirements? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>At least <strong>8 characters</strong>, including at least <strong>one number</strong> and <strong>one symbol</strong>. Passwords are stored only as a one-way hash, never in plain text.</p>
+                    </div>
+                </details>
+                <details class="faq" id="forgot-password">
+                    <summary>I forgot my password. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Self-serve password reset isn't available yet. If you created your account with Google, use <strong>Continue with Google</strong> to sign in instead. Otherwise, contact support using the details on this page.</p>
+                    </div>
+                </details>
+                <details class="faq" id="google">
+                    <summary>Can I sign in with Google? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Yes, when Google sign-in is enabled for this DashLane site. Google shares your name and email address with DashLane. If an account with that email already exists, Google sign-in is linked to it rather than creating a second account.</p>
+                    </div>
+                </details>
+                <details class="faq" id="stay-signed-in">
+                    <summary>How long do I stay signed in? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>If you tick <strong>Keep me signed in on this device</strong>, your session lasts up to 14 days. Otherwise it ends when you close your browser. Use the sign-out button at the top right on shared computers.</p>
+                    </div>
+                </details>
+                <details class="faq" id="language">
+                    <summary>How do I change the language? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Use the globe menu at the top of any page to choose <strong>English (Canada)</strong>, <strong>Français (Canada)</strong> or <strong>English (United States)</strong>. Your choice is remembered on this browser for one year. Legal documents and these help answers are currently in English only.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section class="faq-group" id="verification">
+                <h2>@Icon.Get("shield", 18) Verification</h2>
+                <details class="faq" id="no-code">
+                    <summary>I didn't receive my SMS code. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <ul>
+                            <li>Check the number: 10 digits, no country code needed (for example 416 555 0199).</li>
+                            <li>Make sure the phone has signal and can receive texts from short codes and unknown numbers.</li>
+                            <li>Wait a minute, then tap <strong>Resend</strong>. Sending too many codes in a short time is temporarily blocked — wait 10 minutes if you see that message.</li>
+                        </ul>
+                        <p>If the page says SMS codes aren't set up, the site operator hasn't connected the SMS service yet.</p>
+                    </div>
+                </details>
+                <details class="faq" id="code-expired">
+                    <summary>My code says it expired or doesn't match. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Codes expire 10 minutes after they're sent and only the most recent code works. After several wrong tries the code is locked. In each case, send a new code and enter it within 10 minutes.</p>
+                    </div>
+                </details>
+                <details class="faq" id="id-documents">
+                    <summary>Which ID documents are accepted? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>A Canadian <strong>driver's licence</strong>, <strong>passport</strong> or <strong>provincial photo ID</strong> card. Upload a JPG, PNG, WebP or PDF up to 10 MB. If you plan to offer rides later, use your driver's licence.</p>
+                    </div>
+                </details>
+                <details class="faq" id="id-check">
+                    <summary>How does the automatic ID check work? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>When it's enabled, photo uploads are sent to our verification provider, ID Analyzer, which reads the document and compares it with the legal name and date of birth you entered. You'll see one of three results:</p>
+                        <ul>
+                            <li><strong>Passed automatic check</strong> — you can continue.</li>
+                            <li><strong>Needs manual review</strong> — you can continue; the document will be looked at by a person.</li>
+                            <li><strong>Didn't pass</strong> — upload a clearer photo of a valid, unexpired document.</li>
+                        </ul>
+                        <p>PDFs aren't checked automatically; they're kept for manual review. There's no face matching or selfie step.</p>
+                    </div>
+                </details>
+                <details class="faq" id="id-failed">
+                    <summary>My ID didn't pass. What should I do? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <ul>
+                            <li>Use the original document — not a photocopy, screenshot or photo of a screen.</li>
+                            <li>Lay it flat with all four corners in frame and avoid flash glare over text.</li>
+                            <li>Make sure the name and date of birth you entered in <strong>About you</strong> match the document exactly.</li>
+                            <li>Check that the document hasn't expired and that you chose the right document type.</li>
+                        </ul>
+                    </div>
+                </details>
+                <details class="faq" id="preview">
+                    <summary>Can I check my upload before submitting? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Yes. After you pick a file, a preview appears under the upload area. Use <strong>Clear</strong> to choose a different file. Once saved, you can open the stored document from the same page; only you can see it.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section class="faq-group" id="privacy">
+                <h2>@Icon.Get("lock", 18) Privacy &amp; data</h2>
+                <details class="faq" id="who-sees">
+                    <summary>What will other members see about me? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Your <strong>first name and last initial</strong>, photo, bio, languages and ride preferences. Your legal name, date of birth, email, phone number and ID document are never shown to other members.</p>
+                    </div>
+                </details>
+                <details class="faq" id="edit-remove">
+                    <summary>How do I change or remove my information? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Open any completed step from the setup sidebar or the <strong>Review</strong> page and choose <strong>Edit</strong>. You can remove your photo on the Profile step and your ID document on the Identity step at any time.</p>
+                    </div>
+                </details>
+                <details class="faq" id="delete-account">
+                    <summary>How do I delete my account? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Self-serve account deletion isn't available yet. Send a deletion request from the email address on your account using the support contact on this page. See the <a href="@Url.Action("Privacy", "Home")">Privacy Policy</a> for how requests are handled.</p>
+                    </div>
+                </details>
+                <details class="faq" id="third-parties">
+                    <summary>Which companies process my data? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Only the services needed for each feature: Twilio (SMS codes), ID Analyzer (automatic ID checks), Google (if you use Google sign-in) and OpenStreetMap (home-city search). Details are in the <a href="@Url.Action("Privacy", "Home")">Privacy Policy</a>. DashLane doesn't sell member data or use advertising trackers.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section class="faq-group" id="safety">
+                <h2>@Icon.Get("users", 18) Safety &amp; conduct</h2>
+                <details class="faq" id="emergency">
+                    <summary>What do I do in an emergency? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Call <strong>911</strong> first. DashLane can't dispatch help. Once you're safe, report what happened to DashLane so we can act on the member's account.</p>
+                    </div>
+                </details>
+                <details class="faq" id="report">
+                    <summary>How do I report a member or a safety concern? @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>In-app reporting will arrive with the ride feed. Until then, email the support contact on this page with the member's name, what happened and when. Read the <a href="@Url.Action("CommunityStandards", "Home")">Community Standards</a> for what we act on.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section class="faq-group" id="troubleshooting">
+                <h2>@Icon.Get("alert", 18) Troubleshooting</h2>
+                <details class="faq" id="signed-out">
+                    <summary>I was signed out unexpectedly. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Sessions end when they expire, when you clear cookies, or if the account behind a session no longer exists. Sign in again; your saved progress is kept with your account.</p>
+                    </div>
+                </details>
+                <details class="faq" id="upload-error">
+                    <summary>My upload is rejected. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Photos must be JPG, PNG or WebP; ID documents can also be PDF. Every file must be under 10 MB. If your phone saves HEIC photos, export or screenshot the image as JPG first.</p>
+                    </div>
+                </details>
+                <details class="faq" id="city">
+                    <summary>My home city doesn't appear in the suggestions. @Icon.Get("plus", 16)</summary>
+                    <div class="faq-a">
+                        <p>Suggestions come from OpenStreetMap and are limited to Canada. Type at least two letters and try the official spelling (for example "Montréal" or "Québec"). You can also type the city name and continue without picking a suggestion.</p>
+                    </div>
+                </details>
+            </section>
+        </div>
+
+        <aside class="help-side">
+            <div class="card">
+                <h3>@Icon.Get("mail", 15) @T("Contact support")</h3>
+                @if (Site.HasSupportEmail)
+                {
+                    <p>@T("Email us and include the address on your account. We'll reply as soon as we can.")</p>
+                    <a class="btn btn-primary btn-block" href="mailto:@Site.SupportEmail">@Site.SupportEmail</a>
+                }
+                else
+                {
+                    <p>@T("This DashLane site hasn't published a support address yet.")</p>
+                }
+            </div>
+            @if (signedIn)
+            {
+                <div class="card">
+                    <h3>@Icon.Get("route", 15) @T("Your setup")</h3>
+                    <p>@T("Pick up where you left off.")</p>
+                    <a class="btn btn-secondary btn-block" href="@Url.Action("SignIn", "Home")">@T("Continue setup")</a>
+                </div>
+            }
+            <div class="card help-emergency">
+                <h3>@Icon.Get("alert", 15) @T("In an emergency")</h3>
+                <p class="num">911</p>
+                <p>@T("Call emergency services first. DashLane can't dispatch help.")</p>
+            </div>
+            <div class="card">
+                <h3>@Icon.Get("book", 15) @T("Policies")</h3>
+                <p><a class="link" href="@Url.Action("CommunityStandards", "Home")">@T("Community Standards")</a><br /><a class="link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a><br /><a class="link" href="@Url.Action("SecurityWhitepaper", "Home")">@T("Security Whitepaper")</a><br /><a class="link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a></p>
+            </div>
+        </aside>
+    </div>
+</div>

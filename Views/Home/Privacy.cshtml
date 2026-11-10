@@ -1,10 +1,11 @@
 ﻿@{
     ViewData["Title"] = T("Privacy Policy") + " — DashLane";
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "legal-main";
 }
 
-<div class="legal-page">
+<div class="legal-page has-toc">
+    <aside class="legal-toc" data-toc aria-label="@T("On this page")"><p>@T("On this page")</p><ol></ol></aside>
+
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
         <h1 class="legal-title">@T("Privacy Policy")</h1>
@@ -13,111 +14,184 @@
         {
             <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
         }
+
         <p class="legal-lead">
-            This policy explains what DashLane collects in the current account and onboarding build, how that information is stored, and what is not shared publicly.
+            This policy explains what personal information DashLane collects, why we collect it, who we share it with, how long we keep it,
+            and the choices and rights you have. It applies to the DashLane website, member accounts and the onboarding and verification process.
         </p>
 
+        <div class="legal-summary">
+            <h2>At a glance</h2>
+            <ul>
+                <li><span>We collect only what we need to <strong>create your account and verify that you are who you say you are</strong>.</span></li>
+                <li><span>Other members only ever see your <strong>first name, last initial, photo, bio, languages and ride preferences</strong>.</span></li>
+                <li><span>We share data only with the <strong>service providers that run a specific feature</strong> (SMS codes, ID checks, Google sign-in, city search).</span></li>
+                <li><span>We <strong>don't sell</strong> personal information and we don't use advertising or analytics trackers.</span></li>
+            </ul>
+        </div>
+
         <section class="legal-section">
-            <h2>1. Who this applies to</h2>
+            <h2>1. Who we are and scope</h2>
             <p>
-                This policy covers the DashLane web app running with a local SQLite database. If you deploy DashLane elsewhere, update this policy to match that hosting environment.
+                “DashLane”, “we” and “us” refer to the operator of this DashLane website. This policy covers information collected through the website
+                and the services described here. Rides, booking, payments and messaging between members are not available yet; this policy will be
+                updated before any of those features collect additional information.
+            </p>
+            <p>
+                We handle personal information in line with the fair information principles of Canada's <em>Personal Information Protection and Electronic Documents Act</em> (PIPEDA):
+                accountability, identifying purposes, consent, limiting collection, limiting use, disclosure and retention, accuracy, safeguards, openness, individual access, and challenging compliance.
             </p>
         </section>
 
         <section class="legal-section">
             <h2>2. Information we collect</h2>
+            <p>We collect information you give us during sign-up and setup, plus a small amount of technical information needed to keep you signed in.</p>
+            <div class="legal-table-wrap">
+                <table class="legal-table">
+                    <thead><tr><th>Category</th><th>What we collect</th><th>When</th></tr></thead>
+                    <tbody>
+                        <tr><td>Account</td><td>Full name, email address, password (stored only as a one-way hash), and a Google account identifier if you use Google sign-in.</td><td>Sign-up</td></tr>
+                        <tr><td>About you</td><td>Legal name and date of birth (required); gender, home city and preferred language (optional).</td><td>Step 1</td></tr>
+                        <tr><td>Profile</td><td>Profile photo, bio, languages you speak and ride preferences.</td><td>Step 2</td></tr>
+                        <tr><td>Contact</td><td>Mobile phone number and whether it has been verified. We don't store verification codes.</td><td>Step 3</td></tr>
+                        <tr><td>Identity</td><td>Document type, issuing country, the uploaded document image or PDF, submission time, and the automatic check result (decision, short summary and the provider's transaction reference).</td><td>Step 4</td></tr>
+                        <tr><td>Technical</td><td>Cookies needed to sign you in, protect forms and remember your language (see section 7). We don't store your IP address with your account.</td><td>Every visit</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>We don't collect payment information, precise location, contacts, or biometric templates.</p>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. How we use your information</h2>
             <ul>
-                <li><strong>Account:</strong> full name, email address, and password hash.</li>
-                <li><strong>About you:</strong> legal name, date of birth, gender, home city, and preferred language.</li>
-                <li><strong>Profile:</strong> optional photo, bio, spoken languages, and travel preferences.</li>
-                <li><strong>Contact:</strong> phone number, whether it is verified, and a hashed verification code with an expiry time.</li>
-                <li><strong>Identity:</strong> document type, issuing country, uploaded document file name, submission time, and the result of the automatic document check (decision, short summary, and the ID Analyzer transaction reference).</li>
-                <li><strong>Session:</strong> an HTTP-only authentication cookie after you sign in.</li>
+                <li><strong>Provide your account</strong> — create it, sign you in and save your setup progress.</li>
+                <li><strong>Confirm eligibility</strong> — check that you are 18 or older and that you hold a mobile number and a Canadian government ID.</li>
+                <li><strong>Verify identity</strong> — confirm your phone number by SMS and check that your ID document appears genuine and matches the name and date of birth you entered.</li>
+                <li><strong>Build trust between members</strong> — show your public profile card to other members once rides are available.</li>
+                <li><strong>Keep DashLane safe</strong> — investigate reports, enforce the <a class="legal-inline-link" href="@Url.Action("CommunityStandards", "Home")">Community Standards</a> and prevent fraud or duplicate accounts.</li>
+                <li><strong>Communicate with you</strong> — send verification codes and respond to support requests.</li>
             </ul>
+            <p>We don't use your information for advertising. If a document doesn't pass the automatic check, you can upload it again or contact us to ask for a person to review it.</p>
         </section>
 
         <section class="legal-section">
-            <h2>3. How we use the information</h2>
+            <h2>4. Consent</h2>
+            <p>
+                By creating an account you consent to the collection and use of your information for the purposes above. Identity verification is a condition
+                of using DashLane because it protects other members. You can withdraw consent at any time by removing your information or asking us to delete
+                your account (see section 9); you then won't be able to use features that depend on verification.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>5. Who we share information with</h2>
+            <p>We share personal information only with service providers that perform a specific function for us, and only the information that function needs.</p>
+            <div class="legal-table-wrap">
+                <table class="legal-table">
+                    <thead><tr><th>Provider</th><th>Purpose</th><th>Information shared</th></tr></thead>
+                    <tbody>
+                        <tr><td>Twilio (Verify)</td><td>Send and check SMS verification codes</td><td>Your mobile number, the code you enter, and your language preference.</td></tr>
+                        <tr><td>ID Analyzer</td><td>Automatic ID document checks</td><td>The document photo you upload, your legal name and date of birth. PDFs are not sent.</td></tr>
+                        <tr><td>Google</td><td>Optional Google sign-in</td><td>Google sends us your name, email and an account identifier; we don't send Google your DashLane data.</td></tr>
+                        <tr><td>OpenStreetMap (Nominatim)</td><td>Home-city suggestions</td><td>The text you type in the city field. The request is made from our server, so your IP address isn't sent.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>
+                We may also disclose information if required by law, to respond to a valid legal request, or to protect someone's safety in an emergency.
+                Other members never receive your private information. <strong>We don't sell or rent personal information.</strong>
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Processing outside Canada</h2>
+            <p>
+                Some of our service providers process information outside Canada, including in the United States. While it is there, it may be subject to
+                the laws of that country and accessible to its authorities. Information sent to providers is encrypted in transit, and each provider receives
+                only what it needs.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>7. Cookies and similar technologies</h2>
+            <p>DashLane uses only cookies that are needed for the site to work. There are no advertising or analytics cookies.</p>
+            <div class="legal-table-wrap">
+                <table class="legal-table">
+                    <thead><tr><th>Name</th><th>Purpose</th><th>Duration</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>dashlane.auth</code></td><td>Keeps you signed in. HTTP-only.</td><td>Browser session, or 14 days if you choose to stay signed in</td></tr>
+                        <tr><td><code>dashlane.external</code></td><td>Holds the Google sign-in result while your account is linked.</td><td>5 minutes</td></tr>
+                        <tr><td><code>.AspNetCore.Antiforgery.*</code></td><td>Protects forms against cross-site request forgery.</td><td>Browser session</td></tr>
+                        <tr><td><code>.AspNetCore.Culture</code></td><td>Remembers the language you chose.</td><td>1 year</td></tr>
+                        <tr><td><code>.AspNetCore.Mvc.CookieTempDataProvider</code></td><td>Carries a one-time message between pages (for example, “finish this step first”).</td><td>Until the message is shown</td></tr>
+                        <tr><td><code>dl-intro-seen</code> (local storage)</td><td>Remembers that you've seen the welcome animation.</td><td>Until you clear site data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="legal-section">
+            <h2>8. How long we keep information</h2>
             <ul>
-                <li>Create and sign you into your account</li>
-                <li>Confirm you are 18 or older</li>
-                <li>Save onboarding progress</li>
-                <li>Verify a phone number with a one-time code</li>
-                <li>Store a government document for later identity review</li>
-                <li>Show you the details you already entered on review screens</li>
+                <li><strong>Account and profile information</strong> is kept while your account is open.</li>
+                <li><strong>Your photo and ID document</strong> are deleted from our storage as soon as you remove them on the Profile or Identity step.</li>
+                <li><strong>Verification codes</strong> are never stored by DashLane; Twilio expires them after 10 minutes.</li>
+                <li><strong>Information sent to service providers</strong> is retained according to each provider's own retention settings.</li>
             </ul>
-            <p>
-                DashLane does not sell member data. There is no advertising network or analytics vendor wired into this build.
-            </p>
+            <p>When we delete an account, we remove its database record and its uploaded files.</p>
         </section>
 
         <section class="legal-section">
-            <h2>4. What stays private</h2>
+            <h2>9. Your rights and choices</h2>
             <ul>
-                <li>Date of birth is used for age checks and is not shown on public ride cards.</li>
-                <li>Document files are stored outside the public web folder and are not served as public profile images.</li>
-                <li>Passwords are hashed. Plain-text passwords are not written to the database or browser storage.</li>
-                <li>Verification codes are generated, stored, and checked by Twilio Verify. DashLane never stores the code and never shows it on screen.</li>
+                <li><strong>Access and correction</strong> — you can see and edit everything you've provided from the setup steps and the Review page. You can also ask us for a copy of the personal information we hold about you.</li>
+                <li><strong>Removal</strong> — you can remove your photo and ID document yourself at any time. Self-serve account deletion isn't available yet; send a request from the email address on your account and we'll delete your account and files.</li>
+                <li><strong>Withdraw consent</strong> — you can stop using DashLane and ask us to delete your account at any time.</li>
+                <li><strong>Complain</strong> — if you're not satisfied with how we handle a request, you can contact the Office of the Privacy Commissioner of Canada.</li>
             </ul>
+            <p>We respond to access and deletion requests within 30 days and may ask you to confirm your identity first.</p>
         </section>
 
         <section class="legal-section">
-            <h2>5. Storage and security</h2>
+            <h2>10. Children</h2>
+            <p>DashLane is for adults. You must be 18 or older to complete setup, and we don't knowingly collect information from anyone under 18. If we learn that we have, we'll delete it.</p>
+        </section>
+
+        <section class="legal-section">
+            <h2>11. Security</h2>
             <p>
-                Member records are saved in SQLite at <code>App_Data/dashlane.db</code> on the server machine.
-                Uploaded photos and documents are saved under <code>App_Data/members/</code>.
-                More detail is in the
-                <a class="legal-inline-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>.
+                We protect personal information with safeguards appropriate to its sensitivity, including password hashing, access-restricted file storage
+                and protections against common web attacks. No system is perfectly secure; if a breach creates a real risk of significant harm, we'll notify
+                affected members and report it as required by law. Details are in the <a class="legal-inline-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>.
             </p>
         </section>
 
         <section class="legal-section">
-            <h2>6. Sharing</h2>
-            <p>
-                When Google sign-in is enabled, Google receives the OAuth request and returns your Google account email and name so DashLane can create or link a local member record.
-                To send and check a verification code, your phone number and the code you enter are sent to Twilio Verify (twilio.com), which delivers the SMS.
-                When automatic ID checks are enabled, the document photo you upload, your legal name, and your date of birth are sent to ID Analyzer (idanalyzer.com) to read and cross-check the document. PDF uploads are not sent.
-                When you search for a home city, the text you type is sent to OpenStreetMap's Nominatim service.
-                This build does not send account data to payment processors or analytics services.
-            </p>
+            <h2>12. Changes to this policy</h2>
+            <p>We'll update the date at the top when this policy changes. If a change materially affects how we use information we already hold, we'll tell members before it takes effect.</p>
         </section>
 
         <section class="legal-section">
-            <h2>7. Cookies</h2>
-            <p>
-                DashLane uses a cookie named <code>dashlane.auth</code> to keep you signed in.
-                The cookie is HTTP-only. If you choose “Remember this device,” the cookie can last up to 14 days.
-            </p>
-        </section>
-
-        <section class="legal-section">
-            <h2>8. Retention</h2>
-            <p>
-                Account data remains until the account is deleted from the local database or the database file is removed.
-                There is no automated purge workflow in this build.
-            </p>
-        </section>
-
-        <section class="legal-section">
-            <h2>9. Your choices</h2>
-            <ul>
-                <li>You can edit onboarding details by returning to the earlier steps while signed in.</li>
-                <li>You can sign out from the header.</li>
-                <li>Requesting full account deletion currently requires removing the member record from the database until a self-serve delete flow is built.</li>
-            </ul>
-        </section>
-
-        <section class="legal-section">
-            <h2>10. Changes</h2>
-            <p>
-                When this policy changes, the “Last updated” date above will change. Continued use after an update means you accept the revised policy for this development build.
-            </p>
+            <h2>13. Contact</h2>
+            <p>Questions, access requests and deletion requests can be sent to our privacy contact.</p>
+            <div class="legal-contact">
+                @if (Site.HasSupportEmail)
+                {
+                    <span>Privacy contact: <a href="mailto:@Site.SupportEmail">@Site.SupportEmail</a></span>
+                }
+                else
+                {
+                    <span>This DashLane site hasn't published a privacy contact address yet.</span>
+                }
+            </div>
         </section>
 
         <nav class="legal-nav" aria-label="Related policies">
             <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
             <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">@T("Security Whitepaper")</a>
-            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">@T("Back to welcome")</a>
+            <a class="legal-nav-link" href="@Url.Action("CommunityStandards", "Home")">@T("Community Standards")</a>
+            <a class="legal-nav-link" href="@Url.Action("Help", "Home")">@T("Help Centre")</a>
         </nav>
     </article>
 </div>

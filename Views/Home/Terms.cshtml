@@ -1,10 +1,11 @@
 @{
     ViewData["Title"] = T("Terms of Service") + " — DashLane";
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "legal-main";
 }
 
-<div class="legal-page">
+<div class="legal-page has-toc">
+    <aside class="legal-toc" data-toc aria-label="@T("On this page")"><p>@T("On this page")</p><ol></ol></aside>
+
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
         <h1 class="legal-title">@T("Terms of Service")</h1>
