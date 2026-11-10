@@ -1,383 +1,130 @@
 @model Member
 @{
-    ViewData["Title"] = "Identity verification - DashLane";
+    ViewData["Title"] = T("Verify your identity") + " — DashLane";
+    ViewData["Step"] = 4;
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "flow-main";
     var notice = ViewData["Notice"] as string;
+    var noticeOk = ViewData["NoticeKind"] as string == "ok";
+    var hasFile = !string.IsNullOrEmpty(Model.DocumentFileName);
+    var savedIsPdf = hasFile && Model.DocumentFileName!.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+    var documents = new[]
+    {
+        ("car", "Driver's Licence", T("Needed to offer rides later")),
+        ("book", "Passport", T("Fine for booking seats")),
+        ("id-card", "Provincial Photo ID", T("Fine for booking seats")),
+    };
+    var (checkClass, checkLabel) = Model.DocumentCheckDecision switch
+    {
+        "accept" => ("tag-ok", T("Passed automatic check")),
+        "review" => ("tag-accent", T("Needs manual review")),
+        "reject" => ("tag-err", T("Didn't pass")),
+        _ => ("", T("Not checked automatically"))
+    };
 }
 
-<div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
-<div class="flex flex-col w-full max-w-[1080px] mx-auto py-space-md">
-<!-- Top Progress & Step Flow -->
-<div class="w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm mb-space-lg">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md mb-space-md">
-<div>
-<span class="inline-flex items-center gap-space-2xs px-space-xs py-[2px] rounded-full bg-secondary-fixed/40 text-on-secondary-fixed font-label-badge text-label-badge mb-space-2xs">
-<span class="material-symbols-outlined text-[14px]">shield_person</span>
-          Safety &amp; Compliance Step
-        </span>
-<h2 class="font-headline-sm text-headline-sm text-on-surface">Member Verification Pipeline</h2>
-</div>
-<div class="flex items-center gap-space-xs font-label-numeric text-label-numeric text-primary">
-<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
-<span>Stage 4 of 5 (80% Complete)</span>
-</div>
-</div>
-<!-- Multi-step Timeline -->
-<div class="grid grid-cols-2 sm:grid-cols-5 gap-space-xs pt-space-xs">
-<!-- Step 1 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full rounded-full bg-primary"></div>
-<div class="flex items-center gap-space-2xs text-on-surface font-caption text-caption">
-<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span class="font-semibold truncate">1. About You</span>
-</div>
-</div>
-<!-- Step 2 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full rounded-full bg-primary"></div>
-<div class="flex items-center gap-space-2xs text-on-surface font-caption text-caption">
-<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span class="font-semibold truncate">2. Profile</span>
-</div>
-</div>
-<!-- Step 3 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full rounded-full bg-primary"></div>
-<div class="flex items-center gap-space-2xs text-on-surface font-caption text-caption">
-<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span class="font-semibold truncate">3. Contact</span>
-</div>
-</div>
-<!-- Step 4 (Current) -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full rounded-full bg-primary"></div>
-<div class="flex items-center gap-space-2xs text-primary font-caption text-caption">
-<span class="material-symbols-outlined text-[15px] text-primary" style="font-variation-settings: 'FILL' 1;">radio_button_checked</span>
-<span class="font-bold truncate">4. Identity</span>
-</div>
-</div>
-<!-- Step 5 -->
-<div class="flex flex-col gap-space-2xs opacity-50">
-<div class="h-1.5 w-full rounded-full bg-surface-container-high"></div>
-<div class="flex items-center gap-space-2xs text-on-surface-variant font-caption text-caption">
-<span class="material-symbols-outlined text-[15px]">radio_button_unchecked</span>
-<span class="truncate">5. Review</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Primary Content Grid (65/35 Split) -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-<!-- Left Main Column (Verification Form & Upload) -->
-<div class="lg:col-span-8 flex flex-col gap-space-lg">
-<section class="bg-surface-container-lowest rounded-lg p-space-xl shadow-sm">
-<!-- Header Section -->
-<div class="mb-space-lg">
-<div class="flex items-center gap-space-xs text-primary font-label-badge text-label-badge mb-space-2xs">
-<span class="material-symbols-outlined text-[16px]">verified</span>
-<span>Step 4 of 5 · Identity Verification</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-on-surface mb-space-xs">Verify your identity</h1>
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-            To keep our travel community safe, we confirm the identity of all passengers and drivers before booking or posting trips. Your documents remain strictly confidential and encrypted at rest.
-          </p>
-</div>
-<form method="post" enctype="multipart/form-data" action="@Url.Action("Identity", "Home")">
-@Html.AntiForgeryToken()
-<input type="hidden" name="documentType" id="documentType" value="@Model.DocumentType" />
-<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<div class="mb-space-lg bg-surface-container-low rounded-xl p-space-sm flex items-center gap-space-sm shadow-sm">
-<span class="text-[22px]" aria-hidden="true">🇨🇦</span>
-<div>
-<div class="font-label-numeric text-label-numeric text-on-surface font-semibold">Canada</div>
-<div class="font-caption text-caption text-on-surface-variant">Canadian government ID only</div>
-</div>
-</div>
-<!-- Document Type Selector -->
-<div class="mb-space-xl">
-<label class="block font-label-badge text-label-badge text-on-surface-variant uppercase tracking-wider mb-space-xs">
-            Select Document Type
-          </label>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm" id="docTypeGroup">
-<!-- Driver License Card -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Driver's Licence" data-selected="false">
-<div class="flex items-start justify-between mb-space-sm">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
-<span class="material-symbols-outlined text-[20px]">directions_car</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] check-icon">radio_button_unchecked</span>
-</div>
-<div>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-2xs">Driver's Licence</h3>
-<span class="inline-block px-space-2xs py-[2px] rounded bg-secondary-fixed/50 text-on-secondary-fixed font-caption text-caption">Required to post rides</span>
-</div>
-</div>
-<!-- Passport Card (Selected Default) -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Passport" data-selected="false">
-<div class="flex items-start justify-between mb-space-sm">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
-<span class="material-symbols-outlined text-[20px]">public</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] check-icon">radio_button_unchecked</span>
-</div>
-<div>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-2xs">Passport</h3>
-<span class="inline-block px-space-2xs py-[2px] rounded bg-secondary-fixed/50 text-on-secondary-fixed font-caption text-caption">Accepted for passenger booking</span>
-</div>
-</div>
-<!-- National ID Card -->
-<div class="cursor-pointer rounded-xl p-space-md bg-surface-container-low hover:bg-surface-container transition-all flex flex-col justify-between doc-card" data-document-type="Provincial Photo ID" data-selected="false">
-<div class="flex items-start justify-between mb-space-sm">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
-<span class="material-symbols-outlined text-[20px]">badge</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] check-icon">radio_button_unchecked</span>
-</div>
-<div>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold mb-space-2xs">Provincial Photo ID</h3>
-<span class="inline-block px-space-2xs py-[2px] rounded bg-surface-variant text-on-surface-variant font-caption text-caption">Identity confirmation only</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Focused Upload Zone -->
-<div class="bg-surface-container-low rounded-xl p-space-lg mb-space-lg">
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs mb-space-md">
-<div>
-<span class="font-label-numeric text-label-numeric text-on-surface font-bold">Your document</span>
-<p class="font-caption text-caption text-on-surface-variant">Submit the full biographical spread including photo and machine-readable zone</p>
-</div>
-<div class="inline-flex items-center gap-space-2xs px-space-xs py-space-2xs rounded-full bg-secondary-fixed/50 text-on-secondary-fixed font-label-badge text-label-badge self-start sm:self-auto">
-<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
-<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No file uploaded" : "File saved")</span>
-</div>
-</div>
-<!-- Document Preview Card Mockup -->
-<div class="relative bg-surface-container-lowest rounded-xl p-space-md shadow-md overflow-hidden">
-<!-- Background subtle pattern representing passport pages -->
-<div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#005c55_1px,transparent_1px)] [background-size:16px_16px]"></div>
-<div class="relative flex flex-col sm:flex-row gap-space-md items-center">
-<!-- Passport Photo Mockup -->
-<div class="relative w-full sm:w-44 h-48 sm:h-36 rounded-lg overflow-hidden flex-shrink-0 shadow-sm bg-surface-dim">
-<div class="w-full h-full flex items-center justify-center text-on-surface-variant">
-<span class="material-symbols-outlined text-[40px]">id_card</span>
-</div>
-<div class="absolute bottom-1 right-1 px-space-2xs py-[1px] bg-inverse-surface/80 backdrop-blur rounded text-inverse-on-surface font-caption text-[10px] flex items-center gap-[2px]">
-<span class="material-symbols-outlined text-[10px] text-secondary-fixed">face</span>
-<span>Not checked automatically</span>
-</div>
-</div>
-<!-- Passport Data Mockup Representation -->
-<div class="w-full flex flex-col justify-between gap-space-xs min-w-0">
-<div class="flex items-center justify-between gap-space-xs">
-<div class="flex items-center gap-space-2xs">
-<span class="material-symbols-outlined text-primary text-[20px]">auto_stories</span>
-<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant font-bold">Passport / Passeport</span>
-</div>
-<span class="font-caption text-caption text-on-surface-variant font-mono">CAN · Type P</span>
-</div>
-<!-- Redacted data bars representing privacy -->
-<div class="space-y-1.5 py-space-2xs">
-<div class="flex items-center gap-space-xs">
-<span class="font-caption text-caption text-on-surface-variant w-20">Surname:</span>
-<span class="font-label-numeric text-label-numeric font-bold text-on-surface">@(string.IsNullOrWhiteSpace(Model.LegalName) ? "Not entered" : Model.LegalName)</span>
-</div>
-<div class="flex items-center gap-space-xs">
-<span class="font-caption text-caption text-on-surface-variant w-20">Given Names:</span>
-<span class="font-label-numeric text-label-numeric text-on-surface">@(Model.DocumentType ?? "Not selected")</span>
-</div>
-<div class="flex items-center gap-space-xs">
-<span class="font-caption text-caption text-on-surface-variant w-20">Doc Number:</span>
-<div class="flex items-center gap-1 font-mono text-body-sm text-outline">
-<span>CA•••</span>
-<span class="h-2.5 w-14 bg-surface-variant rounded"></span>
-<span class="text-caption text-primary flex items-center"><span class="material-symbols-outlined text-[13px]">lock</span> Encrypted</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Upload Meta & Inline Actions Bar -->
-<div class="mt-space-md pt-space-sm flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-low -mx-space-md -mb-space-md p-space-sm">
-<div class="flex items-center gap-space-2xs text-on-surface-variant font-caption text-caption">
-<span class="material-symbols-outlined text-[16px] text-secondary">image</span>
-<span>@(Model.DocumentFileName ?? "No file yet")</span>
-<span>•</span>
-<span>Private to this account</span>
-</div>
-<div class="flex items-center gap-space-sm">
-<label class="inline-flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-primary-container transition-colors cursor-pointer" for="documentFile">
-<span class="material-symbols-outlined text-[16px]">cached</span>
-<span>Choose file</span>
-</label>
-<input class="hidden" id="documentFile" name="document" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
-<button class="inline-flex items-center gap-1 font-label-badge text-label-badge text-error hover:opacity-80 transition-opacity" type="submit" name="removeDocument" value="true" formnovalidate>
-<span class="material-symbols-outlined text-[16px]">delete</span>
-<span>Remove</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-<!-- Image Quality Checklist Box -->
-<div class="rounded-xl p-space-md bg-surface-container mb-space-lg">
-<h4 class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant mb-space-sm flex items-center gap-space-2xs font-bold">
-<span class="material-symbols-outlined text-[18px] text-primary">fact_check</span>
-            Quality &amp; Legibility Verification Standard
-          </h4>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
-<div class="flex items-start gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span>All 4 corners of document clearly visible</span>
-</div>
-<div class="flex items-start gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span>No harsh flash glare or deep shadows over text</span>
-</div>
-<div class="flex items-start gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span>Biometric photo and alphanumeric rows are sharp</span>
-</div>
-<div class="flex items-start gap-space-xs text-error font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-error text-[18px] flex-shrink-0">cancel</span>
-<span>No photocopies, printed screenshots, or display photos</span>
-</div>
-</div>
-</div>
-<!-- Passenger vs Driver Clarification Banner -->
-<div class="rounded-xl p-space-md bg-secondary-fixed/20 text-on-secondary-fixed flex items-start gap-space-md mb-space-lg">
-<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center flex-shrink-0 shadow-sm">
-<span class="material-symbols-outlined text-[20px]">local_police</span>
-</div>
-<div>
-<h4 class="font-headline-sm text-headline-sm text-on-secondary-fixed font-bold mb-space-2xs">Passenger vs. Driver Requirements</h4>
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              Passengers only need one government ID to book shared routes. If you plan to offer seats and publish journeys in the future, you can securely submit your provincial Driver's Licence and vehicle registration via the <span class="font-semibold text-primary">Driver Hub</span> at any time.
-            </p>
-</div>
-</div>
-<!-- Privacy & End-to-End Handling Disclaimer -->
-<div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-low text-on-surface-variant font-caption text-caption leading-relaxed">
-<span class="material-symbols-outlined text-primary text-[18px] flex-shrink-0">lock</span>
-<p>
-            The file stays on this account. It is not shown on a public profile, and no automatic face match runs.
-          </p>
-</div>
-<!-- Navigation Buttons -->
-<div class="mt-space-xl pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md">
-<button class="w-full sm:w-auto h-12 px-space-lg rounded-full bg-surface-container text-on-surface font-label-numeric text-label-numeric hover:bg-surface-container-high transition-colors flex items-center justify-center gap-space-xs" type="button" data-flow='@Url.Action("Contact", "Home")'>
-<span class="material-symbols-outlined text-[18px]">arrow_back</span>
-<span>Back to Contact Info</span>
-</button>
-<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary font-label-numeric text-label-numeric shadow-md hover:bg-primary transition-all active:scale-95 flex items-center justify-center gap-space-xs font-semibold" type="submit">
-<span class="material-symbols-outlined text-[18px]">verified_user</span>
-<span>Submit for Verification</span>
-</button>
-</div>
-</form>
-</section>
-</div>
-<!-- Right Sidebar Column (Trust, Benefits & Verification Metrics) -->
-<div class="lg:col-span-4 flex flex-col gap-space-md">
-<!-- Trust & Verification Metric Card -->
-<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm">
-<div class="flex items-center gap-space-xs text-primary font-label-badge text-label-badge mb-space-xs">
-<span class="material-symbols-outlined text-[18px]">drive_file_rename_outline</span>
-<span>Zero-Fraud Community</span>
-</div>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold mb-space-2xs">Why DashLane verifies every member</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
-          Identity-verified carpooling reduces last-minute trip cancellations by 84% and fosters genuine accountability between co-travelers.
-        </p>
-<!-- Inline Visual Metric Progress -->
-<div class="p-space-sm rounded-xl bg-surface-container-low mb-space-md">
-<div class="flex items-center justify-between text-caption font-caption mb-space-2xs">
-<span class="text-on-surface-variant font-medium">Community Trust Score</span>
-<span class="text-primary font-bold">99.4% Verified</span>
-</div>
-<div class="w-full h-2 rounded-full bg-surface-container">
-<div class="h-2 rounded-full bg-primary" style="width: 99.4%;"></div>
-</div>
-<div class="mt-space-2xs flex items-center justify-between text-[11px] text-on-surface-variant font-caption">
-<span>Over 140,000 active riders</span>
-<span class="flex items-center gap-[2px] text-secondary font-semibold">
-<span class="material-symbols-outlined text-[12px]">trending_up</span> +3,200 this week
-            </span>
-</div>
-</div>
-<!-- Badges Earned List -->
-<div class="space-y-space-sm">
-<div class="flex items-start gap-space-sm">
-<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 text-secondary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-[18px]">check_circle</span>
-</div>
-<div>
-<div class="font-label-badge text-label-badge text-on-surface font-bold">Instant Booking Access</div>
-<div class="font-caption text-caption text-on-surface-variant">Reserve seats immediately without driver review delay</div>
-</div>
-</div>
-<div class="flex items-start gap-space-sm">
-<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 text-secondary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-[18px]">shield</span>
-</div>
-<div>
-<div class="font-label-badge text-label-badge text-on-surface font-bold">Verified Passenger Badge</div>
-<div class="font-caption text-caption text-on-surface-variant">Visible to top-rated 5-star drivers on all intercity routes</div>
-</div>
-</div>
-<div class="flex items-start gap-space-sm">
-<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 text-secondary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-[18px]">lock_reset</span>
-</div>
-<div>
-<div class="font-label-badge text-label-badge text-on-surface font-bold">Automated Depersonalization</div>
-<div class="font-caption text-caption text-on-surface-variant">Raw files purged following automated algorithmic review</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Live Support / Security Card -->
-<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm">
-<div class="flex items-center gap-space-sm mb-space-sm">
-<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-[20px]">support_agent</span>
-</div>
-<div>
-<h4 class="font-label-numeric text-label-numeric font-bold text-on-surface">Need help uploading?</h4>
-<p class="font-caption text-caption text-on-surface-variant">Our support specialists review documents within 10 minutes</p>
-</div>
-</div>
-<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between">
-<div class="flex items-center gap-space-xs font-caption text-caption text-on-surface-variant">
-<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
-<span>Verification queue: Fast (&lt; 4 mins)</span>
-</div>
-<button class="font-label-badge text-label-badge text-primary hover:underline font-bold" type="button" data-unavailable-message="Live chat is not available yet." data-status-target="flow-status">Chat Now</button>
-</div>
-</div>
-<!-- Photographic Community Spotlight -->
-<div class="bg-surface-container-lowest rounded-lg p-space-md shadow-sm overflow-hidden relative">
-<div class="relative h-28 w-full rounded-lg overflow-hidden mb-space-sm">
-<img class="w-full h-full object-cover" data-alt="Modern high-speed intercity electric car driving through a scenic Pacific Northwest highway at golden hour, sharp sunlight catching the sleek vehicle contours, green alpine forests in the background, calm and trustworthy highway travel vibe." src="~/images/avatars/highway-car.jpg"/>
-<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent flex items-end p-space-sm">
-<span class="font-caption text-caption text-inverse-on-surface font-medium flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-secondary-fixed">route</span>
-              Montreal ↔ Quebec City Corridor
-            </span>
-</div>
-</div>
-<p class="font-caption text-caption text-on-surface-variant italic">
-          "Knowing all my passengers have verified IDs makes every 300km trip feel relaxed and completely safe."
-        </p>
-<div class="mt-space-2xs flex items-center gap-space-xs">
-<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-caption text-[10px] font-bold">M</div>
-<span class="font-label-badge text-label-badge text-on-surface font-semibold">Marc T.</span>
-<span class="font-caption text-caption text-on-surface-variant">· 48 shared rides</span>
-</div>
-</div>
-</div>
-</div>
-</div>
+<div class="setup">
+    <partial name="_SetupSteps" model="Model" />
+
+    <div class="sheet">
+        <header class="sheet-head rise">
+            <p class="eyebrow">@T("Step") 04 / 05</p>
+            <h1 class="sheet-title">@T("Verify your identity")</h1>
+            <p class="sheet-lede">@T("Upload one Canadian government ID. It's stored privately on your account and never shown on your profile.")</p>
+        </header>
+
+        <p id="flow-status" class="notice notice-err" role="status" aria-live="polite" hidden="@(TempData["GateNotice"] is not string)">@TempData["GateNotice"]</p>
+
+        <div class="sheet-grid">
+            <form class="card form-card rise rise-1" method="post" enctype="multipart/form-data" action="@Url.Action("Identity", "Home")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="documentType" id="documentType" value="@Model.DocumentType" />
+
+                @if (!string.IsNullOrEmpty(notice))
+                {
+                    <div class="form-notice"><p class="notice @(noticeOk ? "notice-ok" : "notice-err")" role="status">@notice</p></div>
+                }
+
+                <section class="form-section is-stacked">
+                    <div>
+                        <h2 class="fs-title">@T("Document type")</h2>
+                        <p class="fs-sub">@T("Planning to drive? Use your licence.")</p>
+                    </div>
+                    <div class="options options-3" id="docTypeGroup" role="radiogroup" aria-label="@T("Document type")" data-radio-group="documentType">
+                        @foreach (var (icon, name, sub) in documents)
+                        {
+                            <div class="option option-stack doc-card" role="radio" aria-checked="false" tabindex="-1" data-value="@name">
+                                <span class="option-icon">@Icon.Get(icon, 16)</span>
+                                <span class="option-body">
+                                    <span class="option-title">@T(name)</span>
+                                    <span class="option-sub">@sub</span>
+                                </span>
+                                <span class="option-mark">@Icon.Get("check", 11)</span>
+                            </div>
+                        }
+                    </div>
+                </section>
+
+                <section class="form-section is-stacked">
+                    <div>
+                        <h2 class="fs-title">@T("Upload")</h2>
+                        <p class="fs-sub">@T("Photo page or front side. All four corners visible, no glare. Photos get an automatic check; PDFs are reviewed manually.")</p>
+                    </div>
+
+                    <label class="drop" id="doc-drop" for="documentFile">
+                        <span class="drop-icon">@Icon.Get("upload", 18)</span>
+                        <span class="drop-title" id="doc-drop-title">@T("Drop a file or") <u>@T("browse")</u></span>
+                        <span class="drop-sub" id="doc-drop-sub">@T("JPG, PNG, WebP or PDF · up to 10 MB")</span>
+                        <input class="file-input" id="documentFile" name="document" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
+                    </label>
+
+                    <figure class="doc-preview" id="doc-preview" hidden="@(!hasFile)" data-label-new="@T("New file — not uploaded yet")" data-label-saved="@T("Saved document")">
+                        <figcaption class="doc-preview-bar">
+                            @Icon.Get("file", 15, "subtle")
+                            <span class="name" id="doc-preview-name">@(hasFile ? Model.DocumentFileName : "")</span>
+                            <span class="tag" id="doc-preview-state">@T("Saved document")</span>
+                            @if (hasFile)
+                            {
+                                <a class="btn btn-ghost btn-sm" id="doc-preview-open" href="@Url.Action("Document", "Home")" target="_blank" rel="noopener">@Icon.Get("arrow-up-right", 13) @T("Open")</a>
+                            }
+                            <button type="button" class="btn btn-ghost btn-sm" id="doc-preview-clear" hidden>@T("Clear")</button>
+                        </figcaption>
+                        <div class="doc-preview-body">
+                            <img id="doc-preview-img" alt="@T("Preview of your ID document")" src="@(hasFile && !savedIsPdf ? Url.Action("Document", "Home") : null)" hidden="@(!hasFile || savedIsPdf)" />
+                            <iframe id="doc-preview-pdf" title="@T("Preview of your ID document")" src="@(savedIsPdf ? Url.Action("Document", "Home") : null)" hidden="@(!savedIsPdf)"></iframe>
+                        </div>
+                    </figure>
+
+                    @if (hasFile)
+                    {
+                        <div class="file-row">
+                            <span class="tag @checkClass">@checkLabel</span>
+                            <span class="check-summary">@(string.IsNullOrWhiteSpace(Model.DocumentCheckSummary) ? T("No automatic check has run on this file.") : CheckSummary(Model.DocumentCheckSummary))</span>
+                            <button type="submit" class="btn btn-danger btn-sm" name="removeDocument" value="true" formnovalidate>@Icon.Get("trash", 14) @T("Remove")</button>
+                        </div>
+                    }
+                </section>
+
+                <div class="form-actions">
+                    <a class="btn btn-ghost" href="@Url.Action("Contact", "Home")">@Icon.Get("arrow-left", 16) @T("Back")</a>
+                    <span class="grow"></span>
+                    <span class="aside">@Icon.Get("lock", 13) @T("Private to your account")</span>
+                    <button class="btn btn-primary" type="submit" data-busy>
+                        <span>@T("Submit")</span>
+                        @Icon.Get("arrow-right", 16, "i-nudge")
+                    </button>
+                </div>
+            </form>
+
+            <aside class="card side-card rise rise-2">
+                <p class="side-title">@Icon.Get("shield", 15) @T("Before you upload")</p>
+                <ul class="checks">
+                    <li class="status-line"><span class="dot dot-ok"></span>@T("All four corners in frame")</li>
+                    <li class="status-line"><span class="dot dot-ok"></span>@T("No flash glare over text")</li>
+                    <li class="status-line"><span class="dot dot-ok"></span>@T("Photo and numbers are sharp")</li>
+                    <li class="status-line"><span class="dot dot-err"></span>@T("No photocopies or screenshots")</li>
+                </ul>
+                <p class="side-text">@T("The automatic check reads the document and compares it with the legal name and date of birth you entered:") <strong>@(string.IsNullOrWhiteSpace(Model.LegalName) ? T("not entered yet") : Model.LegalName)</strong>.</p>
+            </aside>
+        </div>
+    </div>
 </div>

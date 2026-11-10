@@ -1,298 +1,166 @@
 @model Member
+@using Microsoft.AspNetCore.Html
 @{
-    ViewData["Title"] = "Review - DashLane";
+    ViewData["Title"] = T("Review and confirm") + " — DashLane";
+    ViewData["Step"] = 5;
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "flow-main";
     var notice = ViewData["Notice"] as string;
-    var percent = Model.CompletedSteps * 25;
-    var dobText = Model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "Not entered";
-    var locale = string.Join(" · ", new[] { Model.Gender, Model.HomeCity, Model.PreferredLanguage }.Where(part => !string.IsNullOrWhiteSpace(part)));
+    var noticeOk = ViewData["NoticeKind"] as string == "ok";
+    var done = Model.CompletedSteps;
+    var percent = done * 25;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    var circumference = 2 * Math.PI * 36;
+    var offset = circumference * (1 - percent / 100.0);
+    var finished = Model.OnboardingCompletedUtc.HasValue && done == 4;
+    var aboutDone = Model.DateOfBirth.HasValue && !string.IsNullOrWhiteSpace(Model.LegalName);
+    var profileDone = Model.ProfileCompletedUtc.HasValue;
+    var idDone = !string.IsNullOrWhiteSpace(Model.DocumentFileName);
+    var languageNames = new Dictionary<string, string> { ["en-CA"] = "English (Canada)", ["fr-CA"] = "Français (Canada)", ["es"] = "Español", ["en-US"] = "English (US)" };
+    var notProvided = T("Not provided");
+    string Or(string? value, string? fallback = null) => string.IsNullOrWhiteSpace(value) ? (fallback ?? notProvided) : value;
+    string Missing(string? value) => string.IsNullOrWhiteSpace(value) ? "is-missing" : "";
+    var (checkClass, checkLabel) = Model.DocumentCheckDecision switch
+    {
+        "accept" => ("tag-ok", T("Passed automatic check")),
+        "review" => ("tag-accent", T("Needs manual review")),
+        "reject" => ("tag-err", T("Didn't pass")),
+        _ => ("", T("Not checked automatically"))
+    };
+    IHtmlContent Num(bool isDone, string n) => isDone ? Icon.Get("check", 12) : new HtmlString(n);
 }
 
-<div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<div class="flex flex-col w-full">
-<!-- Stepper Header -->
-<div class="w-full max-w-4xl mx-auto mb-space-xl">
-<div class="flex items-center justify-between relative">
-<!-- Background Track -->
-<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[3px] bg-surface-container rounded-full z-0"></div>
-<!-- Progress Bar Active (100% since Step 5 is active final) -->
-<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[3px] bg-primary rounded-full z-0 transition-all duration-500"></div>
-<!-- Step 1 -->
-<div class="relative z-10 flex flex-col items-center group cursor-pointer">
-<div class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
-<span class="material-symbols-outlined text-[18px]">check</span>
-</div>
-<span class="mt-space-xs font-caption text-caption text-on-surface font-semibold hidden sm:block">1. About you</span>
-</div>
-<!-- Step 2 -->
-<div class="relative z-10 flex flex-col items-center group cursor-pointer">
-<div class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
-<span class="material-symbols-outlined text-[18px]">check</span>
-</div>
-<span class="mt-space-xs font-caption text-caption text-on-surface font-semibold hidden sm:block">2. Profile</span>
-</div>
-<!-- Step 3 -->
-<div class="relative z-10 flex flex-col items-center group cursor-pointer">
-<div class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
-<span class="material-symbols-outlined text-[18px]">check</span>
-</div>
-<span class="mt-space-xs font-caption text-caption text-on-surface font-semibold hidden sm:block">3. Contact</span>
-</div>
-<!-- Step 4 -->
-<div class="relative z-10 flex flex-col items-center group cursor-pointer">
-<div class="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
-<span class="material-symbols-outlined text-[18px]">check</span>
-</div>
-<span class="mt-space-xs font-caption text-caption text-on-surface font-semibold hidden sm:block">4. Identity</span>
-</div>
-<!-- Step 5: Active -->
-<div class="relative z-10 flex flex-col items-center">
-<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-lg ring-4 ring-primary-fixed/40">
-<span class="font-label-numeric text-label-numeric font-bold">5</span>
-</div>
-<span class="mt-space-xs font-caption text-caption text-primary font-bold hidden sm:block">5. Review</span>
-</div>
-</div>
-</div>
-<!-- Main Card Container -->
-<div class="w-full max-w-4xl mx-auto flex flex-col gap-space-lg">
-<!-- Card Surface Level 1 -->
-<div class="bg-surface-container-lowest rounded-lg p-space-xl md:p-space-2xl shadow-[0_1px_3px_rgba(15,23,42,0.04),0_4px_12px_rgba(15,23,42,0.03)] flex flex-col gap-space-xl">
-<!-- Header Section -->
-<div class="flex flex-col gap-space-xs">
-<div class="flex items-center gap-space-xs">
-<span class="bg-secondary-fixed/40 text-on-secondary-fixed font-label-badge text-label-badge px-space-sm py-[3px] rounded-full flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px]">flag</span>
-            Step 5 of 5 · Final Review
-          </span>
-<span class="font-caption text-caption text-outline font-medium tracking-wide uppercase">Onboarding Complete</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-on-surface mt-space-2xs">
-          Review your details &amp; verification status
-        </h1>
-<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
-          Please check your profile details below before finalizing your setup. Your information ensures trust and mutual safety across the DashLane passenger community.
-        </p>
-</div>
-<!-- Verification Status Highlight Box (Prominent Top Banner) -->
-<div class="bg-surface-container-low rounded-DEFAULT p-space-lg relative overflow-hidden shadow-sm">
-<div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-secondary-fixed/20 pointer-events-none blur-2xl"></div>
-<div class="flex flex-col md:flex-row md:items-start justify-between gap-space-md relative z-10">
-<div class="flex items-start gap-space-md">
-<div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
-<span class="material-symbols-outlined text-[24px]">verified</span>
-</div>
-<div class="flex flex-col gap-space-2xs">
-<div class="flex flex-wrap items-center gap-space-xs">
-<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Identity Review in Progress</span>
-<span class="bg-secondary-fixed text-on-secondary-fixed font-label-badge text-label-badge px-space-xs py-[2px] rounded-full inline-flex items-center gap-1">
-<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-                  Pending Review · Typically under 15 minutes
-                </span>
-</div>
-<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
-                These are the details saved on your account. The ride feed is not available yet.
-              </p>
-</div>
-</div>
-<!-- Micro Progress Chart Indicator -->
-<div class="shrink-0 flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-space-sm rounded-DEFAULT self-start md:self-auto shadow-sm">
-<svg class="w-10 h-10 -rotate-90 text-primary" viewbox="0 0 36 36">
-<path class="text-surface-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
-<path class="text-primary stroke-current" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="@percent, 100" stroke-linecap="round" stroke-width="3.5"></path>
-</svg>
-<div class="flex flex-col">
-<span class="font-label-numeric text-label-numeric text-on-surface font-bold">@(percent)% Complete</span>
-<span class="font-caption text-caption text-outline">@Model.CompletedSteps of 4 steps</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Summary Sections List -->
-<div class="flex flex-col gap-space-md">
-<!-- 1. Personal Details -->
-<div class="bg-surface-container-lowest rounded-DEFAULT p-space-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-xs text-primary font-headline-sm text-headline-sm font-semibold">
-<span class="material-symbols-outlined text-[20px]">badge</span>
-<span>1. Personal Details</span>
-</div>
-<button class="flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-secondary font-semibold transition-colors px-space-xs py-1 rounded-DEFAULT hover:bg-surface-container-low cursor-pointer" data-flow='@Url.Action("AboutYou", "Home")'>
-<span class="material-symbols-outlined text-[16px]">edit</span>
-              Edit
-            </button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md pt-space-xs">
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Full Legal Name</span>
-<span class="font-body-md text-body-md text-on-surface font-medium mt-0.5">@(string.IsNullOrWhiteSpace(Model.LegalName) ? "Not entered" : Model.LegalName)</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Date of Birth</span>
-<div class="flex items-center gap-space-xs mt-0.5">
-<span class="font-label-numeric text-label-numeric text-on-surface tracking-wider">@dobText</span>
-<span class="font-caption text-caption text-outline-variant bg-surface-container px-1.5 py-0.5 rounded-full text-on-surface-variant">Private</span>
-</div>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Demographics &amp; Locale</span>
-<span class="font-body-md text-body-md text-on-surface mt-0.5">@(string.IsNullOrWhiteSpace(locale) ? "Not entered" : locale)</span>
-</div>
-</div>
-</div>
-<!-- 2. Public Profile & Bio -->
-<div class="bg-surface-container-lowest rounded-DEFAULT p-space-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-xs text-primary font-headline-sm text-headline-sm font-semibold">
-<span class="material-symbols-outlined text-[20px]">account_circle</span>
-<span>2. Public Profile &amp; Bio</span>
-</div>
-<button class="flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-secondary font-semibold transition-colors px-space-xs py-1 rounded-DEFAULT hover:bg-surface-container-low cursor-pointer" data-flow='@Url.Action("Profile", "Home")'>
-<span class="material-symbols-outlined text-[16px]">edit</span>
-              Edit
-            </button>
-</div>
-<div class="flex flex-col md:flex-row items-start gap-space-lg pt-space-xs">
-<div class="flex items-center gap-space-sm shrink-0">
-<div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container shadow-inner">
-@if (string.IsNullOrEmpty(Model.PhotoFileName))
-{
-    <span class="material-symbols-outlined text-[32px] text-on-surface-variant flex h-full items-center justify-center">person</span>
-}
-else
-{
-    <img class="w-full h-full object-cover" alt="" src="@Url.Action("Photo", "Home")" />
-}
-</div>
-<div class="flex flex-col">
-<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">@Model.PublicName</span>
-<div class="flex items-center gap-1 text-secondary font-caption text-caption">
-<span class="material-symbols-outlined text-[14px]">format_image_left</span>
-<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No document" : "Document saved")</span>
-</div>
-</div>
-</div>
-<div class="flex flex-col gap-space-xs flex-1">
-<div>
-<span class="font-caption text-caption text-on-surface-variant uppercase">Bio for Co-Travelers</span>
-<p class="font-body-md text-body-md text-on-surface mt-0.5 italic">@(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio yet." : Model.Bio)</p>
-</div>
-<div class="flex flex-wrap gap-space-xs pt-space-xs">
-@if (!Model.LanguageList.Any() && !Model.PreferenceList.Any())
-{
-    <span class="font-label-badge text-label-badge text-on-surface-variant">No languages or preferences saved.</span>
-}
-@foreach (var language in Model.LanguageList)
-{
-    <span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant">@language</span>
-}
-@foreach (var preference in Model.PreferenceList)
-{
-    <span class="bg-surface-container px-space-sm py-1 rounded-full font-label-badge text-label-badge text-on-surface-variant">@preference</span>
-}
-</div>
-</div>
-</div>
-</div>
-<!-- 3. Contact Verification -->
-<div class="bg-surface-container-lowest rounded-DEFAULT p-space-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-xs text-primary font-headline-sm text-headline-sm font-semibold">
-<span class="material-symbols-outlined text-[20px]">contact_phone</span>
-<span>3. Contact Verification</span>
-</div>
-<button class="flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-secondary font-semibold transition-colors px-space-xs py-1 rounded-DEFAULT hover:bg-surface-container-low cursor-pointer" data-flow='@Url.Action("Contact", "Home")'>
-<span class="material-symbols-outlined text-[16px]">edit</span>
-              Edit
-            </button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md pt-space-xs">
-<div class="flex items-center justify-between bg-surface-container-low p-space-sm rounded-DEFAULT">
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[20px]">phone_iphone</span>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Mobile Phone</span>
-<span class="font-label-numeric text-label-numeric text-on-surface">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not entered" : Model.PhoneNumber)</span>
-</div>
-</div>
-<span class="bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge px-space-xs py-0.5 rounded-full flex items-center gap-1 font-semibold">
-<span class="material-symbols-outlined text-[14px]">check_circle</span>
-                @(Model.PhoneVerified ? "Verified" : "Not verified")
-              </span>
-</div>
-<div class="flex items-center justify-between bg-surface-container-low p-space-sm rounded-DEFAULT">
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-primary text-[20px]">alternate_email</span>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Email Address</span>
-<span class="font-body-md text-body-md text-on-surface font-medium truncate max-w-[180px] sm:max-w-none">@Model.Email</span>
-</div>
-</div>
-<span class="bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge px-space-xs py-0.5 rounded-full flex items-center gap-1 font-semibold">
-<span class="material-symbols-outlined text-[14px]">check_circle</span>
-                Account email
-              </span>
-</div>
-</div>
-</div>
-<!-- 4. Identity Submission -->
-<div class="bg-surface-container-lowest rounded-DEFAULT p-space-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-xs text-primary font-headline-sm text-headline-sm font-semibold">
-<span class="material-symbols-outlined text-[20px]">security</span>
-<span>4. Identity Submission</span>
-</div>
-<button class="flex items-center gap-1 font-label-badge text-label-badge text-primary hover:text-secondary font-semibold transition-colors px-space-xs py-1 rounded-DEFAULT hover:bg-surface-container-low cursor-pointer" data-flow='@Url.Action("Identity", "Home")'>
-<span class="material-symbols-outlined text-[16px]">upload_file</span>
-              Update document
-            </button>
-</div>
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md pt-space-xs">
-<div class="flex items-center gap-space-md">
-<div class="w-12 h-9 bg-surface-container rounded flex items-center justify-center text-on-surface-variant font-caption text-caption font-bold">
-<span class="material-symbols-outlined text-[22px] text-primary">front_hand</span>
-</div>
-<div class="flex flex-col">
-<span class="font-headline-sm text-headline-sm text-on-surface font-medium">@(Model.DocumentType ?? "No document")</span>
-<span class="font-label-numeric text-label-numeric text-on-surface-variant tracking-wider">Canadian government ID</span>
-</div>
-</div>
-<div class="flex items-center gap-space-xs bg-secondary-fixed/30 px-space-md py-space-xs rounded-full">
-<span class="material-symbols-outlined text-secondary text-[18px]">hourglass_top</span>
-<span class="font-label-badge text-label-badge text-on-secondary-fixed font-semibold">@(string.IsNullOrEmpty(Model.DocumentFileName) ? "Not uploaded" : "Saved")</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Action Panel & Next Steps -->
-<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-lg mt-space-xs bg-surface-container-lowest">
-<button type="button" data-unavailable-message="This page is not available yet." data-status-target="flow-status" data-stop-label class="font-body-sm text-body-sm text-primary hover:text-secondary transition-colors flex items-center gap-space-xs underline" >
-<span class="material-symbols-outlined text-[18px]">download</span>
-<span>Download verification receipt (PDF)</span>
-</button>
-<div class="flex items-center gap-space-sm w-full sm:w-auto">
-<form method="post" action="@Url.Action("ReviewConfirm", "Home")">
-@Html.AntiForgeryToken()
-<button class="w-full sm:w-auto bg-primary-container text-on-primary hover:bg-primary font-headline-sm text-headline-sm px-space-xl py-space-sm rounded-full shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-space-xs cursor-pointer active:scale-95" type="submit">
-<span>Finish setup</span>
-<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-</button>
-</form>
-<p id="review-status" class="font-body-sm text-body-sm text-error w-full" role="status" aria-live="polite" hidden></p>
-</div>
-</div>
-</div>
-<!-- Trust Assurance Footer -->
-<div class="flex flex-col sm:flex-row items-center justify-center gap-space-xs text-center font-caption text-caption text-on-surface-variant py-space-xs">
-<div class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
-<span class="font-semibold text-on-surface">DashLane Community Guarantee</span>
-</div>
-<span class="hidden sm:inline">·</span>
-<span>Account details are stored in the local database.</span>
-</div>
-</div>
-</div>
+<div class="setup">
+    <partial name="_SetupSteps" model="Model" />
+
+    <div class="sheet">
+        <header class="sheet-head rise">
+            <p class="eyebrow">@T("Step") 05 / 05</p>
+            <h1 class="sheet-title">@(finished ? T("You're all set") : T("Review and confirm"))</h1>
+            <p class="sheet-lede">@(finished ? T("Your profile is saved. We'll let you know as soon as the ride feed opens.") : T("Check everything once. You can edit any section before you confirm."))</p>
+        </header>
+
+        <p id="flow-status" class="notice notice-err" role="status" aria-live="polite" hidden="@(TempData["GateNotice"] is not string)">@TempData["GateNotice"]</p>
+
+        @if (finished && notice == null)
+        {
+            <div class="done-banner rise rise-1">
+                <span class="tick">@Icon.Get("check", 16)</span>
+                <span>@T("Setup completed on") <span class="mono">@Model.OnboardingCompletedUtc!.Value.ToLocalTime().ToString("yyyy-MM-dd")</span></span>
+            </div>
+        }
+
+        <div class="card form-card rise rise-1">
+            @if (!string.IsNullOrEmpty(notice))
+            {
+                <div class="form-notice"><p class="notice @(noticeOk ? "notice-ok" : "notice-err")" role="status">@notice</p></div>
+            }
+
+            <div class="review-hero">
+                <div class="ring" role="img" aria-label="@percent%">
+                    <svg viewBox="0 0 84 84" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#ffbd21" />
+                                <stop offset="1" stop-color="#ea580c" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="42" cy="42" r="36" />
+                        <circle class="fill" cx="42" cy="42" r="36" stroke-dasharray="@circumference.ToString("0.##", inv)" stroke-dashoffset="@offset.ToString("0.##", inv)" />
+                    </svg>
+                    <span class="ring-label tabular">@percent%</span>
+                </div>
+                <div>
+                    <p class="fs-title">@(done == 4 ? T("Every step is complete") : T("{0} of 4 steps left", 4 - done))</p>
+                    <p class="fs-sub">@T("{0} of 4 verification steps done.", done)</p>
+                </div>
+            </div>
+
+            <ol class="review-list">
+                <li class="review-item @(aboutDone ? "is-done" : "")">
+                    <span class="review-num">@Num(aboutDone, "01")</span>
+                    <div>
+                        <p class="review-title">@T("About you")</p>
+                        <dl class="review-data">
+                            <div><dt>@T("Legal name")</dt><dd class="@Missing(Model.LegalName)">@Or(Model.LegalName)</dd></div>
+                            <div><dt>@T("Date of birth")</dt><dd class="@(Model.DateOfBirth == null ? "is-missing" : "mono")">@(Model.DateOfBirth?.ToString("yyyy-MM-dd") ?? notProvided)</dd></div>
+                            <div><dt>@T("Home city")</dt><dd class="@Missing(Model.HomeCity)">@Or(Model.HomeCity)</dd></div>
+                            <div><dt>@T("Gender")</dt><dd class="@Missing(Model.Gender)">@(string.IsNullOrWhiteSpace(Model.Gender) ? notProvided : T(Model.Gender))</dd></div>
+                            <div><dt>@T("Language")</dt><dd class="@Missing(Model.PreferredLanguage)">@(Model.PreferredLanguage != null && languageNames.TryGetValue(Model.PreferredLanguage, out var ln) ? ln : Or(Model.PreferredLanguage))</dd></div>
+                        </dl>
+                    </div>
+                    <a class="btn btn-ghost btn-sm" href="@Url.Action("AboutYou", "Home")">@Icon.Get("pencil", 13) @T("Edit")</a>
+                </li>
+
+                <li class="review-item @(profileDone ? "is-done" : "")">
+                    <span class="review-num">@Num(profileDone, "02")</span>
+                    <div>
+                        <div class="preview-id">
+                            <div class="avatar avatar-sm">
+                                @Icon.Get("user", 18)
+                                @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+                                {
+                                    <img alt="" src="@Url.Action("Photo", "Home")" />
+                                }
+                            </div>
+                            <p class="review-title">@T("Profile") <span class="review-aside">· @T("shown as") @Model.PublicName</span></p>
+                        </div>
+                        <p class="review-bio">@(string.IsNullOrWhiteSpace(Model.Bio) ? T("No bio yet.") : Model.Bio)</p>
+                        @if (Model.LanguageList.Any() || Model.PreferenceList.Any())
+                        {
+                            <div class="preview-langs">
+                                @foreach (var language in Model.LanguageList)
+                                {
+                                    <span class="tag">@T(language)</span>
+                                }
+                                @foreach (var preference in Model.PreferenceList)
+                                {
+                                    <span class="tag tag-accent">@T(preference)</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <a class="btn btn-ghost btn-sm" href="@Url.Action("Profile", "Home")">@Icon.Get("pencil", 13) @T("Edit")</a>
+                </li>
+
+                <li class="review-item @(Model.PhoneVerified ? "is-done" : "")">
+                    <span class="review-num">@Num(Model.PhoneVerified, "03")</span>
+                    <div>
+                        <p class="review-title">@T("Contact") @if (Model.PhoneVerified) { <span class="tag tag-ok">@T("Verified")</span> } else { <span class="tag">@T("Not verified")</span> }</p>
+                        <dl class="review-data">
+                            <div><dt>@T("Mobile")</dt><dd class="@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "is-missing" : "mono")">@Or(Model.PhoneNumber)</dd></div>
+                            <div><dt>@T("Email")</dt><dd>@Model.Email</dd></div>
+                        </dl>
+                    </div>
+                    <a class="btn btn-ghost btn-sm" href="@Url.Action("Contact", "Home")">@Icon.Get("pencil", 13) @T("Edit")</a>
+                </li>
+
+                <li class="review-item @(idDone ? "is-done" : "")">
+                    <span class="review-num">@Num(idDone, "04")</span>
+                    <div>
+                        <p class="review-title">@T("Identity") @if (idDone) { <span class="tag @checkClass">@checkLabel</span> } else { <span class="tag">@T("Not uploaded")</span> }</p>
+                        <dl class="review-data">
+                            <div><dt>@T("Document")</dt><dd class="@Missing(Model.DocumentType)">@(string.IsNullOrWhiteSpace(Model.DocumentType) ? T("Not selected") : T(Model.DocumentType))</dd></div>
+                            <div><dt>@T("Issued in")</dt><dd>@T("Canada")</dd></div>
+                        </dl>
+                        @if (idDone && !string.IsNullOrWhiteSpace(Model.DocumentCheckSummary))
+                        {
+                            <p class="review-bio">@CheckSummary(Model.DocumentCheckSummary)</p>
+                        }
+                    </div>
+                    <a class="btn btn-ghost btn-sm" href="@Url.Action("Identity", "Home")">@Icon.Get("pencil", 13) @T("Edit")</a>
+                </li>
+            </ol>
+
+            <form class="form-actions" method="post" action="@Url.Action("ReviewConfirm", "Home")">
+                @Html.AntiForgeryToken()
+                <a class="btn btn-ghost" href="@Url.Action("Identity", "Home")">@Icon.Get("arrow-left", 16) @T("Back")</a>
+                <span class="grow"></span>
+                <span class="aside">@T("By confirming you accept the") <a class="link" href="@Url.Action("CommunityStandards", "Home")">@T("community standards")</a></span>
+                <button class="btn @(done == 4 ? "btn-accent" : "btn-secondary")" type="submit" data-busy>
+                    <span>@(finished ? T("Confirm again") : T("Confirm & finish"))</span>
+                    @Icon.Get("check", 16)
+                </button>
+            </form>
+        </div>
+    </div>
 </div>

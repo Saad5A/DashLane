@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Security Whitepaper - DashLane";
+    ViewData["Title"] = T("Security Whitepaper") + " — DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "legal-main";
 }
@@ -7,18 +7,22 @@
 <div class="legal-page">
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
-        <h1 class="legal-title">Security Whitepaper</h1>
-        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <h1 class="legal-title">@T("Security Whitepaper")</h1>
+        <p class="legal-updated">@T("Last updated: November 10, 2026")</p>
+        @if (IsFrench)
+        {
+            <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
+        }
         <p class="legal-lead">
             This page describes the security controls that exist in the current DashLane build.
-            It does not claim certifications, SMS encryption products, or biometric gateways that are not implemented.
+            It does not claim certifications or security products that are not implemented.
         </p>
 
         <section class="legal-section">
             <h2>1. Scope</h2>
             <p>
                 DashLane today covers account creation, cookie sign-in, and a five-step onboarding flow.
-                Ride marketplace, payments, messaging, and third-party identity APIs are out of scope until they are built.
+                Ride marketplace, payments, and messaging are out of scope until they are built.
             </p>
         </section>
 
@@ -48,14 +52,22 @@
             <h2>4. Phone verification</h2>
             <ul>
                 <li>Phone numbers are stored after digit normalization.</li>
-                <li>One-time codes are generated with a cryptographic random number generator.</li>
-                <li>Codes are hashed before storage and expire after 10 minutes.</li>
-                <li>No SMS, WhatsApp, or voice provider is connected. The generated code is shown in the page notice so development testing can continue.</li>
+                <li>One-time codes are generated, stored, expired, and rate-limited by Twilio Verify; DashLane only stores whether the number is verified.</li>
+                <li>Twilio credentials live in <code>.env</code> (<code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_VERIFY_SERVICE_SID</code>). If they are missing, sending fails with an error; the code is never displayed in the page.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>5. Uploads</h2>
+            <h2>5. Automatic document checks</h2>
+            <ul>
+                <li>When <code>IdCheck__IdAnalyzerApiKey</code> is set, uploaded JPG, PNG, and WebP documents are sent over HTTPS to ID Analyzer's <code>/scan</code> API with the member's legal name and date of birth.</li>
+                <li>Only the decision (accept, review, or reject), a short summary, and the transaction reference are stored. ID Analyzer's own retention settings apply to data sent to it.</li>
+                <li>PDF uploads and uploads made while the key is missing are not checked automatically and are left for manual review.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Uploads</h2>
             <ul>
                 <li>Photos accept JPEG, PNG, and WebP.</li>
                 <li>Documents also accept PDF.</li>
@@ -65,7 +77,7 @@
         </section>
 
         <section class="legal-section">
-            <h2>6. Application protections</h2>
+            <h2>7. Application protections</h2>
             <ul>
                 <li>Form posts that change account data use anti-forgery tokens.</li>
                 <li>Onboarding pages after signup require an authenticated cookie.</li>
@@ -74,11 +86,11 @@
         </section>
 
         <section class="legal-section">
-            <h2>7. What this build does not provide</h2>
+            <h2>8. What this build does not provide</h2>
             <ul>
                 <li>No ISO/IEC 27001 certification claim</li>
-                <li>No automatic face match or biometric gateway</li>
-                <li>No encrypted SMS relay or virtual telephony bridge</li>
+                <li>No face match or liveness check (the automatic ID check reads the document only)</li>
+                <li>No member-to-member SMS relay or virtual telephony bridge</li>
                 <li>No production hosting hardening beyond the local development server</li>
             </ul>
             <p>
@@ -87,7 +99,7 @@
         </section>
 
         <section class="legal-section">
-            <h2>8. Responsible use of the local database</h2>
+            <h2>9. Responsible use of the local database</h2>
             <p>
                 Anyone with filesystem access to the server can read <code>App_Data</code>.
                 Use this build on trusted machines, keep the database out of public repositories, and rotate credentials if the database file is copied.
@@ -95,9 +107,9 @@
         </section>
 
         <nav class="legal-nav" aria-label="Related policies">
-            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
-            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">@T("Back to welcome")</a>
         </nav>
     </article>
 </div>

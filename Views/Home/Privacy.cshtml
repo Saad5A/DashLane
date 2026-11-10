@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy - DashLane";
+    ViewData["Title"] = T("Privacy Policy") + " — DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "legal-main";
 }
@@ -7,8 +7,12 @@
 <div class="legal-page">
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
-        <h1 class="legal-title">Privacy Policy</h1>
-        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <h1 class="legal-title">@T("Privacy Policy")</h1>
+        <p class="legal-updated">@T("Last updated: November 10, 2026")</p>
+        @if (IsFrench)
+        {
+            <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
+        }
         <p class="legal-lead">
             This policy explains what DashLane collects in the current account and onboarding build, how that information is stored, and what is not shared publicly.
         </p>
@@ -27,7 +31,7 @@
                 <li><strong>About you:</strong> legal name, date of birth, gender, home city, and preferred language.</li>
                 <li><strong>Profile:</strong> optional photo, bio, spoken languages, and travel preferences.</li>
                 <li><strong>Contact:</strong> phone number, whether it is verified, and a hashed verification code with an expiry time.</li>
-                <li><strong>Identity:</strong> document type, issuing country, uploaded document file name, and submission time.</li>
+                <li><strong>Identity:</strong> document type, issuing country, uploaded document file name, submission time, and the result of the automatic document check (decision, short summary, and the ID Analyzer transaction reference).</li>
                 <li><strong>Session:</strong> an HTTP-only authentication cookie after you sign in.</li>
             </ul>
         </section>
@@ -53,7 +57,7 @@
                 <li>Date of birth is used for age checks and is not shown on public ride cards.</li>
                 <li>Document files are stored outside the public web folder and are not served as public profile images.</li>
                 <li>Passwords are hashed. Plain-text passwords are not written to the database or browser storage.</li>
-                <li>Verification codes are hashed after they are created. The code may be shown once on screen because no SMS provider is configured.</li>
+                <li>Verification codes are generated, stored, and checked by Twilio Verify. DashLane never stores the code and never shows it on screen.</li>
             </ul>
         </section>
 
@@ -71,7 +75,10 @@
             <h2>6. Sharing</h2>
             <p>
                 When Google sign-in is enabled, Google receives the OAuth request and returns your Google account email and name so DashLane can create or link a local member record.
-                This build does not send account data to SMS gateways, biometric partners, payment processors, or analytics services.
+                To send and check a verification code, your phone number and the code you enter are sent to Twilio Verify (twilio.com), which delivers the SMS.
+                When automatic ID checks are enabled, the document photo you upload, your legal name, and your date of birth are sent to ID Analyzer (idanalyzer.com) to read and cross-check the document. PDF uploads are not sent.
+                When you search for a home city, the text you type is sent to OpenStreetMap's Nominatim service.
+                This build does not send account data to payment processors or analytics services.
             </p>
         </section>
 
@@ -108,9 +115,9 @@
         </section>
 
         <nav class="legal-nav" aria-label="Related policies">
-            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
-            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
-            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
+            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">@T("Security Whitepaper")</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">@T("Back to welcome")</a>
         </nav>
     </article>
 </div>

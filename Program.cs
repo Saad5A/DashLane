@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
 EnvFile.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+Text.Load(Path.Combine(Directory.GetCurrentDirectory(), "Resources"));
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +16,22 @@ var googleOptions = builder.Configuration.GetSection(GoogleAuthOptions.SectionNa
     ?? new GoogleAuthOptions();
 builder.Services.AddSingleton(googleOptions);
 
-var otpOptions = builder.Configuration.GetSection(OtpOptions.SectionName).Get<OtpOptions>() ?? new OtpOptions();
+var otpOptions = OtpOptions.FromConfiguration(builder.Configuration);
 builder.Services.AddSingleton(otpOptions);
-if (!otpOptions.HasTwilio)
+if (!otpOptions.IsConfigured)
 {
-    Console.WriteLine("Warning: Twilio SMS OTP is not configured. Add Otp__Twilio* keys to .env.");
+    Console.WriteLine("Warning: SMS codes are not configured. Add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN to .env.");
 }
-builder.Services.AddHttpClient("twilio");
+
+var idCheckOptions = builder.Configuration.GetSection(IdCheckOptions.SectionName).Get<IdCheckOptions>() ?? new IdCheckOptions();
+builder.Services.AddSingleton(idCheckOptions);
+if (!idCheckOptions.IsConfigured)
+{
+    Console.WriteLine("Note: automatic ID checks are off. Add IdCheck__IdAnalyzerApiKey to .env (free plan at https://www.idanalyzer.com).");
+}
+
+builder.Services.AddHttpClient("twilio", client => client.Timeout = TimeSpan.FromSeconds(15));
+builder.Services.AddHttpClient("idanalyzer", client => client.Timeout = TimeSpan.FromSeconds(60));
 builder.Services.AddHttpClient("nominatim", client =>
 {
     client.DefaultRequestHeaders.UserAgent.ParseAdd("DashLane/1.0 (local ride-sharing app)");
@@ -32,6 +42,7 @@ builder.Services.AddDbContext<DashLaneContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DashLane")));
 builder.Services.AddScoped<MembershipService>();
 builder.Services.AddScoped<OtpSender>();
+builder.Services.AddScoped<IdVerifier>();
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {

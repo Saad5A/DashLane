@@ -1,91 +1,128 @@
+@{
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
+    var cultures = new[] { ("en-CA", "English", "Canada"), ("fr-CA", "Français", "Canada"), ("en-US", "English", "United States") };
+    var cultureCode = currentCulture switch { "fr-CA" => "FR", "en-US" => "EN-US", _ => "EN" };
+    var isLanding = ViewData["Landing"] as bool? == true;
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var displayName = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(displayName) ? "?" : displayName.Trim()[..1].ToUpperInvariant();
+}
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.Name">
+<html lang="@currentCulture">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09090a" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/stitch.css" asp-append-version="true" />
-</head>
-<body class="auth-body">
-    <header class="auth-header">
-        <div class="auth-header-inner">
-            <div class="brand-cluster">
-                <div class="brand">
-                    <span class="material-symbols-outlined brand-mark icon-26" aria-hidden="true">alt_route</span>
-                    <span class="brand-name">DashLane</span>
-                </div>
-                <span class="header-rule" aria-hidden="true"></span>
-                <div class="encrypt-badge">
-                    <span class="material-symbols-outlined icon-14" aria-hidden="true">verified_user</span>
-                    <span>Local database</span>
-                </div>
-            </div>
-            <div class="header-tools">
-                @{
-                    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.Name;
-                    var languageLabel = currentCulture switch
-                    {
-                        "fr-CA" => "Français (CA)",
-                        "en-US" => "English (US)",
-                        _ => "English (CA)"
-                    };
+    <script>document.documentElement.classList.add("js");</script>
+    @if (isLanding)
+    {
+        <script>
+            try {
+                if (!localStorage.getItem("dl-intro-seen") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    document.documentElement.classList.add("intro-on");
                 }
-                <div class="lang-switch" id="lang-switch">
-                    <button type="button" class="lang-switch-button" id="lang-switch-toggle" aria-expanded="false" aria-controls="lang-menu">
-                        <span class="material-symbols-outlined icon-18" aria-hidden="true">language</span>
-                        <span class="lang-label" id="lang-label">@languageLabel</span>
-                        <span class="material-symbols-outlined icon-16 lang-chevron" aria-hidden="true">expand_more</span>
+            } catch (e) { }
+        </script>
+    }
+    <link rel="preload" href="~/fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+</head>
+<body class="@ViewData["BodyClass"]">
+    <div class="ambient" aria-hidden="true"></div>
+
+    <header class="topbar @(isLanding ? "" : "is-solid")" id="topbar">
+        <div class="topbar-inner">
+            <a class="wordmark" href="@Url.Action("Index", "Home")" aria-label="@T("DashLane home")">
+                @Icon.Logo(24)
+                <span>DashLane</span>
+            </a>
+
+            @if (isLanding)
+            {
+                <nav class="topnav" aria-label="@T("Primary")">
+                    <a href="#how">@T("How it works")</a>
+                    <a href="#trust">@T("Trust & safety")</a>
+                    <a href="@Url.Action("CommunityStandards", "Home")">@T("Standards")</a>
+                </nav>
+            }
+
+            <div class="topbar-end">
+                <div class="lang" id="lang-switch">
+                    <button type="button" class="lang-toggle" id="lang-switch-toggle" aria-expanded="false" aria-controls="lang-menu" aria-label="@T("Change language")">
+                        @Icon.Get("globe", 14)
+                        <span>@cultureCode</span>
+                        @Icon.Get("chevron-down", 12)
                     </button>
-                    <div class="lang-menu" id="lang-menu" hidden>
+                    <div class="menu" id="lang-menu" hidden>
+                        <p class="menu-label">@T("Language")</p>
                         <form method="post" action="@Url.Action("SetLanguage", "Home")">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
-                            <button type="submit" name="culture" value="en-CA">English (CA)</button>
-                            <button type="submit" name="culture" value="fr-CA">Français (CA)</button>
-                            <button type="submit" name="culture" value="en-US">English (US)</button>
+                            @foreach (var (code, name, region) in cultures)
+                            {
+                                <button type="submit" name="culture" value="@code" aria-current="@(code == currentCulture || (code == "en-CA" && currentCulture != "fr-CA" && currentCulture != "en-US") ? "true" : "false")">
+                                    <span>@name <span class="subtle">· @T(region)</span></span>
+                                </button>
+                            }
                         </form>
                     </div>
                 </div>
-                @if (User.Identity?.IsAuthenticated == true)
+
+                @if (signedIn)
                 {
-                    <span class="lang-label">@User.Identity.Name</span>
+                    <div class="who">
+                        <span class="who-name">@displayName</span>
+                        <span class="who-avatar" aria-hidden="true">@initial</span>
+                    </div>
                     <form method="post" action="@Url.Action("SignOut", "Home")">
                         @Html.AntiForgeryToken()
-                        <button type="button" class="footer-link" onclick="this.form.submit()">Sign out</button>
+                        <button type="submit" class="icon-btn" aria-label="@T("Sign out")" title="@T("Sign out")">@Icon.Get("log-out", 16)</button>
                     </form>
                 }
                 else
                 {
-                    <div class="profile-badge" aria-hidden="true">
-                        <span class="material-symbols-outlined icon-18">person</span>
-                    </div>
+                    var authPage = ViewData["AuthPage"] as string;
+                    if (authPage != "signin")
+                    {
+                        <a class="btn btn-ghost btn-sm" href="@Url.Action("SignIn", "Home")">@T("Log in")</a>
+                    }
+                    if (authPage != "signup")
+                    {
+                        <a class="btn btn-primary btn-sm" href="@Url.Action("SignUp", "Home")">@T("Sign up")</a>
+                    }
                 }
             </div>
         </div>
     </header>
 
-    <main class="auth-main @ViewData["MainClass"]">
+    <main class="main">
         @RenderBody()
     </main>
 
-    <footer class="auth-footer">
-        <div class="auth-footer-inner">
-            <div class="cert-lock">
-                <span class="material-symbols-outlined icon-14" aria-hidden="true">lock</span>
-                <span>DashLane • Accounts are stored in the local database</span>
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                @Icon.Logo(18)
+                <span>© @DateTime.UtcNow.Year DashLane Mobility · @T("Made for Canadian roads")</span>
             </div>
-            <nav class="footer-nav" aria-label="Footer">
-                <a class="footer-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
-                <a class="footer-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-                <a class="footer-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
-                <button type="button" class="footer-link" data-unavailable-message="This page is not available yet." data-status-target="footer-status">Help Center</button>
+            <nav class="footer-nav" aria-label="@T("Footer")">
+                <a href="@Url.Action("Terms", "Home")">@T("Terms")</a>
+                <a href="@Url.Action("Privacy", "Home")">@T("Privacy")</a>
+                <a href="@Url.Action("SecurityWhitepaper", "Home")">@T("Security")</a>
+                <a href="@Url.Action("CommunityStandards", "Home")">@T("Standards")</a>
+                <button type="button" data-unavailable-message="@T("The help centre isn't available yet.")" data-status-target="footer-status">@T("Help")</button>
             </nav>
         </div>
-        <p id="footer-status" class="status-note footer-status" role="status" aria-live="polite" hidden></p>
+        <p id="footer-status" class="footer-status" role="status" aria-live="polite" hidden></p>
     </footer>
-    <script src="~/js/auth.js" asp-append-version="true"></script>
-    <script src="~/js/flow.js" asp-append-version="true"></script>
+
+    @{
+        var jsKeys = new[] { "Add a short bio before continuing.", "Agree to the Terms of Service and Privacy Policy to continue with Google.", "Agree to the Terms of Service and Privacy Policy to continue.", "Enter a valid email address.", "Enter your email address.", "Enter your full name.", "Enter your password.", "Google sign-in isn't configured for this app yet.", "Hide password", "No languages selected", "Show password", "That doesn't look like an email address.", "Use at least 8 characters, one number and one special character.", "Your bio will appear here." };
+        var jsText = jsKeys.ToDictionary(k => k, k => T(k));
+    }
+    <script>window.DL_TEXT = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(jsText));</script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
 </body>
 </html>

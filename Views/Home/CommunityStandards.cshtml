@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Community Standards - DashLane";
+    ViewData["Title"] = T("Community Standards") + " — DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "legal-main";
 }
@@ -7,8 +7,12 @@
 <div class="legal-page">
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
-        <h1 class="legal-title">Community Standards</h1>
-        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <h1 class="legal-title">@T("Community Standards")</h1>
+        <p class="legal-updated">@T("Last updated: November 6, 2026")</p>
+        @if (IsFrench)
+        {
+            <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
+        }
         <p class="legal-lead">
             DashLane is a Canada-focused ride-sharing community. These standards apply to every member who creates an account, completes onboarding, or later posts or books a trip.
         </p>
@@ -44,9 +48,9 @@
         </section>
 
         <nav class="legal-nav" aria-label="Related pages">
-            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
-            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-            <a class="legal-nav-link" href="@Url.Action("Community", "Home")">Back to getting started</a>
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a>
+            <a class="legal-nav-link" href="@Url.Action("Community", "Home")">@T("Back to getting started")</a>
         </nav>
     </article>
 </div>
