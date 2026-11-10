@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Terms of Service - DashLane";
+    ViewData["Title"] = T("Terms of Service") + " — DashLane";
     Layout = "_AuthLayout";
     ViewData["MainClass"] = "legal-main";
 }
@@ -7,8 +7,12 @@
 <div class="legal-page">
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
-        <h1 class="legal-title">Terms of Service</h1>
-        <p class="legal-updated">Last updated: November 6, 2026</p>
+        <h1 class="legal-title">@T("Terms of Service")</h1>
+        <p class="legal-updated">@T("Last updated: November 10, 2026")</p>
+        @if (IsFrench)
+        {
+            <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
+        }
         <p class="legal-lead">
             These terms describe how you may use the DashLane account and onboarding screens that are available today.
             Features that are not built yet, such as ride search, booking, payments, and messaging, are not covered as working services.
@@ -53,7 +57,8 @@
                 <li>A government document upload for identity review</li>
             </ul>
             <p>
-                There is no SMS provider in this build. When a verification code is created, it is shown on screen so you can enter it.
+                Verification codes are generated and sent by SMS through Twilio Verify and are never shown on screen.
+                When automatic ID checks are enabled, a photo of your document is sent to ID Analyzer, which reads it and compares it with the name and date of birth you entered.
                 Document files are stored with your account and are not shown on a public profile.
             </p>
         </section>
@@ -71,7 +76,7 @@
         <section class="legal-section">
             <h2>6. Services that are not available yet</h2>
             <p>
-                The ride feed, booking, payments, driver posting, live messaging, insurance, and call or SMS relays are not available in this build.
+                The ride feed, booking, payments, driver posting, live messaging, insurance, and call or SMS relays between members are not available in this build.
                 Finishing onboarding saves your profile; it does not unlock a marketplace that has not been built.
             </p>
         </section>
@@ -106,9 +111,9 @@
         </section>
 
         <nav class="legal-nav" aria-label="Related policies">
-            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">Security Whitepaper</a>
-            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">Back to welcome</a>
+            <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a>
+            <a class="legal-nav-link" href="@Url.Action("SecurityWhitepaper", "Home")">@T("Security Whitepaper")</a>
+            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">@T("Back to welcome")</a>
         </nav>
     </article>
 </div>

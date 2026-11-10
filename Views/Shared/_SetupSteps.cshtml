@@ -1,0 +1,56 @@
+@model Member
+@{
+    var current = ViewData["Step"] as int? ?? 1;
+    var steps = new[]
+    {
+        (1, "About you", "AboutYou", Model.DateOfBirth.HasValue && !string.IsNullOrWhiteSpace(Model.LegalName)),
+        (2, "Profile", "Profile", Model.ProfileCompletedUtc.HasValue),
+        (3, "Phone", "Contact", Model.PhoneVerified),
+        (4, "Identity", "Identity", !string.IsNullOrWhiteSpace(Model.DocumentFileName)),
+        (5, "Review", "Review", Model.OnboardingCompletedUtc.HasValue),
+    };
+    var done = Model.CompletedSteps;
+    var open = DashLane.Controllers.HomeController.FirstOpenStep(Model);
+}
+
+<nav class="steps" aria-label="@T("Account setup")">
+    <div class="steps-head">
+        <p class="steps-title">@T("Account setup")</p>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="@done" aria-label="@T("Steps completed")">
+            <span style="width: @(done * 25)%"></span>
+        </div>
+        <div class="progress-meta"><span>@T("{0} of 4 complete", done)</span><span class="mono">@(done * 25)%</span></div>
+    </div>
+
+    <ol class="step-list">
+        @foreach (var (n, label, action, isDone) in steps)
+        {
+            var state = n == current ? "is-current" : isDone ? "is-done" : "";
+            <li>
+                @if (n > open)
+                {
+                    <span class="step-link is-locked" aria-disabled="true" title="@T("Finish the earlier steps first")">
+                        <span class="step-node">@Icon.Get("lock", 11)</span>
+                        <span>@T(label)</span>
+                    </span>
+                }
+                else
+                {
+                    <a class="step-link @state" href="@Url.Action(action, "Home")" aria-current="@(n == current ? "step" : null)">
+                        <span class="step-node">@if (isDone && n != current) { @Icon.Get("check", 12) } else { @n.ToString("00") }</span>
+                        <span>@T(label)</span>
+                        @if (isDone)
+                        {
+                            <span class="step-state">@T("done")</span>
+                        }
+                    </a>
+                }
+            </li>
+        }
+    </ol>
+
+    <p class="steps-note">
+        @Icon.Get("lock", 14)
+        <span>@T("Only your first name, photo, bio and preferences are shown to co-riders. Everything else stays private.")</span>
+    </p>
+</nav>

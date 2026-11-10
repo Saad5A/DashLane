@@ -22,6 +22,18 @@ public class MembershipService
 
     public Task<int> CountAsync() => _db.Members.CountAsync();
 
+    /// <summary>Counts taken directly from the members table for the public landing page.</summary>
+    public async Task<(int Members, int PhoneVerified, int DocumentsSubmitted, int Completed)> NetworkStatsAsync()
+    {
+        var members = await _db.Members.CountAsync();
+        var phone = await _db.Members.CountAsync(m => m.PhoneVerified);
+        var documents = await _db.Members.CountAsync(m => m.DocumentFileName != null && m.DocumentFileName != "");
+        var completed = await _db.Members.CountAsync(m =>
+            m.OnboardingCompletedUtc != null && m.PhoneVerified && m.ProfileCompletedUtc != null &&
+            m.DateOfBirth != null && m.DocumentFileName != null && m.DocumentFileName != "");
+        return (members, phone, documents, completed);
+    }
+
     public Task<Member?> FindAsync(int id) => _db.Members.FirstOrDefaultAsync(member => member.Id == id);
 
     public Task<Member?> FindByEmailAsync(string email)
@@ -36,22 +48,22 @@ public class MembershipService
         var normalized = NormalizeEmail(email);
         if (string.IsNullOrWhiteSpace(fullName))
         {
-            return (null, "Enter your full name.");
+            return (null, Text.T("Enter your full name."));
         }
 
         if (!IsValidEmail(normalized))
         {
-            return (null, "Enter a valid email address.");
+            return (null, Text.T("Enter a valid email address."));
         }
 
         if (!IsValidPassword(password))
         {
-            return (null, "Use at least 8 characters, one number, and one special character.");
+            return (null, Text.T("Use at least 8 characters, one number, and one special character."));
         }
 
         if (await _db.Members.AnyAsync(member => member.Email == normalized))
         {
-            return (null, "An account with this email already exists.");
+            return (null, Text.T("An account with this email already exists."));
         }
 
         var member = new Member
@@ -86,7 +98,7 @@ public class MembershipService
         var normalized = NormalizeEmail(email);
         if (string.IsNullOrWhiteSpace(subjectId) || !IsValidEmail(normalized))
         {
-            return (null, "Google did not return a usable account email.");
+            return (null, Text.T("Google did not return a usable account email."));
         }
 
         var bySubject = await _db.Members.FirstOrDefaultAsync(member => member.GoogleSubjectId == subjectId);
@@ -145,31 +157,6 @@ public class MembershipService
         await _db.SaveChangesAsync();
     }
 
-    public string CreatePhoneCode(Member member)
-    {
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
-        member.PhoneCodeHash = _hasher.HashPassword(member, code);
-        member.PhoneCodeExpiresUtc = DateTime.UtcNow.AddMinutes(10);
-        member.PhoneVerified = false;
-        return code;
-    }
-
-    public bool PhoneCodeMatches(Member member, string code)
-    {
-        if (string.IsNullOrWhiteSpace(member.PhoneCodeHash) || member.PhoneCodeExpiresUtc == null)
-        {
-            return false;
-        }
-
-        if (member.PhoneCodeExpiresUtc < DateTime.UtcNow)
-        {
-            return false;
-        }
-
-        var result = _hasher.VerifyHashedPassword(member, member.PhoneCodeHash, code.Trim());
-        return result != PasswordVerificationResult.Failed;
-    }
-
     public async Task<string> SaveFileAsync(Member member, IFormFile file, string kind)
     {
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -177,13 +164,13 @@ public class MembershipService
         if (!allowed.Contains(extension))
         {
             throw new InvalidOperationException(kind == "photo"
-                ? "Use a JPG, PNG, or WebP photo."
-                : "Use a JPG, PNG, WebP, or PDF document.");
+                ? Text.T("Use a JPG, PNG, or WebP photo.")
+                : Text.T("Use a JPG, PNG, WebP, or PDF document."));
         }
 
         if (file.Length == 0 || file.Length > 10 * 1024 * 1024)
         {
-            throw new InvalidOperationException("The file must be under 10 MB.");
+            throw new InvalidOperationException(Text.T("The file must be under 10 MB."));
         }
 
         var directory = MemberDirectory(member.Id);
@@ -266,6 +253,15 @@ public class MembershipService
         member.DocumentFileName = null;
         member.DocumentType = null;
         member.DocumentSubmittedUtc = null;
+        ClearDocumentCheck(member);
+    }
+
+    public static void ClearDocumentCheck(Member member)
+    {
+        member.DocumentCheckDecision = null;
+        member.DocumentCheckSummary = null;
+        member.DocumentCheckId = null;
+        member.DocumentCheckedUtc = null;
     }
 
     private void DeleteMemberFile(Member member, string? fileName)

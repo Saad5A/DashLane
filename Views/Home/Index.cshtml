@@ -1,95 +1,328 @@
 ﻿@model HomeIndexViewModel
 @{
-    ViewData["Title"] = "DashLane";
+    ViewData["Title"] = T("DashLane — Share the road");
+    ViewData["Landing"] = true;
     Layout = "_AuthLayout";
+    var members = Model.MemberCount;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+
+    // City centres (decimal degrees). Projected with an equirectangular projection scaled by cos(48°).
+    var cities = new (string Name, double Lat, double Lon, bool Above)[]
+    {
+        ("Vancouver", 49.2827, -123.1207, false),
+        ("Edmonton", 53.5461, -113.4938, true),
+        ("Calgary", 51.0447, -114.0719, false),
+        ("Saskatoon", 52.1332, -106.6700, true),
+        ("Regina", 50.4452, -104.6189, false),
+        ("Winnipeg", 49.8951, -97.1384, true),
+        ("Toronto", 43.6532, -79.3832, false),
+        ("Ottawa", 45.4215, -75.6972, true),
+        ("Montréal", 45.5019, -73.5674, false),
+        ("Québec City", 46.8139, -71.2080, true),
+        ("Halifax", 44.6488, -63.5752, false),
+        ("St. John's", 47.5615, -52.7126, true),
+    };
+    const double lonMin = -124.5, lonMax = -51.5, latMin = 43.0, latMax = 54.2;
+    var kx = Math.Cos(48 * Math.PI / 180);
+    var scale = 1080 / ((lonMax - lonMin) * kx);
+    (double X, double Y) P(double lat, double lon) => (60 + (lon - lonMin) * kx * scale, 70 + (latMax - lat) * scale);
+    var pos = cities.ToDictionary(c => c.Name, c => P(c.Lat, c.Lon));
+    var mapHeight = 70 + (latMax - latMin) * scale + 70;
+    var links = new[] { ("Vancouver", "Calgary"), ("Calgary", "Edmonton"), ("Calgary", "Regina"), ("Regina", "Saskatoon"), ("Regina", "Winnipeg"), ("Winnipeg", "Toronto"), ("Toronto", "Ottawa"), ("Ottawa", "Montréal"), ("Montréal", "Québec City"), ("Québec City", "Halifax"), ("Halifax", "St. John's") };
+    string Curve(string a, string b)
+    {
+        var (x1, y1) = pos[a];
+        var (x2, y2) = pos[b];
+        var lift = Math.Min(60, Math.Abs(x2 - x1) * 0.18);
+        var cx = (x1 + x2) / 2;
+        var cy = Math.Min(y1, y2) - lift;
+        return string.Format(inv, "M{0:0.#} {1:0.#} Q{2:0.#} {3:0.#} {4:0.#} {5:0.#}", x1, y1, cx, cy, x2, y2);
+    }
+    string N(double v) => v.ToString("0.#", inv);
+    var hubs = new[] { "Vancouver", "Calgary", "Toronto", "Montréal" };
 }
 
-<div class="welcome-page">
-    <div class="welcome-stage">
-        <div class="glow glow-mint" aria-hidden="true"></div>
-        <div class="glow glow-aqua" aria-hidden="true"></div>
-
-        <div class="welcome-card">
-            <div class="welcome-copy">
-                <div>
-                    <div class="network-pill">
-                        <span class="pulse-dot" aria-hidden="true"></span>
-                        <span>Intercity Ridesharing Network</span>
-                    </div>
-                    <h1 class="hero-title">Share the<br class="hero-break" /> journey.</h1>
-                    <p class="hero-copy">Find people heading your way. Book a verified seat or offer empty spots on your next cross-country trip.</p>
-                    <div class="hero-actions">
-                        <a class="btn btn-primary" href="@Url.Action("SignUp", "Home")">
-                            <span>Get started</span>
-                            <span class="material-symbols-outlined icon-20 btn-arrow" aria-hidden="true">arrow_forward</span>
-                        </a>
-                        <a class="btn btn-ghost" href="@Url.Action("SignIn", "Home")">Log in</a>
-                    </div>
-                </div>
-
-                <div class="social-proof">
-                    <div class="proof-people">
-                        <div>
-                            <p class="proof-score">@(Model.MemberCount == 0 ? "No members yet" : Model.MemberCount + (Model.MemberCount == 1 ? " member" : " members"))</p>
-                        </div>
-                    </div>
-                    <div class="verified-note">
-                        <span class="material-symbols-outlined icon-16" aria-hidden="true">verified</span>
-                        <span>Phone and document checks are part of setup</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="route-panel">
-                <div class="route-panel-body">
-                    <div class="route-heading">
-                        <span class="eyebrow">Trending Route</span>
-                    </div>
-
-                    <div class="route-card">
-                        <div class="route-top">
-                            <div class="route-places">
-                                <div>
-                                    <p class="place">No rides posted yet</p>
-                                    <p class="place-sub">Routes, prices, and open seats will come from trips members publish.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="perks">
-                        <div class="perk">
-                            <div class="perk-icon">
-                                <span class="material-symbols-outlined icon-16" aria-hidden="true">payments</span>
-                            </div>
-                            <div>
-                                <p class="perk-title">Zero Hidden Fees</p>
-                                <p class="perk-sub">Transparent split</p>
-                            </div>
-                        </div>
-                        <div class="perk">
-                            <div class="perk-icon">
-                                <span class="material-symbols-outlined icon-16" aria-hidden="true">security</span>
-                            </div>
-                            <div>
-                                <p class="perk-title">Instant Cover</p>
-                                <p class="perk-sub">No trip insurance is included</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="legal-row">
-            <span>DashLane Mobility Inc.</span>
-            <span class="legal-sep" aria-hidden="true">•</span>
-            <a class="inline-link" href="@Url.Action("Terms", "Home")">Terms of Service</a>
-            <span class="legal-sep" aria-hidden="true">•</span>
-            <a class="inline-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>
-            <span class="legal-sep" aria-hidden="true">•</span>
-            <a class="inline-link" href="@Url.Action("CommunityStandards", "Home")">Community Standards</a>
-        </div>
-        <p id="welcome-legal-status" class="status-note welcome-status" role="status" aria-live="polite" hidden></p>
+<div class="intro" id="intro" role="presentation">
+    <div class="intro-sky" aria-hidden="true"></div>
+    <svg class="intro-road" aria-hidden="true" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMax slice">
+        <path class="intro-edge" d="M120 600 L585 250" />
+        <path class="intro-edge" d="M1080 600 L615 250" />
+        <path class="intro-lane" d="M600 600 L600 250" />
+    </svg>
+    <div class="intro-center">
+        <span class="intro-mark">@Icon.Logo(72)</span>
+        <p class="intro-word">DashLane</p>
+        <p class="intro-tag">@T("Same road.") <em>@T("Shared ride.")</em></p>
     </div>
+    <button type="button" class="intro-skip" id="intro-skip">@T("Skip intro") <kbd>esc</kbd></button>
 </div>
+
+<section class="hero">
+    <div class="hero-bg" aria-hidden="true">
+        <span class="aurora aurora-1"></span>
+        <span class="aurora aurora-2"></span>
+        <span class="aurora aurora-3"></span>
+        <svg class="hero-route" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="routeFade" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0" stop-color="#121110" stop-opacity="0" />
+                    <stop offset="0.15" stop-color="#121110" stop-opacity="0.9" />
+                    <stop offset="0.85" stop-color="#121110" stop-opacity="0.9" />
+                    <stop offset="1" stop-color="#121110" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+            <path class="hr-road" d="M-40 520 C 220 520, 260 300, 470 300 S 760 470, 980 420 S 1250 170, 1480 200" />
+            <path class="hr-lane" d="M-40 520 C 220 520, 260 300, 470 300 S 760 470, 980 420 S 1250 170, 1480 200" />
+            <g class="hr-pin" transform="translate(150 505)"><circle r="16" class="hr-pulse" /><circle r="7" class="hr-dot" /></g>
+            <g class="hr-pin" transform="translate(1290 192)"><circle r="16" class="hr-pulse" /><circle r="7" class="hr-dot" /></g>
+        </svg>
+    </div>
+
+    <div class="hero-floats" aria-hidden="true">
+        <div class="float-card fc-1" data-depth="18">
+            <span class="fc-icon is-ok">@Icon.Get("check", 14)</span>
+            <span><b>@T("Phone verified")</b><small>@T("6-digit SMS")</small></span>
+        </div>
+        <div class="float-card fc-2" data-depth="28">
+            <span class="fc-icon">@Icon.Get("route", 14)</span>
+            <span><b>Toronto → Montréal</b><small>@T("Route")</small></span>
+            <span class="fc-track"><i></i></span>
+        </div>
+        <div class="float-card fc-3" data-depth="22">
+            <span class="fc-icon is-accent">@Icon.Get("id-card", 14)</span>
+            <span><b>@T("Government ID check")</b><small>@T("Passport")</small></span>
+        </div>
+        <div class="float-card fc-4" data-depth="32">
+            <span class="chip is-on">@Icon.Get("check", 13, "chip-check")@T("Strictly no smoking")</span>
+            <span class="chip is-on">@Icon.Get("check", 13, "chip-check")@T("Podcasts & Low music")</span>
+        </div>
+    </div>
+
+    <div class="container hero-copy">
+        <a class="pill rise" href="@Url.Action("SignUp", "Home")">
+            <span class="dot dot-live" aria-hidden="true"></span>
+            <span>@if (members == 0) { @T("Be the first member") } else { <b class="tabular">@members.ToString("N0")</b> @(members == 1 ? T("member so far") : T("members so far")) }</span>
+            @Icon.Get("chevron-right", 14, "subtle")
+        </a>
+
+        <h1 class="display rise rise-1">@T("Same road.")<br /><em>@T("Shared ride.")</em></h1>
+
+        <p class="lede rise rise-2">@T("DashLane is a ride-share community for trips between Canadian cities. Every member confirms a Canadian mobile number and submits a government ID before they can ride.")</p>
+
+        <div class="hero-actions rise rise-3">
+            @if (Model.ContinueAction != null)
+            {
+                <a class="btn btn-primary btn-lg" href="@Url.Action(Model.ContinueAction, "Home")">
+                    <span>@T("Continue setup")</span>
+                    @Icon.Get("arrow-right", 16, "i-nudge")
+                </a>
+            }
+            else
+            {
+                <a class="btn btn-primary btn-lg" href="@Url.Action("SignUp", "Home")">
+                    <span>@T("Get started")</span>
+                    @Icon.Get("arrow-right", 16, "i-nudge")
+                </a>
+                <a class="btn btn-secondary btn-lg" href="@Url.Action("SignIn", "Home")">@T("Log in")</a>
+            }
+        </div>
+
+        <div class="hero-meta rise rise-4">
+            <span>@Icon.Get("phone", 14) @T("SMS-verified phone")</span>
+            <span>@Icon.Get("id-card", 14) @T("Government ID check")</span>
+            <span>@Icon.Get("languages", 14) @T("English & français")</span>
+        </div>
+    </div>
+
+    <div class="stage rise rise-5" aria-hidden="true">
+        <div class="sky"></div>
+        <div class="sun"></div>
+        <div class="ground"></div>
+        <div class="road"><div class="road-plane"><div class="road-lane"></div></div></div>
+        <div class="horizon"></div>
+
+        <div class="palette">
+            <div class="palette-search">
+                @Icon.Get("search", 18)
+                <span class="palette-query">
+                    <span>Toronto</span>
+                    <span class="arrow">→</span>
+                    <span>Montréal</span>
+                    <span class="caret"></span>
+                </span>
+                <kbd>esc</kbd>
+            </div>
+            <div class="palette-body">
+                <p class="palette-group">@T("Route")</p>
+                <div class="palette-row is-active">
+                    <span class="palette-ico is-accent">@Icon.Get("route", 14)</span>
+                    <span>Toronto, ON → Montréal, QC</span>
+                    <span class="meta"><kbd>↵</kbd></span>
+                </div>
+                <p class="palette-group">@T("Rides")</p>
+                <div class="palette-row">
+                    <span class="palette-ico">@Icon.Get("clock", 14)</span>
+                    <span>@T("The ride feed isn't open yet")</span>
+                    <span class="meta">@T("Coming soon")</span>
+                </div>
+            </div>
+            <div class="palette-foot">
+                <span class="wordmark">@Icon.Logo(16) DashLane</span>
+                <span class="grow"></span>
+                <span class="act">@T("Search") <kbd>↵</kbd></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" aria-labelledby="stats-title">
+    <div class="container">
+        <h2 class="sr-only" id="stats-title">@T("Network so far")</h2>
+        <div class="stats reveal-on-scroll">
+            <div class="stat"><p class="stat-value">@Model.MemberCount.ToString("N0")</p><p class="stat-label">@T("Members")</p></div>
+            <div class="stat"><p class="stat-value">@Model.PhoneVerifiedCount.ToString("N0")</p><p class="stat-label">@T("Phones verified by SMS")</p></div>
+            <div class="stat"><p class="stat-value">@Model.DocumentsSubmittedCount.ToString("N0")</p><p class="stat-label">@T("Government IDs submitted")</p></div>
+            <div class="stat"><p class="stat-value">@Model.CompletedCount.ToString("N0")</p><p class="stat-label">@T("Finished setup")</p></div>
+        </div>
+        <p class="stats-foot"><span class="dot dot-live"></span>@T("Live counts from the DashLane member database.")</p>
+    </div>
+</section>
+
+<section class="section" id="trust">
+    <div class="container">
+        <div class="section-head reveal-on-scroll">
+            <p class="eyebrow eyebrow-accent">@T("Trust, built in")</p>
+            <h2 class="h2">@T("Everyone in the car")<br /><span class="dim">@T("has been checked.")</span></h2>
+        </div>
+
+        <div class="bento">
+            <article class="tile tile-4 reveal-on-scroll" data-glow>
+                <div class="tile-text">
+                    <h3 class="tile-title">@T("The same checks for every account.") <span class="dim">@T("An SMS code to a Canadian mobile number, then a government ID that's checked automatically and reviewed.")</span></h3>
+                </div>
+                <div class="tile-art">
+                    <div class="verify-stack">
+                        <div class="verify-row"><span class="tick">@Icon.Get("check", 12)</span><span>@T("Email address")</span><span class="label-sm">@T("account")</span></div>
+                        <div class="verify-row"><span class="tick">@Icon.Get("check", 12)</span><span>@T("Canadian mobile number")</span><span class="label-sm">@T("6-digit SMS")</span></div>
+                        <div class="verify-row"><span class="tick is-pending"></span><span>@T("Driver's licence, passport or provincial ID")</span><span class="label-sm">@T("ID check")</span></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="tile tile-2 reveal-on-scroll" data-glow>
+                <div class="tile-text">
+                    <h3 class="tile-title">@T("Private by default.") <span class="dim">@T("Co-riders only see your profile card.")</span></h3>
+                </div>
+                <div class="tile-art">
+                    <div class="privacy">
+                        <div class="privacy-col">
+                            <h4>@T("Shown")</h4>
+                            <ul>
+                                <li>@Icon.Get("user", 13) @T("First name, last initial")</li>
+                                <li>@Icon.Get("camera", 13) @T("Photo")</li>
+                                <li>@Icon.Get("message", 13) @T("Bio & languages")</li>
+                            </ul>
+                        </div>
+                        <div class="privacy-col is-private">
+                            <h4>@T("Private")</h4>
+                            <ul>
+                                <li>@Icon.Get("lock", 13) @T("Legal name & birthday")</li>
+                                <li>@Icon.Get("lock", 13) @T("Phone & email")</li>
+                                <li>@Icon.Get("lock", 13) @T("ID document")</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="tile tile-2 reveal-on-scroll" data-glow>
+                <div class="tile-text">
+                    <h3 class="tile-title">@T("Ride your way.") <span class="dim">@T("Set the vibe before anyone gets in.")</span></h3>
+                </div>
+                <div class="tile-art">
+                    <div class="vibe">
+                        <span class="chip is-on">@Icon.Get("check", 14, "chip-check")@T("Chatty when spoken to")</span>
+                        <span class="chip">@Icon.Get("check", 14, "chip-check")@T("Podcasts & Low music")</span>
+                        <span class="chip is-on">@Icon.Get("check", 14, "chip-check")@T("Pet-friendly (in carrier)")</span>
+                        <span class="chip is-on">@Icon.Get("check", 14, "chip-check")@T("Strictly no smoking")</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="tile tile-4 reveal-on-scroll" data-glow>
+                <div class="tile-text">
+                    <h3 class="tile-title">@T("Bilingual from day one.") <span class="dim">@T("Use DashLane in English or French, and tell co-riders which languages you speak.")</span></h3>
+                </div>
+                <div class="tile-art">
+                    <div class="bilingual" lang="mul">
+                        <div class="bi-row"><span class="code">EN</span><span>Same road. Shared ride.</span></div>
+                        <div class="bi-row"><span class="code">FR</span><span>Même route. Trajet partagé.</span></div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="map">
+    <div class="container">
+        <div class="section-head reveal-on-scroll">
+            <p class="eyebrow eyebrow-accent">@T("Coast to coast")</p>
+            <h2 class="h2">@T("Built for the long drives") <span class="dim">@T("between Canadian cities.")</span></h2>
+            <p class="section-lede">@T("Home cities come from OpenStreetMap search, limited to Canada — from Victoria to St. John's.")</p>
+        </div>
+
+        <figure class="map-card reveal-on-scroll">
+            <svg class="map-svg" viewBox="0 0 1200 @N(mapHeight)" role="img" aria-label="@T("Major Canadian cities plotted by latitude and longitude")">
+                @foreach (var (a, b) in links)
+                {
+                    <path class="map-route-base" d="@Curve(a, b)" />
+                    <path class="map-route" d="@Curve(a, b)" />
+                }
+                @foreach (var c in cities)
+                {
+                    var (x, y) = pos[c.Name];
+                    if (hubs.Contains(c.Name))
+                    {
+                        <circle class="map-pulse" cx="@N(x)" cy="@N(y)" r="12" />
+                    }
+                    <circle class="map-dot" cx="@N(x)" cy="@N(y)" r="5" />
+                    @:<text class="map-label" x="@N(x)" y="@N(c.Above ? y - 16 : y + 26)" text-anchor="middle">@c.Name</text>
+                }
+            </svg>
+            <figcaption class="map-legend"><span class="dot"></span>@T("Positions from real coordinates. Lines are illustrative, not posted rides.")</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section" id="how">
+    <div class="container">
+        <div class="section-head reveal-on-scroll">
+            <p class="eyebrow eyebrow-accent">@T("How it works")</p>
+            <h2 class="h2">@T("Five steps.") <span class="dim">@T("Then you're on the network.")</span></h2>
+            <p class="section-lede">@T("Set up once. Your details stay on your account — co-riders only see your first name, last initial, photo, bio, languages and preferences.")</p>
+        </div>
+
+        <ol class="rail reveal-on-scroll">
+            <li class="rail-step"><span class="rail-num">01</span><h3 class="rail-title">@T("About you")</h3><p class="rail-sub">@T("Legal name and date of birth. You need to be 18 or older.")</p></li>
+            <li class="rail-step"><span class="rail-num">02</span><h3 class="rail-title">@T("Profile")</h3><p class="rail-sub">@T("A photo, a short bio, languages and ride preferences.")</p></li>
+            <li class="rail-step"><span class="rail-num">03</span><h3 class="rail-title">@T("Phone")</h3><p class="rail-sub">@T("Confirm a Canadian mobile number with a 6-digit SMS code.")</p></li>
+            <li class="rail-step"><span class="rail-num">04</span><h3 class="rail-title">@T("Identity")</h3><p class="rail-sub">@T("Upload a licence, passport or provincial photo ID.")</p></li>
+            <li class="rail-step"><span class="rail-num">05</span><h3 class="rail-title">@T("Review")</h3><p class="rail-sub">@T("Check everything once and confirm.")</p></li>
+        </ol>
+    </div>
+</section>
+
+<section class="container">
+    <div class="closer reveal-on-scroll">
+        <p class="eyebrow eyebrow-accent">@T("Free to join")</p>
+        <h2 class="h2">@T("Going somewhere?")<br />@T("Someone else is too.")</h2>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="@Url.Action(Model.ContinueAction ?? "SignUp", "Home")">
+                <span>@(Model.ContinueAction != null ? T("Continue setup") : T("Create your account"))</span>
+                @Icon.Get("arrow-right", 16, "i-nudge")
+            </a>
+            <a class="btn btn-ghost btn-lg" href="@Url.Action("CommunityStandards", "Home")">@T("Read the standards")</a>
+        </div>
+    </div>
+</section>

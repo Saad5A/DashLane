@@ -1,381 +1,161 @@
 @model Member
 @{
-    ViewData["Title"] = "Profile - DashLane";
+    ViewData["Title"] = T("Profile") + " — DashLane";
+    ViewData["Step"] = 2;
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "flow-main";
     var notice = ViewData["Notice"] as string;
     var chosenLanguages = Model.LanguageList;
     var chosenPreferences = Model.PreferenceList;
-    string LangClass(string language) => chosenLanguages.Contains(language)
-        ? "lang-pill px-space-md py-space-xs rounded-full bg-secondary text-on-secondary font-label-badge text-label-badge flex items-center gap-space-2xs transition-all shadow-sm"
-        : "lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-badge text-label-badge flex items-center gap-space-2xs transition-all";
+    var defaultLanguages = new[] { "English", "French", "Spanish", "Mandarin", "Punjabi", "Arabic" };
+    var allLanguages = defaultLanguages.Concat(chosenLanguages.Where(l => !defaultLanguages.Contains(l, StringComparer.OrdinalIgnoreCase))).ToList();
+    var preferences = new[]
+    {
+        ("message", "Conversation", "Chatty when spoken to"),
+        ("headphones", "Audio", "Podcasts & Low music"),
+        ("paw", "Pets", "Pet-friendly (in carrier)"),
+        ("no-smoking", "Smoking", "Strictly no smoking"),
+    };
+    var hasPhoto = !string.IsNullOrEmpty(Model.PhotoFileName);
+    var hasBio = !string.IsNullOrWhiteSpace(Model.Bio);
 }
 
-<div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<div class="flex flex-col w-full max-w-[1200px] mx-auto pb-space-2xl">
-<!-- Interactive Progress Stepper -->
-<section class="w-full bg-surface-container-lowest rounded-lg p-space-lg shadow-sm mb-space-xl">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
-<!-- Step 1 -->
-<div class="flex items-center gap-space-sm group flex-1">
-<div class="w-9 h-9 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed transition-transform group-hover:scale-105 shrink-0">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-secondary uppercase tracking-wider font-semibold">Step 1</span>
-<span class="font-body-sm text-body-sm text-on-surface font-medium">About you</span>
-</div>
-<div class="hidden md:block h-[2px] flex-1 bg-secondary mx-space-sm rounded-full"></div>
-</div>
-<!-- Step 2 (Active) -->
-<div class="flex items-center gap-space-sm group flex-1">
-<div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary shadow-sm shrink-0">
-<span class="font-label-badge text-label-badge font-bold">2</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-primary font-bold uppercase tracking-wider">Active</span>
-<span class="font-body-sm text-body-sm text-on-surface font-semibold">Profile Photo &amp; Bio</span>
-</div>
-<div class="hidden md:block h-[2px] flex-1 bg-surface-container-high mx-space-sm rounded-full"></div>
-</div>
-<!-- Step 3 -->
-<div class="flex items-center gap-space-sm opacity-60 flex-1">
-<div class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
-<span class="font-label-badge text-label-badge">3</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Next</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Contact</span>
-</div>
-<div class="hidden md:block h-[2px] flex-1 bg-surface-container-high mx-space-sm rounded-full"></div>
-</div>
-<!-- Step 4 -->
-<div class="flex items-center gap-space-sm opacity-40 flex-1">
-<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
-<span class="font-label-badge text-label-badge">4</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Step 4</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Identity</span>
-</div>
-<div class="hidden md:block h-[2px] flex-1 bg-surface-container-high mx-space-sm rounded-full"></div>
-</div>
-<!-- Step 5 -->
-<div class="flex items-center gap-space-sm opacity-40">
-<div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0">
-<span class="font-label-badge text-label-badge">5</span>
-</div>
-<div class="flex flex-col">
-<span class="font-caption text-caption text-on-surface-variant uppercase">Step 5</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Review</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Main Multi-Column Split Area -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
-<!-- Left / Main Form Column (7 Cols on desktop) -->
-<div class="lg:col-span-7 flex flex-col gap-space-lg">
-<!-- Section Heading Panel -->
-<div class="bg-surface-container-lowest rounded-lg p-space-xl shadow-sm">
-<div class="inline-flex items-center gap-space-2xs bg-secondary-fixed/30 text-on-secondary-fixed px-space-sm py-[3px] rounded-full mb-space-sm">
-<span class="material-symbols-outlined text-[14px]">badge</span>
-<span class="font-label-badge text-label-badge">Step 2 of 5 · Public Profile</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Help people get to know you</h1>
-<p class="font-body-md text-body-md text-on-surface-variant mt-space-2xs max-w-xl">
-          Drivers and co-travelers see the name, photo, city, and bio you save here.
-        </p>
-<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<form id="profile-form" method="post" enctype="multipart/form-data" action="@Url.Action("Profile", "Home")">
-@Html.AntiForgeryToken()
-<input type="hidden" name="languages" id="languagesField" value="@Model.Languages" />
-<input type="hidden" name="preferences" id="preferencesField" value="@Model.Preferences" />
-<!-- Profile Photo Uploader Section -->
-<div class="mt-space-xl pt-space-lg border-t-0">
-<label class="font-headline-sm text-headline-sm text-on-surface block mb-space-xs font-semibold">Profile Photo</label>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Upload a clear photo where you are easily recognizable during passenger pickups.</p>
-<div class="flex flex-col sm:flex-row items-center sm:items-start gap-space-lg bg-surface-container-low/50 p-space-md rounded-DEFAULT">
-<!-- Circular Photo Wrapper with Overlay Trigger -->
-<div class="relative group shrink-0">
-<div class="w-28 h-28 rounded-full overflow-hidden shadow-md ring-0 bg-surface-container">
-@if (string.IsNullOrEmpty(Model.PhotoFileName))
-{
-    <img class="w-full h-full object-cover" id="avatarImage" alt="" style="display:none" />
-}
-else
-{
-    <img class="w-full h-full object-cover" id="avatarImage" alt="" src="@Url.Action("Photo", "Home")" />
-}
-</div>
-<button aria-label="Take photo" class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md hover:bg-tertiary-container transition-transform active:scale-95" type="button" data-photo-pick="photoCameraInput">
-<span class="material-symbols-outlined text-[18px]">photo_camera</span>
-</button>
-</div>
-<!-- Upload Controls & Guidelines -->
-<div class="flex-1 flex flex-col justify-center text-center sm:text-left">
-<div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs mb-space-sm">
-<label class="cursor-pointer bg-primary text-on-primary hover:bg-tertiary-container font-label-numeric text-label-numeric px-space-md py-space-xs rounded-full transition-all active:scale-98 shadow-sm flex items-center gap-space-2xs" for="photoUploadInput">
-<span class="material-symbols-outlined text-[18px]">upload</span>
-<span>Upload new photo</span>
-</label>
-<input accept="image/png, image/jpeg, image/webp" class="hidden" id="photoUploadInput" name="photo" type="file"/>
-<input accept="image/*" capture="environment" class="hidden" id="photoCameraInput" type="file"/>
-<button class="bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric px-space-md py-space-xs rounded-full transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-photo-pick="photoCameraInput">
-<span class="material-symbols-outlined text-[18px]">videocam</span>
-<span>Take photo</span>
-</button>
-<button class="text-error hover:bg-error-container/40 font-body-sm text-body-sm px-space-sm py-space-xs rounded-full transition-colors flex items-center gap-space-2xs" id="removePhotoBtn" type="submit" name="removePhoto" value="true" formnovalidate>
-<span class="material-symbols-outlined text-[16px]">delete_outline</span>
-<span>Remove</span>
-</button>
-</div>
-<div class="flex items-center justify-center sm:justify-start gap-space-xs text-on-surface-variant font-caption text-caption">
-<span class="material-symbols-outlined text-[16px] text-secondary">info</span>
-<span>Clear face, no sunglasses or masks. Max 10MB (JPG or PNG).</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Bio Editor -->
-<div class="mt-space-xl">
-<div class="flex items-center justify-between mb-space-xs">
-<label class="font-headline-sm text-headline-sm text-on-surface font-semibold" for="bioInput">Short bio</label>
-<span class="font-label-numeric text-label-numeric text-on-surface-variant" id="charCount">@(Model.Bio?.Length ?? 0) / 300 characters</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tell your fellow passengers what you do, why you commute, or your overall vibe during highway journeys.</p>
-<div class="relative">
-<textarea class="w-full bg-surface-container-low p-space-md rounded-DEFAULT font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest transition-all shadow-inner resize-none" id="bioInput" name="bio" maxlength="300" rows="4" required>@Model.Bio</textarea>
-</div>
-</div>
-<!-- Languages Spoken -->
-<div class="mt-space-xl">
-<label class="font-headline-sm text-headline-sm text-on-surface font-semibold block mb-space-xs">Languages spoken</label>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Select languages you're comfortable using during trips.</p>
-@{
-    var defaultLanguages = new[] { "English", "French", "Spanish", "Mandarin" };
-    var extraLanguages = chosenLanguages.Where(language => !defaultLanguages.Contains(language, StringComparer.OrdinalIgnoreCase)).ToList();
-}
-<div class="flex flex-wrap items-center gap-space-xs" id="languageContainer">
-@foreach (var language in defaultLanguages.Concat(extraLanguages))
-{
-    <button class="@LangClass(language)" type="button">
-        @if (chosenLanguages.Contains(language, StringComparer.OrdinalIgnoreCase))
-        {
-            <span class="material-symbols-outlined text-[14px]">check</span>
-        }
-        <span>@language</span>
-    </button>
-}
-<button class="px-space-md py-space-xs rounded-full bg-surface-container-lowest text-primary hover:bg-primary-fixed/20 font-label-badge text-label-badge flex items-center gap-space-2xs shadow-sm transition-all" id="addLangBtn" type="button">
-<span class="material-symbols-outlined text-[16px]">add</span>
-<span>Add language</span>
-</button>
-</div>
-<div class="mt-space-sm flex items-center gap-space-xs" id="custom-lang-row" hidden>
-<input class="flex-1 h-10 px-space-sm rounded-DEFAULT bg-surface-container-low text-on-surface font-body-sm text-body-sm outline-none" id="customLangInput" type="text" maxlength="40" placeholder="Language name" />
-<button class="px-space-md py-space-xs rounded-full bg-primary text-on-primary font-label-badge text-label-badge" id="customLangSave" type="button">Add</button>
-</div>
-</div>
-<!-- Travel Preferences Chips Grid -->
-<div class="mt-space-xl">
-<div class="flex items-center justify-between mb-space-xs">
-<label class="font-headline-sm text-headline-sm text-on-surface font-semibold">Travel preferences</label>
-<span class="font-caption text-caption text-secondary font-medium">Saved with your profile</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Set expectations in advance so co-travelers share your comfort preferences.</p>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
-<!-- Pref 1: Chat -->
-<div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
-<span class="material-symbols-outlined text-[20px]">chat</span>
-</div>
-<div class="flex flex-col flex-1">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Conversation</span>
-<span class="font-body-sm text-body-sm text-on-surface font-medium" id="prefChatText">Chatty when spoken to</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
-</div>
-<!-- Pref 2: Music -->
-<div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
-<span class="material-symbols-outlined text-[20px]">headphones</span>
-</div>
-<div class="flex flex-col flex-1">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Audio &amp; Music</span>
-<span class="font-body-sm text-body-sm text-on-surface font-medium" id="prefAudioText">Podcasts &amp; Low music</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
-</div>
-<!-- Pref 3: Pets -->
-<div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
-<span class="material-symbols-outlined text-[20px]">pets</span>
-</div>
-<div class="flex flex-col flex-1">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Pets</span>
-<span class="font-body-sm text-body-sm text-on-surface font-medium">Pet-friendly (in carrier)</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
-</div>
-<!-- Pref 4: Smoke -->
-<div class="pref-card flex items-start gap-space-sm p-space-md rounded-DEFAULT bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer">
-<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-error shadow-sm shrink-0">
-<span class="material-symbols-outlined text-[20px]">smoke_free</span>
-</div>
-<div class="flex flex-col flex-1">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold">Smoking</span>
-<span class="font-body-sm text-body-sm text-on-surface font-medium">Strictly no smoking</span>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px] pref-check">radio_button_unchecked</span>
-</div>
-</div>
-</div>
-<!-- Action Navigation Buttons -->
-<div class="flex items-center justify-between pt-space-xs pb-space-md">
-<button class="px-space-lg py-space-sm rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric transition-all flex items-center gap-space-2xs shadow-sm" type="button" data-flow='@Url.Action("AboutYou", "Home")'>
-<span class="material-symbols-outlined text-[18px]">arrow_back</span>
-<span>Back</span>
-</button>
-<button class="px-space-xl py-space-sm rounded-full bg-primary-container hover:bg-primary text-on-primary font-label-numeric text-label-numeric shadow-md transition-all active:scale-98 flex items-center gap-space-sm" type="submit">
-<span>Continue to Contact Verification</span>
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</button>
-</div>
-</form>
-</div>
-</div>
-<!-- Right Column / Sticky Live Preview (5 Cols on desktop) -->
-<div class="lg:col-span-5 sticky top-20 flex flex-col gap-space-md">
-<!-- Preview Header Tag -->
-<div class="flex items-center justify-between px-space-xs">
-<div class="flex items-center gap-space-2xs text-on-surface-variant font-label-badge text-label-badge uppercase tracking-wider">
-<span class="material-symbols-outlined text-[16px] text-secondary">visibility</span>
-<span>Live Public Preview</span>
-</div>
-<span class="font-caption text-caption text-on-surface-variant">Auto-updating</span>
-</div>
-<!-- Realistic Passenger / Driver Profile Card -->
-<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-xl relative overflow-hidden transition-all duration-300">
-<!-- Subtle Decorative Ambient Header Glow -->
-<div class="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-primary-fixed/40 via-secondary-fixed/30 to-surface-container-high pointer-events-none"></div>
-<div class="relative pt-space-xs">
-<!-- Member Avatar & Verification Cluster -->
-<div class="flex items-end justify-between mb-space-md">
-<div class="relative">
-<div class="w-20 h-20 rounded-full overflow-hidden bg-surface-container shadow-md">
-@if (string.IsNullOrEmpty(Model.PhotoFileName))
-{
-    <img class="w-full h-full object-cover" id="previewAvatar" alt="" style="display:none" />
-}
-else
-{
-    <img class="w-full h-full object-cover" id="previewAvatar" alt="" src="@Url.Action("Photo", "Home")" />
-}
-</div>
-<div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-[14px]">verified</span>
-</div>
-</div>
-<!-- Ride Statistics Summary -->
-<div class="flex items-center gap-space-sm bg-surface-container-low px-space-sm py-space-xs rounded-full">
-<div class="flex items-center gap-1 text-on-surface font-label-numeric text-label-numeric">
-<span class="material-symbols-outlined text-[18px]">person</span>
-<span>0</span>
-</div>
-<span class="text-on-surface-variant text-caption font-caption">No trips yet</span>
-</div>
-</div>
-<!-- Name & Origin -->
-<div class="mb-space-md">
-<div class="flex items-center gap-space-xs">
-<h2 class="font-headline-md text-headline-md text-on-surface font-bold" id="previewName">@Model.PublicName</h2>
-<span class="material-symbols-outlined text-secondary text-[20px]" title="Community identity checked">check_circle</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-2xs mt-[2px]">
-<span class="material-symbols-outlined text-[16px]">location_on</span>
-<span id="previewCity">@(string.IsNullOrWhiteSpace(Model.HomeCity) ? "City not set" : Model.HomeCity)</span>
-</p>
-</div>
-<!-- Verification Badges Row -->
-<div class="flex flex-wrap items-center gap-space-xs mb-space-md">
-<span class="inline-flex items-center gap-space-2xs bg-secondary-fixed/40 text-on-secondary-fixed px-space-sm py-[3px] rounded-full font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[14px]">smartphone</span>
-<span>@(Model.PhoneVerified ? "Phone verified" : "Phone not verified")</span>
-</span>
-<span class="inline-flex items-center gap-space-2xs bg-surface-container-high text-on-surface-variant px-space-sm py-[3px] rounded-full font-label-badge text-label-badge">
-<span class="material-symbols-outlined text-[14px]">pending</span>
-<span>@(string.IsNullOrEmpty(Model.DocumentFileName) ? "No document uploaded" : Model.DocumentType)</span>
-</span>
-</div>
-<!-- Bio Block Preview -->
-<div class="bg-surface-container-low/60 p-space-md rounded-DEFAULT mb-space-md">
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">About @Model.PublicName</span>
-<p class="font-body-md text-body-md text-on-surface italic" id="previewBio">@(string.IsNullOrWhiteSpace(Model.Bio) ? "No bio provided yet." : "\"" + Model.Bio + "\"")</p>
-</div>
-<!-- Spoken Languages & Commute Vibe -->
-<div class="space-y-space-sm">
-<div>
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">Languages</span>
-<div class="flex items-center gap-space-xs" id="previewLangChips">
-@if (!chosenLanguages.Any())
-{
-    <span class="text-caption font-caption text-on-surface-variant italic">None selected</span>
-}
-@foreach (var language in chosenLanguages)
-{
-    <span class="bg-surface-container px-space-sm py-[2px] rounded-full font-caption text-caption text-on-surface font-medium">@language</span>
-}
-</div>
-</div>
-<div>
-<span class="font-caption text-caption text-on-surface-variant uppercase font-semibold block mb-space-2xs">Ride Atmosphere</span>
-<div class="flex flex-wrap items-center gap-space-xs">
-<span class="inline-flex items-center gap-1 bg-surface-container-low px-space-sm py-[3px] rounded-full font-caption text-caption text-on-surface-variant">
-<span class="material-symbols-outlined text-[14px]">chat_bubble_outline</span>
-<span>Moderate chat</span>
-</span>
-<span class="inline-flex items-center gap-1 bg-surface-container-low px-space-sm py-[3px] rounded-full font-caption text-caption text-on-surface-variant">
-<span class="material-symbols-outlined text-[14px]">podcasts</span>
-<span>Podcasts &amp; Quiet</span>
-</span>
-<span class="inline-flex items-center gap-1 bg-surface-container-low px-space-sm py-[3px] rounded-full font-caption text-caption text-on-surface-variant">
-<span class="material-symbols-outlined text-[14px]">smoke_free</span>
-<span>No smoking</span>
-</span>
-</div>
-</div>
-</div>
-<!-- Card Metadata Footer -->
-<div class="mt-space-lg pt-space-sm flex items-center justify-between font-caption text-caption text-on-surface-variant">
-<span>Member since Nov 2025</span>
-<span class="flex items-center gap-1 text-secondary font-medium">
-<span class="material-symbols-outlined text-[14px]">shield</span>
-              DashLane Verified
-            </span>
-</div>
-</div>
-</div>
-<!-- Trust & Privacy Assurance Notice Box -->
-<div class="bg-surface-container-low rounded-DEFAULT p-space-md flex items-start gap-space-sm">
-<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-[1px]">lock</span>
-<div class="flex flex-col">
-<span class="font-label-badge text-label-badge font-bold text-on-surface">Your privacy is safeguarded</span>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-[2px]">
-            Private details like your birth date, phone number, and physical billing address are never visible to the public or co-travelers before confirmed bookings.
-          </p>
-</div>
-</div>
-<!-- Co2 Impact Preview Micro Badge -->
-<div class="bg-secondary-fixed/20 rounded-DEFAULT p-space-md flex items-center justify-between">
-<div class="flex items-center gap-space-xs">
-<span class="material-symbols-outlined text-secondary text-[20px]">eco</span>
-<span class="font-body-sm text-body-sm text-on-secondary-fixed font-medium">Carpooling impact projected</span>
-</div>
-<span class="font-label-numeric text-label-numeric font-bold text-secondary">~42 kg CO₂/mo</span>
-</div>
-</div>
-</div>
-</div>
+<div class="setup">
+    <partial name="_SetupSteps" model="Model" />
+
+    <div class="sheet">
+        <header class="sheet-head rise">
+            <p class="eyebrow">@T("Step") 02 / 05</p>
+            <h1 class="sheet-title">@T("Your public profile")</h1>
+            <p class="sheet-lede">@T("This is what drivers and riders see before they share a car with you. Keep it short and friendly.")</p>
+        </header>
+
+        <p id="flow-status" class="notice notice-err" role="status" aria-live="polite" hidden="@(TempData["GateNotice"] is not string)">@TempData["GateNotice"]</p>
+
+        <div class="sheet-grid">
+            <form id="profile-form" class="card form-card rise rise-1" method="post" enctype="multipart/form-data" action="@Url.Action("Profile", "Home")">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="languages" id="languagesField" value="@Model.Languages" />
+                <input type="hidden" name="preferences" id="preferencesField" value="@Model.Preferences" />
+
+                @if (!string.IsNullOrEmpty(notice))
+                {
+                    <div class="form-notice"><p class="notice @(ViewData["NoticeKind"] as string == "ok" ? "notice-ok" : "notice-err")" role="status">@notice</p></div>
+                }
+
+                <section class="form-section is-stacked">
+                    <div>
+                        <h2 class="fs-title">@T("Photo")</h2>
+                        <p class="fs-sub">@T("A clear, recent photo of your face. JPG, PNG or WebP.")</p>
+                    </div>
+                    <div class="avatar-row">
+                        <div class="avatar">
+                            @Icon.Get("user", 28)
+                            <img id="avatarImage" data-avatar-preview alt="" src="@(hasPhoto ? Url.Action("Photo", "Home") : null)" hidden="@(!hasPhoto)" />
+                        </div>
+                        <div class="avatar-actions">
+                            <button type="button" class="btn btn-secondary btn-sm" data-photo-pick="photoUploadInput">@Icon.Get("upload", 14) @T("Upload")</button>
+                            <button type="button" class="btn btn-ghost btn-sm" data-photo-pick="photoCameraInput">@Icon.Get("camera", 14) @T("Take photo")</button>
+                            @if (hasPhoto)
+                            {
+                                <button type="submit" class="btn btn-danger btn-sm" id="removePhotoBtn" name="removePhoto" value="true" formnovalidate>@Icon.Get("trash", 14) @T("Remove")</button>
+                            }
+                        </div>
+                        <input class="file-input" accept="image/png, image/jpeg, image/webp" id="photoUploadInput" name="photo" type="file" tabindex="-1" />
+                        <input class="file-input" accept="image/*" capture="environment" id="photoCameraInput" type="file" tabindex="-1" />
+                    </div>
+                </section>
+
+                <section class="form-section is-stacked">
+                    <div class="field">
+                        <div class="label-row">
+                            <label class="label" for="bioInput">@T("Bio")</label>
+                            <span class="counter" id="charCount">@(Model.Bio?.Length ?? 0) / 300</span>
+                        </div>
+                        <textarea class="textarea" id="bioInput" name="bio" maxlength="300" rows="4" required placeholder="@T("Weekend commuter between Ottawa and Montréal. Happy to share the aux, or ride in silence.")">@Model.Bio</textarea>
+                    </div>
+                </section>
+
+                <section class="form-section is-stacked">
+                    <div>
+                        <h2 class="fs-title">@T("Languages")</h2>
+                        <p class="fs-sub">@T("Which languages are you comfortable chatting in?")</p>
+                    </div>
+                    <div class="chips" id="languageContainer">
+                        @foreach (var language in allLanguages)
+                        {
+                            var on = chosenLanguages.Contains(language, StringComparer.OrdinalIgnoreCase);
+                            <button type="button" class="chip lang-pill" data-value="@language" aria-pressed="@(on ? "true" : "false")">@Icon.Get("check", 14, "chip-check")<span>@T(language)</span></button>
+                        }
+                        <button type="button" class="chip chip-dashed" id="addLangBtn">@Icon.Get("plus", 14) @T("Other")</button>
+                    </div>
+                    <div class="inline-add" id="custom-lang-row" hidden>
+                        <input class="input" id="customLangInput" type="text" maxlength="40" placeholder="@T("e.g. Tagalog")" aria-label="@T("Language name")" />
+                        <button type="button" class="btn btn-secondary" id="customLangSave">@T("Add")</button>
+                    </div>
+                </section>
+
+                <section class="form-section is-stacked">
+                    <div>
+                        <h2 class="fs-title">@T("Ride preferences")</h2>
+                        <p class="fs-sub">@T("Set expectations before anyone gets in the car.")</p>
+                    </div>
+                    <div class="options options-2">
+                        @foreach (var (icon, title, value) in preferences)
+                        {
+                            var on = chosenPreferences.Contains(value);
+                            <button type="button" class="option pref-card @(on ? "is-selected" : "")" data-value="@value" aria-pressed="@(on ? "true" : "false")">
+                                <span class="option-icon">@Icon.Get(icon, 16)</span>
+                                <span class="option-body">
+                                    <span class="option-title">@T(title)</span>
+                                    <span class="option-sub">@T(value)</span>
+                                </span>
+                                <span class="option-mark">@Icon.Get("check", 11)</span>
+                            </button>
+                        }
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <a class="btn btn-ghost" href="@Url.Action("AboutYou", "Home")">@Icon.Get("arrow-left", 16) @T("Back")</a>
+                    <span class="grow"></span>
+                    <button class="btn btn-primary" type="submit" data-busy>
+                        <span>@T("Continue")</span>
+                        @Icon.Get("arrow-right", 16, "i-nudge")
+                    </button>
+                </div>
+            </form>
+
+            <aside class="card preview rise rise-2" aria-label="@T("Profile preview")">
+                <div class="preview-label">
+                    <span class="eyebrow">@T("Preview")</span>
+                    <span class="status-line"><span class="dot dot-live"></span>@T("Live")</span>
+                </div>
+                <div class="preview-id">
+                    <div class="avatar avatar-lg">
+                        @Icon.Get("user", 24)
+                        <img id="previewAvatar" data-avatar-preview alt="" src="@(hasPhoto ? Url.Action("Photo", "Home") : null)" hidden="@(!hasPhoto)" />
+                    </div>
+                    <div>
+                        <h2 class="preview-name" id="previewName">@Model.PublicName</h2>
+                        <p class="preview-city">@Icon.Get("map-pin", 12)<span id="previewCity">@(string.IsNullOrWhiteSpace(Model.HomeCity) ? T("City not set") : Model.HomeCity)</span></p>
+                    </div>
+                </div>
+                <div class="preview-badges">
+                    <span class="tag @(Model.PhoneVerified ? "tag-ok" : "")">@Icon.Get(Model.PhoneVerified ? "check" : "phone", 12) @(Model.PhoneVerified ? T("Phone verified") : T("Phone pending"))</span>
+                    <span class="tag @(string.IsNullOrEmpty(Model.DocumentFileName) ? "" : "tag-ok")">@Icon.Get("id-card", 12) @(string.IsNullOrEmpty(Model.DocumentFileName) ? T("ID pending") : T("ID submitted"))</span>
+                </div>
+                <p class="preview-bio @(hasBio ? "" : "is-empty")" id="previewBio">@(hasBio ? Model.Bio : T("Your bio will appear here."))</p>
+                <div class="preview-langs" id="previewLangChips">
+                    @if (!chosenLanguages.Any())
+                    {
+                        <span class="empty">@T("No languages selected")</span>
+                    }
+                    @foreach (var language in chosenLanguages)
+                    {
+                        <span class="tag">@T(language)</span>
+                    }
+                </div>
+            </aside>
+        </div>
+    </div>
 </div>

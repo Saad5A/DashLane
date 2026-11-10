@@ -1,226 +1,12 @@
 @model Member
 @{
-    ViewData["Title"] = "About you - DashLane";
+    ViewData["Title"] = T("About you") + " — DashLane";
+    ViewData["Step"] = 1;
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "flow-main";
     var notice = ViewData["Notice"] as string;
     var dob = Model.DateOfBirth;
-}
-
-<div class="flow-page">
-<p id="flow-status" class="flow-status" role="status" aria-live="polite" hidden></p>
-<div class="flex flex-col w-full">
-<div class="w-full max-w-[1100px] mx-auto py-space-md">
-<!-- Top Progress Breadcrumb Strip -->
-<div class="mb-space-xl px-space-xs">
-<div class="flex items-center justify-between mb-space-sm">
-<div class="flex items-center gap-space-xs text-on-surface-variant font-caption text-caption uppercase tracking-wider">
-<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary-fixed/50 text-secondary font-label-badge text-label-badge font-bold">1</span>
-<span>Personal Dossier Setup</span>
-</div>
-<div class="flex items-center gap-space-2xs text-secondary font-label-badge text-label-badge">
-<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-<span>Draft autosynced</span>
-</div>
-</div>
-<!-- Segmented Stepper Bar -->
-<nav aria-label="Onboarding Progress" class="grid grid-cols-5 gap-space-xs">
-<!-- Step 1 (Active) -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full bg-primary-container rounded-full shadow-sm"></div>
-<div class="flex items-center justify-between pt-1">
-<span class="font-label-badge text-label-badge text-primary-container font-bold">1. About You</span>
-<span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">trip_origin</span>
-</div>
-</div>
-<!-- Step 2 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
-<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
-<span class="font-label-badge text-label-badge">2. Profile</span>
-<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
-</div>
-</div>
-<!-- Step 3 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
-<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
-<span class="font-label-badge text-label-badge">3. Contact</span>
-<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
-</div>
-</div>
-<!-- Step 4 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
-<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
-<span class="font-label-badge text-label-badge">4. Identity</span>
-<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
-</div>
-</div>
-<!-- Step 5 -->
-<div class="flex flex-col gap-space-2xs">
-<div class="h-1.5 w-full bg-surface-container-high rounded-full"></div>
-<div class="flex items-center justify-between pt-1 text-on-surface-variant/70">
-<span class="font-label-badge text-label-badge">5. Review</span>
-<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
-</div>
-</div>
-</nav>
-</div>
-<!-- Main Asymmetric Layout -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
-<!-- Primary Form Card (8 Columns) -->
-<section class="lg:col-span-8 bg-surface-container-lowest rounded-lg shadow-xl p-space-lg md:p-space-2xl flex flex-col gap-space-xl">
-<!-- Header Unit -->
-<div>
-<div class="inline-flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-low text-secondary font-label-badge text-label-badge mb-space-sm">
-<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">badge</span>
-<span>Step 1 of 5 • Basic Information</span>
-</div>
-<h1 class="font-display-hero text-headline-lg md:text-display-hero text-on-surface tracking-tight mb-space-xs">
-            Tell us a bit about yourself
-          </h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            This helps build trust and ensures our shared transit network remains secure, transparent, and age-compliant.
-          </p>
-</div>
-<form class="flex flex-col gap-space-xl" method="post" action="@Url.Action("AboutYou", "Home")">
-@Html.AntiForgeryToken()
-<p class="flow-status" role="status" @(string.IsNullOrEmpty(notice) ? "hidden" : null)>@notice</p>
-<!-- Field 1: Full Legal Name -->
-<div class="flex flex-col gap-space-xs">
-<div class="flex items-center justify-between">
-<label class="font-label-numeric text-label-numeric text-on-surface flex items-center gap-1.5" for="legalName">
-                Full legal name
-                <span class="text-error font-bold">*</span>
-</label>
-<span class="inline-flex items-center gap-1 font-caption text-caption text-secondary">
-<span class="material-symbols-outlined text-[13px]">verified</span>
-                Verified in step 4
-              </span>
-</div>
-<div class="relative">
-<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pl-11 outline-none transition-all focus:bg-surface-container-lowest focus:shadow-md" id="legalName" name="legalName" placeholder="First and last name" type="text" value="@Model.LegalName"/>
-<span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-outline">person_outline</span>
-</div>
-<div class="flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
-<span class="material-symbols-outlined text-[15px] text-outline">info</span>
-<span>Must match your official government ID (Driver's license or passport).</span>
-</div>
-</div>
-<!-- Field 2: Date of Birth -->
-<div class="flex flex-col gap-space-xs">
-<div class="flex items-center justify-between">
-<label class="font-label-numeric text-label-numeric text-on-surface flex items-center gap-1.5">
-                Date of birth
-                <span class="text-error font-bold">*</span>
-</label>
-<span class="font-caption text-caption text-on-surface-variant">Min. 18 years required</span>
-</div>
-<div class="grid grid-cols-12 gap-space-sm">
-<!-- Day -->
-<div class="col-span-3">
-<div class="relative">
-<input aria-label="Day of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobDay" name="dobDay" max="31" min="1" placeholder="DD" type="number" value="@(dob?.Day)"/>
-<span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">D</span>
-</div>
-</div>
-<!-- Month -->
-<div class="col-span-5">
-<div class="relative">
-<select aria-label="Month of birth" class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT px-space-md pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer" id="dobMonth" name="dobMonth">
-@if (dob == null)
-{
-    <option value="" selected>Month</option>
-}
-else
-{
-    <option value="">Month</option>
-}
-@foreach (var month in new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" })
-{
-    var number = Array.IndexOf(new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" }, month) + 1;
-    if (dob?.Month == number)
-    {
-        <option value="@number" selected>@month</option>
-    }
-    else
-    {
-        <option value="@number">@month</option>
-    }
-}
-</select>
-<span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
-</div>
-</div>
-<!-- Year -->
-<div class="col-span-4">
-<div class="relative">
-<input aria-label="Year of birth" class="w-full h-12 text-center bg-surface-container-low text-on-surface font-label-numeric text-label-numeric rounded-DEFAULT px-space-xs outline-none focus:bg-surface-container-lowest focus:shadow-md" id="dobYear" name="dobYear" max="2008" min="1900" placeholder="YYYY" type="number" value="@(dob?.Year)"/>
-<span class="absolute right-2.5 top-3 text-caption font-caption text-outline-variant pointer-events-none">Y</span>
-</div>
-</div>
-</div>
-<!-- Privacy Guarantee Micro-Card -->
-<div class="flex items-start gap-space-xs bg-surface-container-low/70 rounded-DEFAULT p-space-sm mt-1">
-<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">lock_clock</span>
-<p class="font-caption text-caption text-on-surface-variant leading-relaxed">
-                Used strictly to verify age eligibility (18+). Your date of birth is kept strictly private and is never visible on public ride cards or search feeds.
-              </p>
-</div>
-</div>
-<!-- Field 3: Gender Identity -->
-<div class="flex flex-col gap-space-xs">
-<div class="flex items-center justify-between">
-<label class="font-label-numeric text-label-numeric text-on-surface">
-                Gender identity
-              </label>
-<span class="font-caption text-caption text-on-surface-variant">Helps power Women-Only ride preferences</span>
-</div>
-<input type="hidden" name="gender" id="gender" value="@Model.Gender" />
-<div aria-label="Gender Identity selection" class="flex flex-wrap gap-space-xs" role="radiogroup">
-<!-- Selected: Woman -->
-<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5" role="radio" type="button">
-<span>Woman</span>
-</button>
-<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span>Man</span>
-</button>
-<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span>Non-binary</span>
-</button>
-<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span>Other</span>
-</button>
-<button aria-checked="false" class="gender-pill px-space-md py-2.5 rounded-full bg-surface-container-low text-on-surface font-label-badge text-label-badge transition-colors hover:bg-surface-container active:scale-95 flex items-center gap-1.5"  role="radio" type="button">
-<span>Prefer not to say</span>
-</button>
-</div>
-</div>
-<!-- Dual Column: City & Language -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-<!-- Field 4: Home City -->
-<div class="flex flex-col gap-space-xs">
-<label class="font-label-numeric text-label-numeric text-on-surface" for="homeCity">
-                Home city
-              </label>
-<div class="relative" id="city-autocomplete">
-<input class="w-full h-12 bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-space-md outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="homeCity" placeholder="Start typing a Canadian city" type="text" name="homeCity" value="@Model.HomeCity" autocomplete="off" aria-autocomplete="list" aria-controls="city-suggestions" />
-<span class="material-symbols-outlined absolute left-3.5 top-3 text-[20px] text-primary-container">location_on</span>
-<ul class="city-suggestions" id="city-suggestions" role="listbox" hidden></ul>
-</div>
-<p class="font-caption text-caption text-on-surface-variant">
-                Canadian cities only. Suggestions appear as you type.
-              </p>
-</div>
-<!-- Field 5: Preferred Language -->
-<div class="flex flex-col gap-space-xs">
-<label class="font-label-numeric text-label-numeric text-on-surface" for="preferredLanguage">
-                Preferred language
-              </label>
-<div class="relative">
-<select class="w-full h-12 appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md rounded-DEFAULT pl-11 pr-9 outline-none focus:bg-surface-container-lowest focus:shadow-md cursor-pointer transition-all" id="preferredLanguage" name="preferredLanguage">
-@{
+    var months = System.Globalization.CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames.Take(12).ToArray();
+    var genders = new[] { "Woman", "Man", "Non-binary", "Other", "Prefer not to say" };
     var languages = new[]
     {
         ("en-CA", "English (Canada)"),
@@ -228,111 +14,145 @@ else
         ("es", "Español"),
         ("en-US", "English (US)")
     };
+    var preferred = string.IsNullOrEmpty(Model.PreferredLanguage) ? "en-CA" : Model.PreferredLanguage;
 }
-@foreach (var language in languages)
-{
-    var selectedLanguage = Model.PreferredLanguage == language.Item1 || (string.IsNullOrEmpty(Model.PreferredLanguage) && language.Item1 == "en-CA");
-    if (selectedLanguage)
-    {
-        <option value="@language.Item1" selected>@language.Item2</option>
-    }
-    else
-    {
-        <option value="@language.Item1">@language.Item2</option>
-    }
-}
-</select>
-<span class="material-symbols-outlined absolute left-3.5 top-3.5 text-[18px] text-outline pointer-events-none">translate</span>
-<span class="material-symbols-outlined absolute right-2.5 top-3.5 text-[18px] text-outline pointer-events-none">expand_more</span>
-</div>
-<p class="font-caption text-caption text-on-surface-variant">
-                Saved on your account.
-              </p>
-</div>
-</div>
-<!-- Action Footer Section -->
-<div class="pt-space-md mt-space-xs flex flex-col-reverse sm:flex-row items-center justify-between gap-space-md">
-<button class="w-full sm:w-auto h-12 px-space-lg rounded-full bg-surface-container-low text-on-surface hover:bg-surface-container font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs transition-colors" type="button" data-flow='@Url.Action("Community", "Home")'>
-<span class="material-symbols-outlined text-[18px]">arrow_back</span>
-<span>Back</span>
-</button>
-<div class="flex items-center gap-space-md w-full sm:w-auto justify-end">
-<div class="hidden md:flex items-center gap-1.5 text-on-surface-variant font-caption text-caption">
-<span class="material-symbols-outlined text-[16px] text-secondary">cloud_done</span>
-<span>Saved when you continue</span>
-</div>
-<button class="w-full sm:w-auto h-12 px-space-xl rounded-full bg-primary-container text-on-primary hover:bg-primary font-label-numeric text-label-numeric flex items-center justify-center gap-space-xs shadow-md transition-all active:scale-[0.98]" type="submit">
-<span>Continue to Profile</span>
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</button>
-</div>
-</div>
-</form>
-</section>
-<!-- Contextual Sidebar / Trust Column (4 Columns) -->
-<aside class="lg:col-span-4 flex flex-col gap-space-md">
-<!-- Identity Trust Box -->
-<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
-<div class="flex items-center gap-space-sm">
-<div class="w-12 h-12 rounded-full bg-secondary-fixed/40 flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined text-[24px]">shield_person</span>
-</div>
-<div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-tight">Verified DashLane ID</h2>
-<span class="font-caption text-caption text-secondary font-medium">Standard Safety Layer 2.0</span>
-</div>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-            Your legal name and date of birth stay on your account and are used to confirm you are 18 or older.
-          </p>
-<div class="space-y-space-xs pt-space-xs">
-<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
-<span>Zero-knowledge birthdate encryption</span>
-</div>
-<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
-<span>Prevents fraudulent duplicate accounts</span>
-</div>
-<div class="flex items-center gap-space-xs text-on-surface font-body-sm text-body-sm">
-<span class="material-symbols-outlined text-secondary text-[18px]">check</span>
-<span>Required for regional transit insurance</span>
-</div>
-</div>
-</div>
-<!-- Community Member Snapshot -->
-<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
-<div class="flex items-center justify-between">
-<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant font-bold">Community Standard</span>
-<span class="text-caption font-caption text-secondary flex items-center gap-1 font-semibold">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> Your details stay on your account
-            </span>
-</div>
-<div class="flex items-center gap-space-sm">
-<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
-<span class="material-symbols-outlined text-[22px]">groups</span>
-</div>
-<div>
-<p class="font-label-numeric text-label-numeric text-on-surface">No public quotes yet</p>
-<p class="font-caption text-caption text-on-surface-variant">Other members' comments will show here after they finish trips.</p>
-</div>
-</div>
-</div>
-<!-- Hub City Micro Visualizer -->
-<div class="bg-surface-container-lowest rounded-lg p-space-md shadow-md flex items-center justify-between">
-<div class="flex items-center gap-space-sm">
-<div class="w-10 h-10 rounded-DEFAULT bg-surface-container flex items-center justify-center text-primary-container">
-<span class="material-symbols-outlined text-[22px]">route</span>
-</div>
-<div>
-<p class="font-label-badge text-label-badge text-on-surface font-bold">@(string.IsNullOrWhiteSpace(Model.HomeCity) ? "Home city not set" : Model.HomeCity)</p>
-<p class="font-caption text-caption text-on-surface-variant">No published routes yet</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-outline-variant text-[20px]">north_east</span>
-</div>
-</aside>
-</div>
-</div>
-</div>
+
+<div class="setup">
+    <partial name="_SetupSteps" model="Model" />
+
+    <div class="sheet">
+        <header class="sheet-head rise">
+            <p class="eyebrow">@T("Step") 01 / 05</p>
+            <h1 class="sheet-title">@T("Tell us about yourself")</h1>
+            <p class="sheet-lede">@T("This is what we check your ID against later, and how we confirm you're 18 or older. None of it is shown on your public profile.")</p>
+        </header>
+
+        <p id="flow-status" class="notice notice-err" role="status" aria-live="polite" hidden="@(TempData["GateNotice"] is not string)">@TempData["GateNotice"]</p>
+
+        <form class="card form-card rise rise-1" method="post" action="@Url.Action("AboutYou", "Home")" novalidate>
+            @Html.AntiForgeryToken()
+
+            @if (!string.IsNullOrEmpty(notice))
+            {
+                <div class="form-notice"><p class="notice notice-err" role="status">@notice</p></div>
+            }
+
+            <section class="form-section">
+                <div>
+                    <h2 class="fs-title">@T("Identity")</h2>
+                    <p class="fs-sub">@T("Must match your government ID exactly.")</p>
+                </div>
+                <div class="fs-body">
+                    <div class="field">
+                        <label class="label" for="legalName">@T("Full legal name")</label>
+                        <div class="control">
+                            @Icon.Get("user", 16)
+                            <input class="input" id="legalName" name="legalName" placeholder="@T("First and last name")" type="text" value="@Model.LegalName" autocomplete="name" required />
+                        </div>
+                    </div>
+
+                    <fieldset class="field fieldset">
+                        <div class="label-row">
+                            <legend class="label">@T("Date of birth")</legend>
+                            <span class="label-aside">@T("18+ only")</span>
+                        </div>
+                        <div class="row row-dob">
+                            <input class="input mono" aria-label="@T("Day")" id="dobDay" name="dobDay" min="1" max="31" placeholder="DD" type="number" inputmode="numeric" value="@(dob?.Day)" autocomplete="bday-day" />
+                            <div class="select-wrap">
+                                <select class="select" aria-label="@T("Month")" id="dobMonth" name="dobMonth" autocomplete="bday-month">
+                                    @if (dob == null)
+                                    {
+                                        <option value="" selected disabled>@T("Month")</option>
+                                    }
+                                    @for (var m = 0; m < 12; m++)
+                                    {
+                                        var number = m + 1;
+                                        if (dob?.Month == number)
+                                        {
+                                            <option value="@number" selected>@months[m]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@number">@months[m]</option>
+                                        }
+                                    }
+                                </select>
+                                @Icon.Get("chevron-down", 14)
+                            </div>
+                            <input class="input mono" aria-label="@T("Year")" id="dobYear" name="dobYear" min="1900" max="@(DateTime.Today.Year - 18)" placeholder="YYYY" type="number" inputmode="numeric" value="@(dob?.Year)" autocomplete="bday-year" />
+                        </div>
+                    </fieldset>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div>
+                    <h2 class="fs-title">@T("Gender")</h2>
+                    <p class="fs-sub">@T("Optional. Lets you join women-only rides when they launch.")</p>
+                </div>
+                <div class="fs-body">
+                    <input type="hidden" name="gender" id="gender" value="@Model.Gender" />
+                    <div class="chips" role="radiogroup" aria-label="@T("Gender identity")" data-radio-group="gender">
+                        @foreach (var g in genders)
+                        {
+                            <button type="button" class="chip" role="radio" aria-checked="false" data-value="@g">@Icon.Get("check", 14, "chip-check")<span>@T(g)</span></button>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div>
+                    <h2 class="fs-title">@T("Location & language")</h2>
+                    <p class="fs-sub">@T("Helps us suggest nearby pickups.")</p>
+                </div>
+                <div class="fs-body">
+                    <div class="row row-2">
+                        <div class="field">
+                            <label class="label" for="homeCity">@T("Home city")</label>
+                            <div class="ac" id="city-autocomplete">
+                                <div class="control">
+                                    @Icon.Get("map-pin", 16)
+                                    <input class="input" id="homeCity" placeholder="@T("Start typing…")" type="text" name="homeCity" value="@Model.HomeCity" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="city-suggestions" />
+                                </div>
+                                <ul class="ac-list" id="city-suggestions" role="listbox" hidden></ul>
+                            </div>
+                            <p class="hint">@T("Canadian cities only.")</p>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="preferredLanguage">@T("Preferred language")</label>
+                            <div class="select-wrap control">
+                                @Icon.Get("languages", 16)
+                                <select class="select" id="preferredLanguage" name="preferredLanguage">
+                                    @foreach (var (code, label) in languages)
+                                    {
+                                        if (code == preferred)
+                                        {
+                                            <option value="@code" selected>@label</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@code">@label</option>
+                                        }
+                                    }
+                                </select>
+                                @Icon.Get("chevron-down", 14)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <a class="btn btn-ghost" href="@Url.Action("Community", "Home")">@Icon.Get("arrow-left", 16) @T("Back")</a>
+                <span class="grow"></span>
+                <span class="aside">@Icon.Get("lock", 13) @T("Saved when you continue")</span>
+                <button class="btn btn-primary" type="submit" data-busy>
+                    <span>@T("Continue")</span>
+                    @Icon.Get("arrow-right", 16, "i-nudge")
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
