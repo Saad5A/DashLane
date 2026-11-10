@@ -558,6 +558,8 @@ public class HomeController : Controller
 
     public IActionResult CommunityStandards() => View();
 
+    public IActionResult Help() => View();
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult SetLanguage(string culture, string? returnUrl)

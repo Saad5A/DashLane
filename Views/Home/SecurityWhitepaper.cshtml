@@ -1,10 +1,11 @@
 @{
     ViewData["Title"] = T("Security Whitepaper") + " — DashLane";
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "legal-main";
 }
 
-<div class="legal-page">
+<div class="legal-page has-toc">
+    <aside class="legal-toc" data-toc aria-label="@T("On this page")"><p>@T("On this page")</p><ol></ol></aside>
+
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
         <h1 class="legal-title">@T("Security Whitepaper")</h1>
@@ -13,103 +14,166 @@
         {
             <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
         }
+
         <p class="legal-lead">
-            This page describes the security controls that exist in the current DashLane build.
-            It does not claim certifications or security products that are not implemented.
+            This whitepaper describes how DashLane protects member accounts and personal information today: the architecture, the controls in place,
+            the third parties involved, and the limitations we haven't addressed yet. It describes only controls that are implemented.
         </p>
+
+        <div class="legal-summary">
+            <h2>Key controls</h2>
+            <ul>
+                <li><span>Passwords are stored as <strong>salted PBKDF2-HMAC-SHA512 hashes</strong> (100,000 iterations).</span></li>
+                <li><span>Uploaded photos and ID documents live <strong>outside the public web root</strong> and are served only to their owner.</span></li>
+                <li><span>Phone codes are generated and checked by <strong>Twilio Verify</strong>; DashLane never stores them.</span></li>
+                <li><span>Every state-changing form is protected by <strong>anti-forgery tokens</strong>, and setup steps are enforced on the server.</span></li>
+            </ul>
+        </div>
 
         <section class="legal-section">
             <h2>1. Scope</h2>
             <p>
-                DashLane today covers account creation, cookie sign-in, and a five-step onboarding flow.
-                Ride marketplace, payments, and messaging are out of scope until they are built.
+                This document covers the DashLane web application: account sign-up and sign-in, the five-step onboarding and verification flow, and the
+                public pages. The ride feed, booking, payments and member messaging are not built yet and are out of scope; this document will be updated
+                before they launch.
             </p>
         </section>
 
         <section class="legal-section">
-            <h2>2. Authentication</h2>
+            <h2>2. Architecture</h2>
             <ul>
-                <li>Email and password sign-in uses ASP.NET Core cookie authentication.</li>
-                <li>Passwords are hashed with ASP.NET Core <code>PasswordHasher</code> before storage.</li>
-                <li>Failed sign-in returns a generic message so the response does not reveal whether the email exists.</li>
-                <li>The auth cookie is HTTP-only and uses sliding expiration. “Remember this device” can keep the session for 14 days.</li>
-                <li>Google OAuth uses official Google authentication when ClientId and ClientSecret are configured. Without those values, the Google buttons report that sign-in is unavailable.</li>
+                <li><strong>Application:</strong> an ASP.NET Core 8 MVC application rendering server-side Razor views.</li>
+                <li><strong>Database:</strong> a SQLite database (<code>App_Data/dashlane.db</code>) accessed through Entity Framework Core.</li>
+                <li><strong>File storage:</strong> member uploads are stored on the server under <code>App_Data/members/{id}/</code>, outside <code>wwwroot</code>, so they can never be requested as static files.</li>
+                <li><strong>External services:</strong> Twilio Verify (SMS codes), ID Analyzer (document checks), Google (optional sign-in) and OpenStreetMap Nominatim (city search). All calls are made server-to-server over HTTPS.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>3. Data storage</h2>
+            <h2>3. Authentication and sessions</h2>
             <ul>
-                <li>Member records live in SQLite at <code>App_Data/dashlane.db</code>.</li>
-                <li>Email addresses are stored normalized and unique.</li>
-                <li>Uploaded photos and documents are saved under <code>App_Data/members/{id}/</code>, outside <code>wwwroot</code>.</li>
-                <li>Profile photos are returned only to the signed-in owner through a controller action.</li>
-                <li>Document files are not publicly linked from profile pages.</li>
+                <li>Passwords must be at least 8 characters with a number and a symbol, and are hashed with ASP.NET Core's <code>PasswordHasher</code> (PBKDF2 with HMAC-SHA512, a random 128-bit salt and 100,000 iterations). Plain-text passwords are never stored or logged.</li>
+                <li>Failed sign-ins return the same generic message whether or not the email exists, to avoid revealing which accounts are registered.</li>
+                <li>Sessions use an HTTP-only authentication cookie (<code>dashlane.auth</code>) with sliding expiration. Persistent sessions last at most 14 days; otherwise the session ends with the browser.</li>
+                <li>Google sign-in uses Google's official OAuth flow. The temporary <code>dashlane.external</code> cookie expires after 5 minutes. Accounts are linked by Google's stable account identifier.</li>
+                <li>If a session refers to an account that no longer exists, the session is ended and the user is signed out.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>4. Phone verification</h2>
+            <h2>4. Authorization and access to member files</h2>
             <ul>
-                <li>Phone numbers are stored after digit normalization.</li>
-                <li>One-time codes are generated, stored, expired, and rate-limited by Twilio Verify; DashLane only stores whether the number is verified.</li>
-                <li>Twilio credentials live in <code>.env</code> (<code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_VERIFY_SERVICE_SID</code>). If they are missing, sending fails with an error; the code is never displayed in the page.</li>
+                <li>All onboarding pages and file endpoints require an authenticated session.</li>
+                <li>Profile photos and ID documents are served only through controller actions that look up the <strong>signed-in member's own</strong> file; there is no URL that accepts another member's ID.</li>
+                <li>Document responses are sent with <code>Cache-Control: no-store</code> so browsers and proxies don't keep copies.</li>
+                <li>The order of setup steps is enforced on the server: a request for a later step, including a direct form submission, is redirected to the first unfinished step.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>5. Automatic document checks</h2>
+            <h2>5. Data protection</h2>
+            <h3>In transit</h3>
+            <p>Outside development, the application redirects HTTP to HTTPS and sends HTTP Strict Transport Security (HSTS) headers. Calls to Twilio, ID Analyzer, Google and OpenStreetMap use HTTPS.</p>
+            <h3>At rest</h3>
+            <p>Passwords are hashed as described above. The SQLite database and uploaded files are not encrypted by the application itself; they rely on the hosting environment's disk encryption and file-system permissions.</p>
+            <h3>Minimisation</h3>
+            <p>DashLane doesn't store verification codes, payment details, IP addresses or biometric data. Only the decision, a short summary and a transaction reference are kept from each ID check.</p>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Identity verification</h2>
+            <h3>Phone (Twilio Verify)</h3>
             <ul>
-                <li>When <code>IdCheck__IdAnalyzerApiKey</code> is set, uploaded JPG, PNG, and WebP documents are sent over HTTPS to ID Analyzer's <code>/scan</code> API with the member's legal name and date of birth.</li>
-                <li>Only the decision (accept, review, or reject), a short summary, and the transaction reference are stored. ID Analyzer's own retention settings apply to data sent to it.</li>
-                <li>PDF uploads and uploads made while the key is missing are not checked automatically and are left for manual review.</li>
+                <li>Twilio generates the 6-digit code, delivers it by SMS, expires it after 10 minutes, limits wrong attempts and limits how often codes can be sent to a number.</li>
+                <li>DashLane only records the normalised phone number and whether it has been verified.</li>
+            </ul>
+            <h3>Government ID (ID Analyzer)</h3>
+            <ul>
+                <li>Photo uploads (JPG, PNG, WebP) are sent to ID Analyzer's <code>/scan</code> API with the member's legal name and date of birth. The scan is restricted to Canadian documents of the selected type.</li>
+                <li>A <em>reject</em> decision keeps the member on the Identity step until a better document is uploaded; <em>review</em> and <em>accept</em> let them continue.</li>
+                <li>PDFs, and uploads made while the integration isn't configured, are kept for manual review and are never sent to the provider.</li>
+                <li>There is no face matching or liveness check.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>6. Uploads</h2>
+            <h2>7. Application security controls</h2>
             <ul>
-                <li>Photos accept JPEG, PNG, and WebP.</li>
-                <li>Documents also accept PDF.</li>
-                <li>Uploads are limited to 10 MB.</li>
-                <li>Saved paths are checked so files cannot leave the member’s own folder.</li>
+                <li><strong>Cross-site request forgery:</strong> every form that changes data carries an anti-forgery token that is validated on the server.</li>
+                <li><strong>Injection:</strong> database access goes through Entity Framework Core with parameterised queries; Razor HTML-encodes output by default.</li>
+                <li><strong>Uploads:</strong> an allow-list of file extensions, a 10 MB size limit, and server-chosen file names (the name you upload is discarded). Resolved paths are checked so they can't escape the member's own folder.</li>
+                <li><strong>Third-party scripts:</strong> the site loads no third-party JavaScript, fonts or trackers; all assets are served from the application itself.</li>
+                <li><strong>Error handling:</strong> outside development, unhandled errors show a generic page with a request ID instead of technical details.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>7. Application protections</h2>
-            <ul>
-                <li>Form posts that change account data use anti-forgery tokens.</li>
-                <li>Onboarding pages after signup require an authenticated cookie.</li>
-                <li>Passwords are never written to browser <code>localStorage</code> or <code>sessionStorage</code> by DashLane scripts.</li>
-            </ul>
-        </section>
-
-        <section class="legal-section">
-            <h2>8. What this build does not provide</h2>
-            <ul>
-                <li>No ISO/IEC 27001 certification claim</li>
-                <li>No face match or liveness check (the automatic ID check reads the document only)</li>
-                <li>No member-to-member SMS relay or virtual telephony bridge</li>
-                <li>No production hosting hardening beyond the local development server</li>
-            </ul>
+            <h2>8. Secrets management</h2>
             <p>
-                Those items can be added later with real providers and an updated whitepaper.
+                API keys and OAuth secrets are read from environment variables, loaded locally from a <code>.env</code> file that is excluded from source control.
+                No secrets are embedded in the code or in the pages sent to the browser. Keys should be rotated in the provider's console if a <code>.env</code> file or server is ever exposed.
             </p>
         </section>
 
         <section class="legal-section">
-            <h2>9. Responsible use of the local database</h2>
+            <h2>9. Third-party processors</h2>
+            <div class="legal-table-wrap">
+                <table class="legal-table">
+                    <thead><tr><th>Provider</th><th>Used for</th><th>Data received</th></tr></thead>
+                    <tbody>
+                        <tr><td>Twilio</td><td>SMS verification codes</td><td>Mobile number, entered code, language</td></tr>
+                        <tr><td>ID Analyzer</td><td>Document authenticity and data cross-check</td><td>Document image, legal name, date of birth</td></tr>
+                        <tr><td>Google</td><td>Optional sign-in</td><td>OAuth request only; returns name, email and account ID</td></tr>
+                        <tr><td>OpenStreetMap Nominatim</td><td>City suggestions</td><td>Typed search text, sent from the server</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="legal-section">
+            <h2>10. Known limitations</h2>
+            <p>We list these openly so members and reviewers can judge the current level of protection.</p>
+            <ul>
+                <li>No rate limiting or account lockout on password sign-in yet.</li>
+                <li>No second sign-in factor beyond the verified phone number, and no self-serve password reset.</li>
+                <li>The database and uploads are not encrypted at the application level.</li>
+                <li>Uploads are validated by extension and size; file contents are not scanned for malware.</li>
+                <li>No audit log of administrative access, and no self-serve account deletion.</li>
+                <li>No third-party security certification (such as SOC 2 or ISO/IEC 27001) has been obtained.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>11. Incident response</h2>
             <p>
-                Anyone with filesystem access to the server can read <code>App_Data</code>.
-                Use this build on trusted machines, keep the database out of public repositories, and rotate credentials if the database file is copied.
+                If we discover a breach of security safeguards involving personal information that creates a real risk of significant harm, we will contain it,
+                notify affected members, report it to the Office of the Privacy Commissioner of Canada, and keep a record of the breach, as required under PIPEDA.
             </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>12. Reporting a vulnerability</h2>
+            <p>
+                If you believe you've found a security issue, please report it privately with steps to reproduce. Please don't access other members' data,
+                degrade the service or publicly disclose the issue before we've had a reasonable chance to fix it.
+            </p>
+            <div class="legal-contact">
+                @if (Site.HasSupportEmail)
+                {
+                    <span>Security contact: <a href="mailto:@Site.SupportEmail">@Site.SupportEmail</a></span>
+                }
+                else
+                {
+                    <span>This DashLane site hasn't published a security contact address yet.</span>
+                }
+            </div>
         </section>
 
         <nav class="legal-nav" aria-label="Related policies">
-            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
             <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a>
-            <a class="legal-nav-link" href="@Url.Action("Index", "Home")">@T("Back to welcome")</a>
+            <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
+            <a class="legal-nav-link" href="@Url.Action("CommunityStandards", "Home")">@T("Community Standards")</a>
+            <a class="legal-nav-link" href="@Url.Action("Help", "Home")">@T("Help Centre")</a>
         </nav>
     </article>
 </div>

@@ -1,55 +1,185 @@
 @{
     ViewData["Title"] = T("Community Standards") + " — DashLane";
     Layout = "_AuthLayout";
-    ViewData["MainClass"] = "legal-main";
 }
 
-<div class="legal-page">
+<div class="legal-page has-toc">
+    <aside class="legal-toc" data-toc aria-label="@T("On this page")"><p>@T("On this page")</p><ol></ol></aside>
+
     <article class="legal-card">
         <p class="legal-kicker">DashLane Mobility</p>
         <h1 class="legal-title">@T("Community Standards")</h1>
-        <p class="legal-updated">@T("Last updated: November 6, 2026")</p>
+        <p class="legal-updated">@T("Last updated: November 10, 2026")</p>
         @if (IsFrench)
         {
             <p class="notice legal-lang-note">@T("This document is currently available in English only.")</p>
         }
+
         <p class="legal-lead">
-            DashLane is a Canada-focused ride-sharing community. These standards apply to every member who creates an account, completes onboarding, or later posts or books a trip.
+            DashLane works because strangers trust each other enough to share a car for a few hours. These standards describe what every member can expect
+            from everyone else, and what we'll do when someone falls short. They apply to every member, on and off the road, from the moment you create an account.
         </p>
 
-        <section class="legal-section">
-            <h2>1. Be who you say you are</h2>
-            <p>
-                Use your real name, a recognizable photo, and accurate contact details. Do not create accounts for other people or upload identity documents that are not yours.
-            </p>
-        </section>
+        <div class="legal-summary">
+            <h2>The short version</h2>
+            <ul>
+                <li><span><strong>Be real.</strong> Your account, photo and ID must be yours and accurate.</span></li>
+                <li><span><strong>Be safe.</strong> Drive legally and soberly, and never pressure anyone into an unsafe situation.</span></li>
+                <li><span><strong>Be respectful.</strong> No harassment, discrimination or unwanted contact — ever.</span></li>
+                <li><span><strong>Be reliable.</strong> Show up when you said you would, and say so early if plans change.</span></li>
+            </ul>
+        </div>
+
+        <div class="legal-callout is-danger">
+            @Icon.Get("alert", 18)
+            <span><strong>If you or anyone else is in immediate danger, call 911 first.</strong> DashLane can't dispatch emergency services. Report the incident to us once you're safe.</span>
+        </div>
 
         <section class="legal-section">
-            <h2>2. Travel considerately</h2>
+            <h2>1. Identity and honesty</h2>
             <ul>
-                <li>Be on time for pickups and drop-offs.</li>
-                <li>Follow the travel preferences you and your co-riders share.</li>
-                <li>Keep vehicles clean and respect luggage, pets, and quiet-ride choices.</li>
+                <li>Use your real legal name and date of birth, and a recent photo that clearly shows your face.</li>
+                <li>Keep one personal account. Don't create accounts for other people, share your account, or open a new account after a suspension.</li>
+                <li>Only upload identity documents that belong to you, are valid and haven't been altered.</li>
+                <li>Describe yourself, your vehicle and your trips accurately. Don't mislead other members about who will be in the car.</li>
             </ul>
         </section>
 
         <section class="legal-section">
-            <h2>3. Zero harassment</h2>
+            <h2>2. Safety on the road</h2>
+            <h3>Drivers</h3>
+            <ul>
+                <li>Hold a valid driver's licence for the class of vehicle you drive and carry the insurance and registration required in your province or territory.</li>
+                <li>Keep the vehicle roadworthy and drive within the law, including speed limits and hands-free rules for phones.</li>
+                <li>Never drive while impaired by alcohol, cannabis, other drugs, medication or fatigue.</li>
+                <li>Have a working seatbelt for every passenger and don't carry more people than there are seatbelts.</li>
+                <li>Agree on pickup and drop-off points that are legal and safe to stop at.</li>
+            </ul>
+            <h3>Everyone</h3>
+            <ul>
+                <li>Wear a seatbelt for the whole trip.</li>
+                <li>Use child car seats that meet provincial requirements for any child travelling with you.</li>
+                <li>Don't use alcohol or cannabis in the vehicle.</li>
+                <li>You can end a trip at any safe point if you feel unsafe. No one may pressure you to continue.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>3. Respect and non-discrimination</h2>
             <p>
-                Harassment, hate speech, threats, discrimination, or unwanted contact are not allowed. Report unsafe behaviour; accounts that break this rule can be suspended.
+                Treat every member with courtesy. We don't tolerate discrimination based on race, national or ethnic origin, colour, religion, age, sex,
+                sexual orientation, gender identity or expression, marital or family status, disability, or any other ground protected by Canadian human rights law.
+            </p>
+            <ul>
+                <li>Don't refuse, cancel on, or treat a member differently because of who they are.</li>
+                <li>Safety features that DashLane provides — such as women-only rides when they launch — are not discrimination and are allowed.</li>
+                <li>Respect the ride preferences that people set, such as quiet rides, music, pets and no smoking.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>4. Harassment and unwanted contact</h2>
+            <p>DashLane has <strong>zero tolerance</strong> for:</p>
+            <ul>
+                <li>Threats, intimidation, physical violence or aggressive behaviour.</li>
+                <li>Sexual harassment, sexual comments, unwanted touching, or any sexual activity with another member during a trip.</li>
+                <li>Hate speech, slurs or symbols that target people for who they are.</li>
+                <li>Contacting a member after they've asked you to stop, or using their details for anything other than an arranged trip.</li>
+            </ul>
+            <p>A single serious incident can result in permanent removal from DashLane.</p>
+        </section>
+
+        <section class="legal-section">
+            <h2>5. Reliability and communication</h2>
+            <ul>
+                <li>Be on time for pickups. If you're running late, let the others know as soon as you can.</li>
+                <li>If you need to cancel, do it as early as possible; repeated late cancellations or no-shows affect your standing.</li>
+                <li>Stick to the agreed route, stops and timing unless everyone agrees to change them.</li>
+                <li>Respect luggage limits and the space agreed for each person.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>6. Fair cost-sharing</h2>
+            <p>
+                DashLane is for sharing trips you're already making, not for running a commercial transport service. Contributions should reasonably reflect the
+                costs of the trip, such as fuel and tolls. Drivers are responsible for complying with their province's or territory's rules on carpooling and
+                passenger transport. Never ask for extra money, change the agreed amount during a trip, or require payment outside what was agreed.
             </p>
         </section>
 
         <section class="legal-section">
-            <h2>4. Keep rides lawful</h2>
+            <h2>7. Privacy of other members</h2>
+            <ul>
+                <li>Use other members' names, numbers and trip details only to arrange and complete the trip.</li>
+                <li>Don't share, post or publish another member's personal information, photos or messages.</li>
+                <li>Don't record audio or video of other members without the clear consent of everyone in the vehicle, unless the law requires otherwise.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>8. Prohibited items and activities</h2>
+            <ul>
+                <li>Transporting illegal goods, weapons, or anything that requires a permit you don't have.</li>
+                <li>Carrying hazardous materials or items that could injure passengers.</li>
+                <li>Smoking or vaping in the vehicle unless everyone has agreed and it's legal.</li>
+                <li>Using DashLane for any illegal purpose, for fraud or scams, or to recruit members for other services.</li>
+            </ul>
+        </section>
+
+        <section class="legal-section">
+            <h2>9. Pets and belongings</h2>
             <p>
-                Do not use DashLane to move illegal goods, drive without required licensing or insurance when posting trips, or pressure others into unsafe plans.
+                Bring pets only on trips where the driver has allowed them, and keep them in a carrier unless agreed otherwise. Service animals are welcome on every
+                trip. Look after your own belongings and treat the driver's vehicle with care.
+            </p>
+        </section>
+
+        <section class="legal-section">
+            <h2>10. Reporting a concern</h2>
+            <p>
+                Tell us about anything that breaks these standards, even if it seems minor; patterns matter. Include the member's name, what happened and when.
+                We review every report, keep the reporter's identity confidential where we can, and don't tolerate retaliation against anyone who reports in good faith.
+                In-app reporting will arrive with the ride feed.
+            </p>
+            <div class="legal-contact">
+                @if (Site.HasSupportEmail)
+                {
+                    <span>Report a concern: <a href="mailto:@Site.SupportEmail">@Site.SupportEmail</a></span>
+                }
+                else
+                {
+                    <span>This DashLane site hasn't published a reporting address yet.</span>
+                }
+            </div>
+        </section>
+
+        <section class="legal-section">
+            <h2>11. How we enforce these standards</h2>
+            <p>Depending on how serious the issue is and whether it has happened before, we may:</p>
+            <ul>
+                <li>remind you of the standards or issue a written warning;</li>
+                <li>restrict features or require you to re-verify your identity;</li>
+                <li>temporarily suspend your account while we investigate;</li>
+                <li>permanently remove your account and block new accounts;</li>
+                <li>share information with police when the law requires it or someone's safety is at risk.</li>
+            </ul>
+            <p>If we take action on your account, we'll tell you why where it's safe to do so, and you can ask us to review the decision.</p>
+        </section>
+
+        <section class="legal-section">
+            <h2>12. Changes</h2>
+            <p>
+                We'll update these standards as DashLane grows, and change the date at the top when we do. These standards sit alongside the
+                <a class="legal-inline-link" href="@Url.Action("Terms", "Home")">Terms of Service</a> and the
+                <a class="legal-inline-link" href="@Url.Action("Privacy", "Home")">Privacy Policy</a>.
             </p>
         </section>
 
         <nav class="legal-nav" aria-label="Related pages">
             <a class="legal-nav-link" href="@Url.Action("Terms", "Home")">@T("Terms of Service")</a>
             <a class="legal-nav-link" href="@Url.Action("Privacy", "Home")">@T("Privacy Policy")</a>
+            <a class="legal-nav-link" href="@Url.Action("Help", "Home")">@T("Help Centre")</a>
             <a class="legal-nav-link" href="@Url.Action("Community", "Home")">@T("Back to getting started")</a>
         </nav>
     </article>
