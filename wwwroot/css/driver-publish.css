@@ -13,7 +13,7 @@
     padding: 0;
     display: grid;
     gap: .85rem;
-    border-left: 3px solid #0F766E;
+    border-left: 3px solid var(--accent);
     padding-left: 1rem;
 }
 
@@ -23,12 +23,12 @@
 }
 
 .publish-timeline strong {
-    font-family: Manrope, system-ui, sans-serif;
-    font-weight: 800;
+    font-family: var(--sans);
+    font-weight: 600;
 }
 
 .publish-eta {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-size: .84rem;
     font-weight: 700;
 }
@@ -44,26 +44,26 @@
     justify-content: space-between;
     gap: .75rem;
     padding: .35rem 0;
-    border-bottom: 1px solid var(--ride-border);
+    border-bottom: 1px solid var(--line-2);
 }
 
 .publish-facts dt {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-weight: 600;
 }
 
 .publish-facts dd {
     margin: 0;
-    font-weight: 800;
+    font-weight: 700;
     text-align: right;
 }
 
 .publish-notes {
     margin-top: 1rem;
     padding: .85rem 1rem;
-    border-radius: 16px;
-    background: #F8FAFC;
-    border: 1px solid var(--ride-border);
+    border-radius: var(--r-lg);
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
 }
 
 .publish-notes h3 {
@@ -75,13 +75,13 @@
     display: flex;
     gap: .75rem;
     align-items: flex-start;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
 }
 
 .publish-policy input {
     margin-top: .25rem;
-    accent-color: #0F766E;
+    accent-color: var(--accent);
     width: 1.1rem;
     height: 1.1rem;
 }
@@ -89,8 +89,12 @@
 .publish-back {
     display: inline-block;
     margin-top: .85rem;
-    color: var(--ride-hover);
+    color: var(--accent-text);
     font-weight: 700;
+}
+
+.publish-back:hover {
+    color: var(--text);
 }
 
 .active-header {
@@ -105,22 +109,22 @@
     display: inline-flex;
     align-items: center;
     gap: .55rem;
-    border: 1px solid var(--ride-border);
+    border: 1px solid var(--line-2);
     border-radius: 999px;
     padding: .55rem .9rem;
-    background: #fff;
-    font-weight: 800;
+    background: var(--surface);
+    font-weight: 700;
     cursor: pointer;
 }
 
 .online-toggle:has(input:checked) {
-    background: #ECFDF5;
-    border-color: #0F766E;
-    color: #065F46;
+    background: var(--ok-soft);
+    border-color: rgba(34, 197, 94, 0.25);
+    color: var(--ok);
 }
 
 .online-toggle input {
-    accent-color: #0F766E;
+    accent-color: var(--ok-fill);
     width: 1.15rem;
     height: 1.15rem;
 }
@@ -145,14 +149,14 @@
 .request-rating {
     display: inline-block;
     margin-left: .45rem;
-    color: #D97706;
-    font-weight: 800;
+    color: var(--accent-text);
+    font-weight: 700;
 }
 
 .request-payout {
-    font-family: Manrope, system-ui, sans-serif;
-    font-weight: 800;
-    color: var(--ride-hover);
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--accent-text);
     font-size: 1.15rem;
 }
 
@@ -166,7 +170,7 @@
 .countdown-bar {
     height: .7rem;
     border-radius: 999px;
-    background: #E2E8F0;
+    background: var(--surface-3);
     overflow: hidden;
 }
 
@@ -174,7 +178,8 @@
     display: block;
     height: 100%;
     width: 100%;
-    background: #0F766E;
+    background: linear-gradient(90deg, var(--accent), #ff9b3d);
+    box-shadow: 0 0 12px rgba(255, 176, 0, 0.5);
     transform-origin: left center;
     transition: transform .2s linear;
 }
@@ -189,24 +194,26 @@
 .request-decline,
 .trip-step {
     border: 0;
-    border-radius: 999px;
+    border-radius: 12px;
     min-height: 2.7rem;
     padding: .45rem 1.1rem;
-    font-weight: 800;
+    font-weight: 500;
 }
 
 .request-accept {
-    background: #0F766E;
-    color: #fff;
+    background: var(--text);
+    color: var(--surface);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 20px -10px rgba(0, 0, 0, 0.5);
 }
 
 .request-accept:hover {
-    background: #115E59;
+    background: #2a2825;
 }
 
 .request-decline {
-    background: #FEF3C7;
-    color: #B45309;
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    border: 1px solid rgba(255, 176, 0, 0.2);
 }
 
 .trip-steps {
@@ -216,9 +223,15 @@
 }
 
 .trip-step {
-    background: var(--ride-tint);
-    color: var(--ride-hover);
-    border: 1px solid var(--ride-border);
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line-2);
+    box-shadow: var(--edge);
+}
+
+.trip-step:hover:not(:disabled) {
+    background: var(--surface-3);
+    border-color: var(--line-3);
 }
 
 .trip-step:disabled {
@@ -228,5 +241,5 @@
 .dispatch-status {
     margin: .75rem 0 0;
     font-weight: 700;
-    color: var(--ride-muted);
+    color: var(--text-2);
 }

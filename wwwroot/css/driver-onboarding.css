@@ -1,12 +1,6 @@
-body:has(.post-ride-page) {
-    background: #FBFBFA;
-}
-
-.post-ride-page {
-    --post-trust-bg: #ECFDF5;
-    --post-trust-ink: #065F46;
-    --post-amber-bg: #FEF3C7;
-    --post-amber-ink: #B45309;
+body:has(.post-ride-page.rider-workflow) {
+    background: var(--bg);
+    color: var(--text);
 }
 
 .post-progress {
@@ -27,7 +21,7 @@ body:has(.post-ride-page) {
     display: flex;
     align-items: center;
     gap: .45rem;
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-size: .84rem;
     font-weight: 700;
 }
@@ -38,16 +32,16 @@ body:has(.post-ride-page) {
     width: 1.65rem;
     height: 1.65rem;
     border-radius: 999px;
-    background: #F1F5F9;
+    background: var(--surface-2);
 }
 
 .post-progress [aria-current="step"] {
-    color: var(--ride-hover);
+    color: var(--accent-text);
 }
 
 .post-progress [aria-current="step"] span {
-    background: #0F766E;
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
 }
 
 .post-card,
@@ -65,6 +59,7 @@ body:has(.post-ride-page) {
 .post-lede {
     margin: 0 0 1rem;
     font-size: .95rem;
+    color: var(--text-2);
 }
 
 .post-fields {
@@ -80,19 +75,20 @@ body:has(.post-ride-page) {
 }
 
 .post-field label {
-    font-weight: 700;
+    font-weight: 600;
     font-size: .9rem;
 }
 
 .post-input,
 .post-file {
     width: 100%;
-    border: 1px solid var(--ride-border);
-    border-radius: 16px;
-    background: #F8FAFC;
-    color: var(--ride-ink);
-    min-height: 2.85rem;
-    padding: .55rem .85rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+    color: var(--text);
+    min-height: 42px;
+    padding: .55rem 12px;
+    box-shadow: 0 1px 2px rgba(20, 18, 12, 0.04);
 }
 
 .post-file {
@@ -102,14 +98,14 @@ body:has(.post-ride-page) {
 
 .post-input:focus,
 .post-file:focus {
-    border-color: #99E0D5;
-    background: var(--ride-tint);
+    border-color: rgba(214, 140, 0, 0.6);
+    background: var(--surface);
     outline: none;
-    box-shadow: 0 0 0 3px rgb(15 118 110 / .15);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .post-field-error {
-    color: #B91C1C;
+    color: var(--err);
     font-size: .8rem;
     font-weight: 600;
 }
@@ -149,22 +145,22 @@ body:has(.post-ride-page) {
 }
 
 .post-tier:hover {
-    box-shadow: var(--ride-shadow-raised);
+    box-shadow: var(--edge), var(--lift);
 }
 
 .post-tier:has(input:checked) {
-    background: var(--ride-tint);
-    border-color: var(--ride-primary);
-    box-shadow: 0 0 0 1px var(--ride-primary), var(--ride-shadow);
+    background: linear-gradient(180deg, rgba(255, 176, 0, 0.06), rgba(255, 176, 0, 0.02));
+    border-color: var(--accent-line);
+    box-shadow: 0 0 0 3px rgba(255, 176, 0, 0.05);
 }
 
 .post-tier-name {
-    font-family: Manrope, system-ui, sans-serif;
-    font-weight: 800;
+    font-family: var(--sans);
+    font-weight: 600;
 }
 
 .post-tier-hint {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-size: .84rem;
 }
 
@@ -188,13 +184,13 @@ body:has(.post-ride-page) {
 }
 
 .post-stepper {
-    background: #F1F5F9;
+    background: var(--surface-2);
 }
 
 .post-stepper output {
     min-width: 1.4rem;
     text-align: center;
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .post-toggle {
@@ -211,32 +207,36 @@ body:has(.post-ride-page) {
 .post-badge {
     display: inline-flex;
     align-items: center;
-    border-radius: 999px;
-    padding: .35rem .75rem;
-    font-size: .78rem;
-    font-weight: 700;
+    border-radius: var(--r-xs);
+    padding: .2rem .55rem;
+    font-size: 12px;
+    font-weight: 500;
+    min-height: 22px;
 }
 
 .post-badge-trust {
-    background: var(--post-trust-bg);
-    color: var(--post-trust-ink);
+    background: var(--ok-soft);
+    color: var(--ok);
+    border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 .post-badge-muted {
-    background: #F1F5F9;
-    color: var(--ride-muted);
+    background: var(--surface-2);
+    color: var(--text-2);
+    border: 1px solid var(--line-2);
 }
 
 .post-alert {
-    border-radius: 16px;
+    border-radius: var(--r);
     padding: .85rem 1rem;
     font-weight: 600;
     margin-bottom: 1rem;
 }
 
 .post-alert-amber {
-    background: var(--post-amber-bg);
-    color: var(--post-amber-ink);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    border: 1px solid rgba(255, 176, 0, 0.2);
 }
 
 .post-fields-license {
@@ -244,16 +244,23 @@ body:has(.post-ride-page) {
 }
 
 .post-cta {
-    min-height: 48px;
-    height: 48px;
-    border-radius: 999px;
-    background: #0F766E;
+    min-height: 46px;
+    border-radius: 12px;
+    background: var(--text);
+    color: var(--surface);
     text-decoration: none;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 20px -10px rgba(0, 0, 0, 0.5);
 }
 
 .post-cta:hover {
-    background: #115E59;
-    color: #fff;
+    background: #2a2825;
+    color: var(--surface);
+}
+
+.post-cta:active {
+    transform: scale(.985);
 }
 
 .post-summary header {
@@ -273,24 +280,25 @@ body:has(.post-ride-page) {
     justify-content: space-between;
     gap: .75rem;
     padding: .4rem 0;
-    border-bottom: 1px solid var(--ride-border);
+    border-bottom: 1px solid var(--line-2);
 }
 
 .post-summary dt {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-size: .84rem;
     font-weight: 600;
 }
 
 .post-summary dd {
     margin: 0;
-    font-weight: 800;
+    font-weight: 700;
     text-align: right;
 }
 
 .post-summary-note {
     margin: .85rem 0 0;
     font-size: .88rem;
+    color: var(--text-2);
 }
 
 .post-placeholder {
@@ -309,5 +317,23 @@ body:has(.post-ride-page) {
     .post-fields,
     .post-tiers {
         grid-template-columns: 1fr;
+    }
+}
+
+.ride-map-pin-text {
+    fill: var(--accent-ink);
+    font-weight: 700;
+}
+
+.ride-map-pin-text-hollow {
+    fill: var(--accent-text);
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .post-input,
+    .post-file {
+        font-size: 16px;
+        min-height: 46px;
     }
 }
