@@ -7,13 +7,13 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
-    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-post-details.css" asp-append-version="true" />
 }
 
-<section class="ride-page post-ride-page" id="driver-post-details"
+<section class="ride-page rider-workflow post-ride-page" id="driver-post-details"
          data-estimate-url="@Url.Action("EstimatePayout", "DriverApi")"
          data-tier="@Model.Tier"
          data-distance="@Model.DistanceKm.ToString(System.Globalization.CultureInfo.InvariantCulture)"
