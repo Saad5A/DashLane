@@ -1,0 +1,185 @@
+.post-route-card {
+    overflow: hidden;
+}
+
+.post-waypoint-shell {
+    position: relative;
+    display: grid;
+    gap: .35rem;
+    padding: .15rem 0 .35rem;
+}
+
+.post-waypoint-rail {
+    position: absolute;
+    left: 1.15rem;
+    top: 2.55rem;
+    bottom: 2.55rem;
+    width: 3px;
+    border-radius: 999px;
+    background: #0F766E;
+}
+
+.post-waypoint-block label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: .3rem;
+}
+
+.post-swap-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 2.6rem;
+    position: relative;
+    z-index: 1;
+}
+
+.post-swap {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid var(--ride-border);
+    background: #fff;
+    color: var(--ride-hover);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--ride-shadow);
+}
+
+.post-swap span {
+    display: inline-block;
+    transition: transform .28s ease;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.post-swap.is-swapped span {
+    transform: rotate(180deg);
+}
+
+.post-swap:hover {
+    background: var(--ride-tint);
+}
+
+.post-schedule {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem 1rem;
+    margin-top: 1.1rem;
+}
+
+.post-stops-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem 1rem;
+    margin-bottom: .85rem;
+}
+
+.post-stops-head .post-lede {
+    margin-bottom: 0;
+}
+
+.post-add-stop {
+    border: 1px solid var(--ride-border);
+    border-radius: 999px;
+    background: var(--ride-tint);
+    color: var(--ride-hover);
+    font-weight: 800;
+    min-height: 2.6rem;
+    padding: .45rem 1rem;
+}
+
+.post-add-stop:hover {
+    background: var(--ride-selected);
+}
+
+.post-stops-list {
+    display: grid;
+    gap: .75rem;
+}
+
+.post-stop-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .75rem;
+    align-items: start;
+    padding: .85rem 1rem;
+}
+
+.post-stop-index {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 999px;
+    background: #0F766E;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    margin-top: 1.55rem;
+}
+
+.post-stop-fields {
+    display: grid;
+    gap: .65rem;
+}
+
+.post-stop-fields label {
+    display: grid;
+    gap: .3rem;
+    font-weight: 700;
+    font-size: .9rem;
+}
+
+.post-stop-actions {
+    display: grid;
+    gap: .35rem;
+    margin-top: 1.4rem;
+}
+
+.post-stop-remove {
+    color: #B91C1C;
+}
+
+.post-outline {
+    margin: 0;
+    padding-left: 1.15rem;
+    display: grid;
+    gap: .45rem;
+}
+
+.post-outline li {
+    font-weight: 700;
+}
+
+.post-outline .post-outline-meta {
+    display: block;
+    color: var(--ride-muted);
+    font-weight: 600;
+    font-size: .84rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+    .post-schedule {
+        grid-template-columns: 1fr;
+    }
+
+    .post-stop-row {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .post-stop-actions {
+        grid-column: 2;
+        grid-auto-flow: column;
+        justify-content: start;
+        margin-top: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-swap span {
+        transition: none;
+    }
+}

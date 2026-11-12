@@ -1,0 +1,23 @@
+@{
+    var step = ViewData["Step"] as int? ?? 1;
+    var labels = new[]
+    {
+        "Vehicle & License",
+        "Route & Stops",
+        "Instructions & Fares",
+        "Publish & Dispatch"
+    };
+}
+
+<nav class="post-progress ride-card" aria-label="Post a ride progress">
+    <ol>
+        @for (var i = 0; i < labels.Length; i++)
+        {
+            var n = i + 1;
+            <li aria-current="@(n == step ? "step" : null)">
+                <span>@n</span>
+                @labels[i]
+            </li>
+        }
+    </ol>
+</nav>

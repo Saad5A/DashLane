@@ -1,0 +1,154 @@
+@model DashLane.Models.PostDetailsViewModel
+@{
+    ViewData["Title"] = "Instructions & Fares";
+    ViewData["Step"] = 3;
+    var toronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+    var departureLocal = TimeZoneInfo.ConvertTimeFromUtc(Model.DepartureUtc, toronto);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-post-details.css" asp-append-version="true" />
+}
+
+<section class="ride-page post-ride-page" id="driver-post-details"
+         data-estimate-url="@Url.Action("EstimatePayout", "DriverApi")"
+         data-tier="@Model.Tier"
+         data-distance="@Model.DistanceKm.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+         data-duration="@Model.DurationMin.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+         data-max-seats="@Model.MaxSeats">
+    <partial name="_PostRideSteps" />
+
+    <form class="ride-grid" method="post" asp-action="PostDetails" id="post-details-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="EstimatedPricePerSeat" id="EstimatedPricePerSeat" />
+        <input type="hidden" asp-for="EstimatedTotalEarnings" id="EstimatedTotalEarnings" />
+
+        <div class="ride-selector">
+            <header>
+                <h1>Instructions &amp; Fares</h1>
+                <p>Tell riders how to board, set seats, and preview your transparent DashLane payout.</p>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="post-alert post-alert-amber" role="alert">@Model.Error</div>
+            }
+
+            <div class="ride-card post-card">
+                <h2>Pickup &amp; boarding</h2>
+                <p class="post-lede">Notes appear on the rider booking screen before they request a seat.</p>
+
+                <label class="post-field-block" asp-for="PickupInstructions">
+                    Pickup instructions
+                    <textarea asp-for="PickupInstructions" class="post-textarea" id="PickupInstructions"
+                              rows="4" maxlength="400"
+                              placeholder="Example: Wait by the GO bus loop, look for a grey Camry."></textarea>
+                </label>
+
+                <div class="post-chip-row" role="group" aria-label="Quick boarding tags">
+                    @foreach (var chip in BoardingChips.All)
+                    {
+                        <button type="button" class="post-chip" data-chip="@chip">@chip</button>
+                    }
+                </div>
+
+                <fieldset class="post-luggage">
+                    <legend>Luggage allowance</legend>
+                    <div class="post-luggage-pills" role="radiogroup" aria-label="Luggage allowance">
+                        @foreach (var option in LuggageOptions.All)
+                        {
+                            <label class="post-pill">
+                                <input type="radio" asp-for="LuggageAllowance" value="@option" />
+                                <span>@option</span>
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="ride-card post-card">
+                <h2>Seats &amp; booking</h2>
+                <p class="post-lede">Capped by your registered vehicle capacity (@Model.MaxSeats).</p>
+
+                <div class="post-controls">
+                    <div class="post-control">
+                        <span class="post-control-label">Available seats</span>
+                        <div class="ride-stepper post-stepper" data-seat-stepper>
+                            <button type="button" class="ride-round" data-step="-1" aria-label="Fewer seats">−</button>
+                            <output id="seats-output" class="post-tabular" aria-live="polite">@Model.AvailableSeats</output>
+                            <button type="button" class="ride-round" data-step="1" aria-label="More seats">+</button>
+                            <input type="hidden" asp-for="AvailableSeats" id="AvailableSeats" />
+                        </div>
+                    </div>
+                    <label class="ride-toggle post-toggle">
+                        <input asp-for="AutoApproveRiders" />
+                        Instant Book (auto-approve)
+                    </label>
+                </div>
+                <p class="post-hint" id="booking-mode-hint">
+                    @(Model.AutoApproveRiders
+                        ? "Riders who match your rules are booked instantly."
+                        : "You’ll manually approve each rider request.")
+                </p>
+            </div>
+
+            <div class="post-nav-actions">
+                <a class="post-secondary" asp-action="PostRoute">Back to Route</a>
+                <button class="ride-primary post-cta" type="submit" id="details-continue">Continue to Publish</button>
+            </div>
+        </div>
+
+        <aside class="ride-aside">
+            <div class="ride-card post-summary" id="earnings-summary">
+                <header>
+                    <h2>Trip preview &amp; earnings</h2>
+                    <span class="ride-chip">@Model.Tier</span>
+                </header>
+
+                <dl class="post-trip-meta">
+                    <div>
+                        <dt>From</dt>
+                        <dd>@Model.OriginAddress</dd>
+                    </div>
+                    <div>
+                        <dt>To</dt>
+                        <dd>@Model.DestinationAddress</dd>
+                    </div>
+                    <div>
+                        <dt>Depart</dt>
+                        <dd class="post-tabular">@departureLocal.ToString("ddd MMM d · h:mm tt")</dd>
+                    </div>
+                    <div>
+                        <dt>Route</dt>
+                        <dd class="post-tabular">@Model.DistanceKm.ToString("0.0") km · @Model.DurationMin.ToString("0") min@(Model.StopCount > 0 ? $" · {Model.StopCount} stop{(Model.StopCount == 1 ? "" : "s")}" : "")</dd>
+                    </div>
+                </dl>
+
+                <div class="post-earnings" aria-live="polite">
+                    <p class="post-earnings-status" id="payout-status">Calculating payout…</p>
+                    <dl id="payout-breakdown" hidden>
+                        <div><dt>Base fee</dt><dd class="post-tabular" id="payout-base">—</dd></div>
+                        <div><dt id="payout-distance-label">Distance</dt><dd class="post-tabular" id="payout-distance">—</dd></div>
+                        <div><dt id="payout-time-label">Duration</dt><dd class="post-tabular" id="payout-time">—</dd></div>
+                        <div><dt>Tier minimum</dt><dd class="post-tabular" id="payout-minimum">—</dd></div>
+                        <div class="post-earnings-seat">
+                            <dt>Per seat</dt>
+                            <dd class="post-tabular" id="payout-seat">—</dd>
+                        </div>
+                        <div class="post-earnings-total">
+                            <dt>Total potential · CAD</dt>
+                            <dd class="post-tabular" id="payout-total">—</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </aside>
+    </form>
+</section>
+
+@section Scripts {
+    <script src="~/js/driver-post-details.js" asp-append-version="true" defer></script>
+}
