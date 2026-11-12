@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Ride Policies";
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+}
+
+<section class="ride-page rider-workflow ride-policy">
+    <header>
+        <h1>Cancellation, Surge &amp; Safety Policy</h1>
+        <a class="ride-policy-link" asp-action="Request">Request a ride</a>
+    </header>
+
+    <section class="ride-card ride-policy-card" id="fares">
+        <h2>Fare and tier minimums</h2>
+        <p>Your fare starts with a base fee plus charges for distance and estimated travel time. Any surge multiplier applies to that amount. Your fare is then raised to the tier minimum if needed, before any promotion is deducted.</p>
+        <dl>
+            @foreach (var option in RideRouteCatalog.View.Tiers)
+            {
+                <div><dt>@option.Name</dt><dd>@FareSchedule.Find(option.Tier)!.Minimum.ToString("C", culture) CAD</dd></div>
+            }
+        </dl>
+    </section>
+
+    <section class="ride-card ride-policy-card" id="surge">
+        <h2>Surge pricing and fare lock</h2>
+        <p>When active ride requests near your pickup exceed 150% of available drivers, surge pricing applies within the 1.25×–2.0× range. You’ll see the multiplier and updated fare before you continue. The confirmed fare and multiplier carry through checkout and are locked on your booking, so later demand changes won’t raise your fare.</p>
+    </section>
+
+    <section class="ride-card ride-policy-card" id="cancellation">
+        <h2>Cancellation</h2>
+        <p>Cancellation is free before assignment, within 2 minutes of assignment, or if your driver is more than 5 minutes late against the recorded pickup ETA. Otherwise, cancelling more than 2 minutes after assignment records a $5.00 CAD cancellation fee for the driver. You’ll see the applicable fee before you confirm cancellation.</p>
+    </section>
+
+    <section class="ride-card ride-policy-card" id="promotions">
+        <h2>Promotions</h2>
+        <p>You can apply one promotion per ride. Your fare must be at least $15.00 CAD before the discount. The code must be active, within its validity dates, available to your account, and below its redemption limit. Checkout checks eligibility again before applying the discount.</p>
+    </section>
+
+    <section class="ride-card ride-policy-card" id="safety">
+        <h2>Driver screening and trip safety</h2>
+        <p>Eligible drivers have a verified licence and phone number and have passed a background check. During an assigned ride, you can message your driver and use the trip status page to log an incident or try the SOS emergency contact tool. The SOS demo records trip coordinates and a simulated notification. It does not contact anyone or dispatch emergency services.</p>
+    </section>
+</section>

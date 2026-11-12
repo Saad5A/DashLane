@@ -1,0 +1,149 @@
+﻿@model RideRequestViewModel
+@{
+    ViewData["Title"] = "Request a Ride";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+}
+
+<section class="ride-page rider-workflow" id="ride-request" data-quote-url="@Url.Action("Quote", "RidesApi")">
+    <nav class="ride-card ride-progress" aria-label="Booking progress">
+        <ol>
+            <li aria-current="step"><span>1</span> Route &amp; Tier</li>
+            <li><span>2</span> Driver &amp; Details</li>
+            <li><span>3</span> Checkout</li>
+        </ol>
+    </nav>
+
+    <form class="ride-grid" id="ride-form" asp-action="Request" method="post">
+        <div class="ride-selector">
+            <header>
+                <h1>Request a Ride</h1>
+                <a class="ride-policy-link" asp-action="Policy">Fare, cancellation &amp; safety policy</a>
+                <p>Choose your pickup, destination, and vehicle across the GTA.</p>
+            </header>
+
+            <div class="ride-card ride-route">
+                <label for="ride-pickup">Pickup</label>
+                <div class="ride-stop ride-stop-start">
+                    <select id="ride-pickup" required>
+                        <option value="">Choose a pickup stop</option>
+                        @foreach (var place in Model.Places)
+                        {
+                            <option value="@place.Id">@place.Name · @place.Address</option>
+                        }
+                    </select>
+                </div>
+                <div class="ride-swap-row">
+                    <button class="ride-round" id="ride-swap" type="button" aria-label="Swap pickup and destination">
+                        <span aria-hidden="true">⇅</span>
+                    </button>
+                </div>
+                <label for="ride-destination">Destination</label>
+                <div class="ride-stop ride-stop-end">
+                    <select id="ride-destination" required>
+                        <option value="">Choose a destination stop</option>
+                        @foreach (var place in Model.Places)
+                        {
+                            <option value="@place.Id">@place.Name · @place.Address</option>
+                        }
+                    </select>
+                </div>
+                <details class="ride-schedule">
+                    <summary>Schedule ride</summary>
+                    <label for="ride-scheduled">Departure time (Eastern)</label>
+                    <input id="ride-scheduled" type="datetime-local" />
+                </details>
+            </div>
+
+            <div class="ride-card ride-preferences">
+                <div class="ride-passengers" role="group" aria-label="Passengers">
+                    <strong>Passengers</strong>
+                    <div class="ride-stepper">
+                        <button class="ride-round" id="ride-minus" type="button" aria-label="Remove a passenger" disabled>−</button>
+                        <output id="ride-count" aria-live="polite">1</output>
+                        <button class="ride-round" id="ride-plus" type="button" aria-label="Add a passenger">+</button>
+                    </div>
+                </div>
+                <label class="ride-toggle">
+                    <input id="ride-accessible" type="checkbox" />
+                    <span aria-hidden="true">♿</span> Wheelchair Accessible
+                </label>
+            </div>
+
+            <div class="ride-surge" id="ride-surge" role="status" hidden>
+                <strong id="ride-surge-text"></strong> High demand near pickup
+            </div>
+
+            <fieldset class="ride-tier-group">
+                <legend>Choose a vehicle tier</legend>
+                <div class="ride-tiers">
+                    @foreach (var option in Model.Tiers)
+                    {
+                        <label class="ride-card ride-tier" data-tier="@((int)option.Tier)">
+                            <input type="radio" name="tier" value="@((int)option.Tier)" disabled />
+                            <span class="ride-tier-icon" aria-hidden="true">
+                                @if (option.Tier == VehicleTier.WheelchairAccessible) { <span>♿</span> }
+                                else { @Icon.Get("car", 23) }
+                            </span>
+                            <strong class="ride-tier-name">@option.Name</strong>
+                            <span class="ride-tier-description">@option.Description</span>
+                            <span class="ride-capacity">@option.Capacity</span>
+                            <span class="ride-tier-price" data-price>—</span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+        </div>
+
+        <aside class="ride-aside" aria-label="Route preview and fare">
+            <section class="ride-card ride-preview">
+                <header>
+                    <h2>Route preview</h2>
+                    <span class="ride-chip">Greater Toronto Area</span>
+                </header>
+                <div class="ride-map">
+                    <svg id="ride-map" viewBox="0 0 600 385" role="img" aria-labelledby="ride-map-title">
+                        <title id="ride-map-title">Greater Toronto Area route map</title>
+                        <g id="ride-map-basemap"></g>
+                        <g id="ride-map-route"></g>
+                    </svg>
+                    <div class="ride-map-controls" role="group" aria-label="Map controls">
+                        <button class="ride-round" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+                        <button class="ride-round" type="button" data-zoom="out" aria-label="Zoom out">−</button>
+                        <button class="ride-round" type="button" data-zoom="reset" aria-label="Reset map view">↺</button>
+                    </div>
+                    <span class="ride-map-caption">Approximate route</span>
+                </div>
+                <dl class="ride-metrics">
+                    <div><dt>Distance</dt><dd id="ride-distance">—</dd></div>
+                    <div><dt>Estimated travel time</dt><dd id="ride-duration">—</dd></div>
+                </dl>
+            </section>
+
+            <section class="ride-card ride-summary">
+                <h2>Fare estimate</h2>
+                <dl id="ride-breakdown" hidden>
+                    <div><dt>Base fare</dt><dd id="fare-base"></dd></div>
+                    <div><dt id="fare-distance-label">Distance</dt><dd id="fare-distance"></dd></div>
+                    <div><dt id="fare-time-label">Travel time</dt><dd id="fare-time"></dd></div>
+                    <div id="fare-adjustment-row" hidden><dt id="fare-adjustment-label"></dt><dd id="fare-adjustment"></dd></div>
+                    <div id="fare-minimum-row" hidden><dt>Tier minimum adjustment</dt><dd id="fare-minimum"></dd></div>
+                    <div class="ride-total"><dt>Total · CAD</dt><dd id="fare-total"></dd></div>
+                </dl>
+                <p id="ride-status" role="status" aria-live="polite">Choose a pickup and destination to see fares.</p>
+                <button id="ride-retry" class="ride-retry" type="button" hidden>Retry quote</button>
+                <button id="ride-continue" class="ride-primary" type="submit" disabled>Continue to Driver &amp; Details <span aria-hidden="true">→</span></button>
+            </section>
+        </aside>
+    </form>
+
+    <script id="ride-route-data" type="application/json">@Json.Serialize(new { Model.Places, Model.Routes, Model.Initial })</script>
+    <noscript><p>Enable JavaScript to preview routes and retrieve fare estimates.</p></noscript>
+</section>
+
+@section Scripts {
+    <script src="~/js/ride-request.js" asp-append-version="true" defer></script>
+}

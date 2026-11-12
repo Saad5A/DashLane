@@ -1,0 +1,90 @@
+﻿@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Guaranteed Fare & Checkout";
+    var draft = Model.Draft;
+    var fare = Model.Fare;
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+    string Cad(decimal amount) => amount.ToString("C", culture);
+    var tier = RideRouteCatalog.View.Tiers.Single(option => option.Tier == draft.Quote.Tier);
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-confirm.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-checkout.css" asp-append-version="true" />
+}
+<section class="ride-page rider-workflow" id="ride-checkout" data-draft="@draft.Id" data-promo-url="@Url.Action("ValidatePromo", "RidesApi")">
+    <nav class="ride-card ride-progress" aria-label="Booking progress">
+        <ol>
+            <li><span>1</span> <a asp-action="Request" asp-route-edit="true">Route &amp; Tier</a></li>
+            <li><span>2</span> <a asp-action="Confirm">Driver &amp; Details</a></li>
+            <li aria-current="step"><span>3</span> Checkout</li>
+        </ol>
+    </nav>
+    <form class="ride-grid" asp-action="Checkout" method="post" id="checkout-form">
+        <div class="ride-selector">
+            <header><h1>Guaranteed Fare &amp; Checkout</h1><p>Review your trip and choose a test payment method.</p></header>
+            <fieldset class="ride-card confirm-panel checkout-methods">
+                <legend class="visually-hidden">Payment method</legend>
+                <div class="confirm-heading"><h2>Payment method</h2><span class="checkout-lock">@Icon.Get("shield", 16) Test payment</span></div>
+                <label class="checkout-method"><input type="radio" name="method" value="Card" checked /> Credit / Debit Card</label>
+                <label class="checkout-method"><input type="radio" name="method" value="Wallet" /> Digital Wallet</label>
+                <div class="checkout-card-fields" id="test-card">
+                    <label>Test card number<input class="confirm-field" value="4242 4242 4242 4242" readonly /></label>
+                    <label>Expiry<input class="confirm-field" value="12 / 30" readonly /></label>
+                    <label>Security code<input class="confirm-field" value="123" readonly /></label>
+                </div>
+                <p id="test-wallet" hidden>Use the simulated wallet to complete the test payment.</p>
+                <p>No real card or wallet details are needed.</p>
+            </fieldset>
+            <section class="ride-card confirm-panel">
+                <h2><label for="promo-code">Promotion code</label></h2>
+                <div class="checkout-promo">
+                    <input class="confirm-field" id="promo-code" maxlength="32" placeholder="Enter a code" autocomplete="off" />
+                    <button type="button" class="confirm-button" id="promo-apply">Apply</button>
+                    <button type="button" class="confirm-button" id="promo-remove" hidden>Remove</button>
+                </div>
+                <p id="promo-feedback" role="status"></p>
+            </section>
+            <section class="ride-card confirm-panel">
+                <h2>Trip summary</h2>
+                <dl class="confirm-specs">
+                    <div><dt>Pickup</dt><dd>@draft.Pickup.Name</dd></div>
+                    <div><dt>Destination</dt><dd>@draft.Destination.Name</dd></div>
+                    <div><dt>Vehicle tier</dt><dd>@tier.Name · @draft.Passengers passengers</dd></div>
+                    <div><dt>Driver</dt><dd>@(draft.Confirmation!.DriverName ?? "Selected driver")</dd></div>
+                    @if (!string.IsNullOrWhiteSpace(draft.Confirmation.Vehicle))
+                    { <div><dt>Vehicle</dt><dd>@draft.Confirmation.Vehicle</dd></div> }
+                    @if (!string.IsNullOrWhiteSpace(draft.Confirmation.PickupInstructions))
+                    { <div><dt>Pickup instructions</dt><dd>@draft.Confirmation.PickupInstructions</dd></div> }
+                </dl>
+            </section>
+        </div>
+        <aside class="ride-aside" aria-label="Guaranteed fare">
+            <section class="ride-card ride-summary checkout-fare">
+                <div class="confirm-heading"><h2>Fare breakdown</h2><span class="checkout-lock">@Icon.Get("shield", 16) Price locked</span></div>
+                <dl>
+                    <div><dt>Base fee</dt><dd>@Cad(fare.Base)</dd></div>
+                    <div><dt>Distance charge · @draft.Route.DistanceKm.ToString("0.0", culture) km</dt><dd>@Cad(fare.Distance)</dd></div>
+                    <div><dt>Duration charge · @draft.Route.DurationMin min</dt><dd>@Cad(fare.Duration)</dd></div>
+                    @if (draft.Quote.SurgeMultiplier > 1)
+                    { <div><dt>Surge · @draft.Quote.SurgeMultiplier.ToString("0.00", culture)× locked</dt><dd>@Cad(fare.Surge)</dd></div> }
+                    @if (fare.MinimumAdjustment > 0)
+                    { <div><dt>Tier minimum adjustment</dt><dd>@Cad(fare.MinimumAdjustment)</dd></div> }
+                    <div><dt>Locked fare</dt><dd>@Cad(fare.LockedTotal)</dd></div>
+                    <div><dt>Promotion discount</dt><dd id="checkout-discount">@Cad(0)</dd></div>
+                    <div><dt>Included HST · 13%</dt><dd id="checkout-tax">@Cad(fare.Tax)</dd></div>
+                    <div class="ride-total checkout-total"><dt>Total · CAD</dt><dd id="checkout-total" data-value="@fare.Total.ToString(System.Globalization.CultureInfo.InvariantCulture)">@Cad(fare.Total)</dd></div>
+                </dl>
+                <p>Later demand changes won’t change your locked fare.</p>
+                <p><a class="ride-policy-link" asp-action="Policy">Fare, cancellation &amp; safety policy</a></p>
+                @if (Model.Notice != null) { <p>@Model.Notice</p> }
+                <p id="payment-feedback" role="status"></p>
+                <button class="ride-primary" type="submit" id="checkout-pay" disabled="@(!Model.CanPay)">Confirm test payment <span aria-hidden="true">→</span></button>
+            </section>
+        </aside>
+    </form>
+</section>
+@section Scripts {
+    <script src="~/js/ride-checkout.js" asp-append-version="true" defer></script>
+}

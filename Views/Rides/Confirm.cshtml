@@ -1,0 +1,169 @@
+﻿@model DriverConfirmViewModel
+@{
+    ViewData["Title"] = "Driver & Pickup Details";
+    var draft = Model.Draft;
+    var culture = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+    var tier = RideRouteCatalog.View.Tiers.Single(option => option.Tier == draft.Quote.Tier);
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-confirm.css" asp-append-version="true" />
+}
+
+<section class="ride-page rider-workflow" id="ride-confirm">
+    <nav class="ride-card ride-progress" aria-label="Booking progress">
+        <ol>
+            <li><span>1</span> <a asp-action="Request" asp-route-edit="true">Route &amp; Tier</a></li>
+            <li aria-current="step"><span>2</span> Driver &amp; Details</li>
+            <li><span>3</span> Checkout</li>
+        </ol>
+    </nav>
+    <form class="ride-grid" asp-action="Confirm" method="post">
+        <input type="hidden" name="DraftId" value="@draft.Id" />
+        <input type="hidden" name="DriverNote" id="driver-note" value="@Model.Input.DriverNote" />
+        <div class="ride-selector">
+            <header>
+                <h1>Driver &amp; Pickup Details</h1>
+                <p>Review your driver and tell them where to meet you.</p>
+            </header>
+            @if (Model.Error != null)
+            {
+                <p class="alert alert-warning" role="alert">@Model.Error</p>
+            }
+            <section class="ride-card confirm-panel">
+                <div class="confirm-heading">
+                    <h2>Driver and vehicle</h2>
+                    @if (Model.IsPreview) { <span class="ride-chip">Demo drivers</span> }
+                </div>
+                @if (Model.IsPreview)
+                {
+                    <p class="confirm-preview">These sample profiles are for preview. Checkout will carry the ride details forward as a draft.</p>
+                }
+                <label for="driver-choice">Choose a driver</label>
+                <select id="driver-choice" name="DriverId" class="confirm-field" required>
+                    @foreach (var driver in Model.Drivers)
+                    {
+                        <option value="@driver.Id" data-name="@driver.Name" selected="@(Model.Input.DriverId == driver.Id)">@driver.Name · @driver.Approach.EtaMinutes min away</option>
+                    }
+                </select>
+
+                @foreach (var driver in Model.Drivers)
+                {
+                    <article class="confirm-driver" data-driver="@driver.Id" hidden="@(Model.Input.DriverId != driver.Id)">
+                        <div class="confirm-profile">
+                            <img src="@(driver.PhotoUrl ?? Url.Content("~/images/avatars/profile-avatar.jpg"))" alt="" width="72" height="72" />
+                            <div>
+                                <h3>@driver.Name</h3>
+                                @if (driver.Rating is { } rating)
+                                {
+                                    <p><span class="confirm-star" aria-hidden="true">★</span> <strong>@rating.Average.ToString("F2", culture)</strong> · @rating.Count.ToString("N0", culture) reviews</p>
+                                }
+                                else
+                                {
+                                    <p>No reviews yet</p>
+                                }
+                            </div>
+                        </div>
+                        <ul class="confirm-pills" aria-label="Driver verifications">
+                            <li>@Icon.Get("shield", 16) License Verified</li>
+                            <li>@Icon.Get("shield", 16) Background Checked</li>
+                            <li>@Icon.Get("check", 16) Phone Verified</li>
+                        </ul>
+                        <dl class="confirm-specs">
+                            <div><dt>Vehicle</dt><dd>@driver.Make @driver.Model</dd></div>
+                            <div><dt>Year</dt><dd>@(driver.Year?.ToString(culture) ?? "Not listed")</dd></div>
+                            <div><dt>License plate</dt><dd class="confirm-plate">@driver.Plate</dd></div>
+                            <div><dt>Capacity</dt><dd>@driver.Capacity passengers</dd></div>
+                        </dl>
+                        @if (driver.Accessible) { <span class="ride-chip">♿ Wheelchair accessible</span> }
+                        else { <p>Wheelchair ramp unavailable</p> }
+                    </article>
+                }
+            </section>
+
+            <section class="ride-card confirm-panel">
+                <div class="confirm-heading">
+                    <h2><label for="pickup-notes">Pickup instructions</label></h2>
+                    <button class="confirm-button" type="button" data-dialog="message-dialog">@Icon.Get("message", 17) Message Driver</button>
+                </div>
+                <textarea class="confirm-field" id="pickup-notes" name="PickupInstructions" rows="3" maxlength="200" placeholder="Where should the driver meet you?">@Model.Input.PickupInstructions</textarea>
+                <div class="confirm-heading">
+                    <div class="confirm-chips" aria-label="Suggested pickup instructions">
+                        @foreach (var chip in new[] { "North entrance curb", "Near main doors", "Need wheelchair ramp assistance" })
+                        {
+                            <button class="confirm-button" type="button" data-chip="@chip">@chip</button>
+                        }
+                    </div>
+                    <output id="pickup-count" for="pickup-notes">@(Model.Input.PickupInstructions?.Length ?? 0) / 200</output>
+                </div>
+                <p id="driver-note-status" role="status">@(string.IsNullOrEmpty(Model.Input.DriverNote) ? "" : "Pre-trip note attached to this draft.")</p>
+            </section>
+
+            <section class="ride-card confirm-panel">
+                <div class="confirm-heading"><h2>Cancellation policy</h2></div>
+                <a class="ride-policy-link" asp-action="Policy" asp-fragment="cancellation">Read the ride policy</a>
+                <p>Cancel free within 2 minutes of assignment or if the driver is more than 5 minutes late against the recorded pickup ETA. Otherwise, a cancellation more than 2 minutes after assignment records a $5 fee for the driver.</p>
+            </section>
+        </div>
+
+        <aside class="ride-aside" aria-label="Route and locked quote">
+            <section class="ride-card ride-preview">
+                <header><h2>Route overview</h2><span class="ride-chip">@(Model.IsPreview ? "Demo approach" : "Estimated approach")</span></header>
+                <div class="ride-map">
+                    <svg id="confirm-map" viewBox="0 0 480 280" role="img" aria-label="Approximate driver approach and trip route"></svg>
+                    <span class="ride-map-caption">Dotted line · Driver approach</span>
+                </div>
+                <dl class="ride-metrics">
+                    <div><dt>Driver pickup ETA</dt><dd id="confirm-eta">—</dd></div>
+                    <div><dt>Trip estimate</dt><dd>@draft.Route.DistanceKm.ToString("0.0", culture) km · @draft.Route.DurationMin min</dd></div>
+                </dl>
+                <dl class="confirm-stops">
+                    <div><dt>Pickup</dt><dd>@draft.Pickup.Name</dd></div>
+                    <div><dt>Destination</dt><dd>@draft.Destination.Name</dd></div>
+                    @if (draft.ScheduledUtc is DateTime utc)
+                    {
+                        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, TimeZoneInfo.FindSystemTimeZoneById("America/Toronto"));
+                        <div><dt>Departure (Eastern)</dt><dd>@local.ToString("MMM d, h:mm tt", culture)</dd></div>
+                    }
+                </dl>
+            </section>
+            <section class="ride-card ride-summary">
+                <div class="confirm-heading">
+                    <h2>Locked quote</h2>
+                    @if (draft.Quote.SurgeMultiplier > 1)
+                    {
+                        <span class="ride-surge">@draft.Quote.SurgeMultiplier.ToString("0.00", culture)× surge included</span>
+                    }
+                </div>
+                <dl>
+                    <div><dt>Vehicle tier</dt><dd>@tier.Name</dd></div>
+                    <div><dt>Passengers</dt><dd>@draft.Passengers</dd></div>
+                    <div class="ride-total"><dt>Total · CAD</dt><dd>@draft.Quote.Fare.ToString("C", culture)</dd></div>
+                </dl>
+                <button class="ride-primary" type="submit">Proceed to Checkout <span aria-hidden="true">→</span></button>
+            </section>
+        </aside>
+    </form>
+
+    <dialog id="message-dialog" class="ride-card confirm-dialog" aria-labelledby="message-title">
+        <form method="dialog">
+            <h2 id="message-title">Message Driver</h2>
+            <p>Attach a pre-trip note for your selected driver. It will be saved with this ride draft.</p>
+            <label for="message-text">Pre-trip note</label>
+            <textarea id="message-text" class="confirm-field" rows="4" maxlength="200"></textarea>
+            <div class="confirm-chips">
+                <button class="confirm-button" value="cancel">Cancel</button>
+                <button class="ride-primary" value="save">Attach note</button>
+            </div>
+        </form>
+    </dialog>
+    <script type="application/json" id="confirm-data">@Json.Serialize(new {
+        draft.Route.Points, Drivers = Model.Drivers.Select(driver => driver.Approach),
+        PollUrl = Model.IsPreview ? null : Url.Action("DriverApproach", new { draftId = draft.Id })
+    })</script>
+</section>
+
+@section Scripts {
+    <script src="~/js/ride-confirm.js" asp-append-version="true" defer></script>
+}

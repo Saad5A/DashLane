@@ -1,0 +1,120 @@
+﻿@model TripStatusViewModel
+@inject IWebHostEnvironment Host
+@{
+    ViewData["Title"] = "Trip Status";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-confirm.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-status.css" asp-append-version="true" />
+}
+<section id="trip" class="ride-page rider-workflow" data-url="@Url.Action("Status", "RidesApi", new { id = Model.Id })">
+    @Html.AntiForgeryToken()
+    <header class="trip-heading"><h1>Trip Status</h1><p>Booking @Model.Id</p></header>
+    <div class="ride-grid">
+        <div class="ride-selector">
+            <section class="ride-card confirm-panel">
+                <div class="confirm-heading"><h2>Trip timeline</h2><strong class="ride-chip" id="trip-state" role="status">@Model.Status</strong></div>
+                <ol class="trip-timeline" id="trip-timeline">
+                    <li>Requested</li><li>Assigned</li><li>Arrived</li><li>In Progress</li><li>Completed</li>
+                </ol>
+                <p id="trip-match" hidden>Waiting for a driver to accept <strong id="trip-countdown"></strong></p>
+                <p id="trip-late" class="trip-amber" hidden>Driver is more than 5 minutes past the pickup ETA. Cancellation is free.</p>
+                <p id="trip-cancelled" class="trip-rose" hidden></p>
+                <div class="confirm-heading" id="trip-advance-bar" hidden>
+                    <button type="button" class="confirm-button" id="trip-advance">@(Host.IsDevelopment() ? "Simulate Next Trip Stage" : "Advance trip stage")</button>
+                </div>
+            </section>
+            <section class="ride-card confirm-panel">
+                <h2>Driver and vehicle</h2>
+                <p id="trip-driver">Driver details appear after acceptance.</p>
+                <p id="trip-vehicle"></p>
+                <p id="trip-instructions"></p>
+                @if (Model.IsDriver)
+                {
+                    <div><button type="button" class="confirm-button" id="trip-location" disabled>Share current location</button></div>
+                }
+            </section>
+            <section class="ride-card confirm-panel">
+                <h2>Communication &amp; safety</h2>
+                <a class="ride-policy-link" asp-action="Policy">Fare, cancellation &amp; safety policy</a>
+                <div class="confirm-chips">
+                    <button type="button" class="confirm-button" data-open="chat-dialog" id="trip-chat" disabled>@Icon.Get("message", 16) Rider–Driver Chat</button>
+                    <button type="button" class="confirm-button trip-rose" data-open="sos-dialog" id="trip-sos" disabled>Emergency SOS</button>
+                    <button type="button" class="confirm-button" data-open="incident-dialog">Incident Report</button>
+                    <button type="button" class="confirm-button trip-rose" data-open="cancel-dialog" id="trip-cancel" hidden>Cancel Ride</button>
+                </div>
+                <p id="trip-feedback" role="status"></p>
+            </section>
+            <section class="ride-card confirm-panel" id="trip-review" hidden>
+                <h2>Rate your trip</h2>
+                <p id="trip-reviewed" hidden>Your review was saved.</p>
+                <form id="review-form" class="confirm-panel">
+                    <fieldset class="trip-stars">
+                        <legend>Star rating</legend>
+                        @for (var i = 1; i <= 5; i++)
+                        {
+                            <label><input type="radio" name="rating" value="@i" required /> @i <span aria-hidden="true">★</span></label>
+                        }
+                    </fieldset>
+                    <label for="review-text">Written feedback</label>
+                    <textarea class="confirm-field" id="review-text" maxlength="500" rows="3"></textarea>
+                    <button class="ride-primary" type="submit">Save review</button>
+                    <p id="review-feedback" role="status"></p>
+                </form>
+            </section>
+        </div>
+        <aside class="ride-aside">
+            <section class="ride-card ride-preview">
+                <header><h2>Trip map</h2><span class="ride-chip">Latest reported position</span></header>
+                <div class="ride-map"><svg id="trip-map" viewBox="0 0 480 280" role="img" aria-label="Approximate route and driver position"></svg></div>
+                <dl class="ride-metrics"><div><dt>Pickup ETA</dt><dd id="trip-eta">—</dd></div></dl>
+            </section>
+            <section class="ride-card ride-summary" id="trip-receipt">
+                <div class="confirm-heading"><h2>Fare &amp; receipt</h2><span class="ride-chip">Price locked</span></div>
+                <dl id="receipt-lines"></dl>
+                <div class="confirm-chips" id="receipt-actions" hidden>
+                    <button type="button" class="confirm-button" id="print-receipt">View / Print Receipt</button>
+                    <button type="button" class="confirm-button" id="download-receipt">Download receipt</button>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <dialog class="ride-card confirm-dialog" id="cancel-dialog" aria-labelledby="cancel-title">
+        <h2 id="cancel-title">Cancel ride</h2>
+        <p>Free within 2 minutes of assignment or if the driver is more than 5 minutes late. Otherwise, the fee is $5.00 CAD for the driver.</p>
+        <p>Current fee <strong id="cancel-fee"></strong></p>
+        <p class="dialog-feedback" role="status"></p>
+        <div class="confirm-chips"><button type="button" class="confirm-button" data-close>Keep ride</button><button type="button" class="confirm-button trip-rose" id="confirm-cancel">Confirm cancellation</button></div>
+    </dialog>
+    <dialog class="ride-card confirm-dialog" id="chat-dialog" aria-labelledby="chat-title">
+        <h2 id="chat-title">Rider–Driver Chat</h2>
+        <ol class="trip-chat-list" id="trip-messages" aria-label="Messages"></ol>
+        <form id="chat-form">
+            <label for="chat-text">Message</label><textarea class="confirm-field" id="chat-text" rows="2" maxlength="500" required></textarea>
+            <div class="confirm-chips"><button type="button" class="confirm-button" data-close>Close</button><button class="ride-primary" type="submit">Send</button></div>
+        </form>
+        <p class="dialog-feedback" role="status"></p>
+    </dialog>
+    <dialog class="ride-card confirm-dialog" id="sos-dialog" aria-labelledby="sos-title">
+        <h2 id="sos-title">Emergency SOS simulation</h2>
+        <p>Record a simulated emergency contact notification with the latest trip coordinates. This demo does not send a message or call emergency services.</p>
+        <p id="sos-point"></p><p class="dialog-feedback" role="status"></p>
+        <div class="confirm-chips"><button type="button" class="confirm-button" data-close>Close</button><button type="button" class="confirm-button trip-rose" id="confirm-sos">Simulate SOS</button></div>
+    </dialog>
+    <dialog class="ride-card confirm-dialog" id="incident-dialog" aria-labelledby="incident-title">
+        <h2 id="incident-title">Incident report</h2>
+        <form id="incident-form">
+            <label for="incident-text">Describe the safety or service issue</label>
+            <textarea class="confirm-field" id="incident-text" rows="4" maxlength="500" required></textarea>
+            <div class="confirm-chips"><button type="button" class="confirm-button" data-close>Close</button><button class="ride-primary" type="submit">Save report</button></div>
+        </form>
+        <p class="dialog-feedback" role="status"></p>
+    </dialog>
+    <script id="trip-data" type="application/json">@Json.Serialize(Model)</script>
+</section>
+@section Scripts {
+    <script src="~/js/ride-status.js" asp-append-version="true" defer></script>
+}

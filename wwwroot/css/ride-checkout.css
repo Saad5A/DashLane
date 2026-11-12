@@ -1,0 +1,13 @@
+.checkout-fare { box-shadow: var(--edge), var(--lift); }
+.checkout-lock { display: inline-flex; align-items: center; gap: .3rem; background: var(--ok-soft); color: var(--ok); border-radius: 999px; padding: .25rem .55rem; font-size: .82rem; font-weight: 700; }
+.checkout-method { display: flex; align-items: center; gap: .6rem; border: 1px solid var(--line-2); border-radius: var(--r-xl); padding: .7rem .85rem; }
+.checkout-method:has(:checked) { background: var(--accent-soft); border-color: var(--accent); }
+.checkout-method input { accent-color: var(--accent); }
+.checkout-card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.checkout-card-fields label:first-child { grid-column: 1 / -1; }
+.checkout-promo { display: flex; gap: .5rem; }
+.checkout-promo input { min-width: 0; }
+.checkout-total { background: var(--accent-soft); border-radius: var(--r-lg); padding: .55rem !important; }
+#promo-feedback:empty, #payment-feedback:empty { display: none; }
+#promo-feedback[data-success] { color: var(--ok); }
+#promo-feedback[data-error], #payment-feedback { color: var(--err); }
