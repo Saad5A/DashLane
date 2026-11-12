@@ -39,6 +39,46 @@ public static class DatabaseInitializer
 
             await ExecuteAsync(connection,
                 "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Members_GoogleSubjectId\" ON \"Members\" (\"GoogleSubjectId\") WHERE \"GoogleSubjectId\" IS NOT NULL");
+
+            // EnsureCreated only initializes empty databases. Apply missing SQLite tables and indexes
+            // from the EF model after upgrading the existing Members table.
+            var schema = db.Database.GenerateCreateScript()
+                .Replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ")
+                .Replace("CREATE INDEX ", "CREATE INDEX IF NOT EXISTS ")
+                .Replace("CREATE UNIQUE INDEX ", "CREATE UNIQUE INDEX IF NOT EXISTS ");
+            await using var transaction = await connection.BeginTransactionAsync();
+            var statements = schema.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var statement in statements.Where(sql => sql.StartsWith("CREATE TABLE ")))
+                await ExecuteAsync(connection, statement, transaction);
+            foreach (var (table, column, type) in new[]
+            {
+                ("Vehicles", "Year", "INTEGER"),
+                ("DriverProfiles", "LicenseNumber", "TEXT"),
+                ("DriverProfiles", "LicenseExpiry", "TEXT"),
+                ("DriverProfiles", "LicenseDocumentUrl", "TEXT"),
+                ("RideBookings", "QuotedFare", "TEXT"),
+                ("RideBookings", "IncludedTax", "TEXT"),
+                ("RideBookings", "PickupInstructions", "TEXT"),
+                ("RideBookings", "DriverNote", "TEXT"),
+                ("RideBookings", "PickupEtaUtc", "TEXT"),
+                ("RideBookings", "ArrivedUtc", "TEXT"),
+                ("RideBookings", "CancelledUtc", "TEXT"),
+                ("RideBookings", "CancellationFee", "TEXT"),
+                ("ReviewFeedback", "IsDriver", "INTEGER NOT NULL DEFAULT 0"),
+                ("PaymentTransactions", "Discount", "TEXT"),
+                ("Promotions", "EligibleRiderId", "INTEGER")
+            })
+            {
+                await using var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = '{column}'";
+                if (Convert.ToInt64(await command.ExecuteScalarAsync()) == 0)
+                    await ExecuteAsync(connection, $"ALTER TABLE \"{table}\" ADD COLUMN \"{column}\" {type}", transaction);
+            }
+            await ExecuteAsync(connection, "DROP INDEX IF EXISTS \"IX_ReviewFeedback_RideBookingId\"", transaction);
+            foreach (var statement in statements.Where(sql => !sql.StartsWith("CREATE TABLE ")))
+                await ExecuteAsync(connection, statement, transaction);
+            await transaction.CommitAsync();
         }
         finally
         {
