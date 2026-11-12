@@ -1,0 +1,136 @@
+@model DashLane.Models.ActiveTripViewModel
+@{
+    ViewData["Title"] = "Live Dispatch";
+    ViewData["Step"] = 4;
+    var toronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+    var departureLocal = TimeZoneInfo.ConvertTimeFromUtc(Model.DepartureUtc, toronto);
+    var money = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-publish.css" asp-append-version="true" />
+}
+
+<section class="ride-page post-ride-page" id="driver-active-trip"
+         data-posted-ride-id="@Model.PostedRideId"
+         data-toggle-url="@Url.Action("ToggleAvailability", "DriverApi")"
+         data-respond-url="@Url.Action("Respond", "DriverApi")"
+         data-simulate-url="@Url.Action("SimulateRequest", "DriverApi")"
+         data-pending-url="@Url.Action("PendingRequest", "DriverApi")"
+         data-is-online="@Model.IsOnline.ToString().ToLowerInvariant()">
+    <partial name="_PostRideSteps" />
+    @Html.AntiForgeryToken()
+
+    <div class="ride-grid">
+        <div class="ride-selector">
+            <header class="active-header">
+                <div>
+                    <h1>Live dispatch</h1>
+                    <p>Your ride is posted. Go online, accept riders within 30 seconds, then advance the trip.</p>
+                </div>
+                <label class="online-toggle">
+                    <input type="checkbox" id="online-toggle" @(Model.IsOnline ? "checked" : null) />
+                    <span>Online &amp; Accepting Riders</span>
+                </label>
+            </header>
+
+            <div class="ride-card post-card">
+                <div class="publish-head">
+                    <h2>Posted trip</h2>
+                    @if (Model.LicenseVerified)
+                    {
+                        <span class="post-badge post-badge-trust">License Verified</span>
+                    }
+                </div>
+                <p class="post-lede">@Model.OriginAddress → @Model.DestinationAddress</p>
+                <dl class="publish-facts">
+                    <div><dt>Departure</dt><dd class="post-tabular">@departureLocal.ToString("ddd MMM d · h:mm tt") ET</dd></div>
+                    <div><dt>Vehicle</dt><dd>@Model.VehicleLabel · <span class="post-tabular">@Model.LicensePlate</span></dd></div>
+                    <div><dt>Seats</dt><dd class="post-tabular">@Model.AvailableSeats</dd></div>
+                    <div><dt>Payout</dt><dd class="post-tabular">@Model.EstimatedPricePerSeat.ToString("C", money)/seat</dd></div>
+                </dl>
+            </div>
+
+            <div class="ride-card post-card" id="request-panel">
+                <h2>Incoming rider request</h2>
+                <div id="request-empty" class="request-empty" @(Model.PendingRequest != null ? "hidden" : null)>
+                    <p>No pending requests. Use the demo button to simulate a 30-second dispatch offer.</p>
+                    <button type="button" class="post-add-stop" id="simulate-request">Simulate Incoming Rider Request</button>
+                </div>
+
+                <div id="request-card" class="request-card" @(Model.PendingRequest == null ? "hidden" : null)
+                     data-booking-id="@(Model.PendingRequest?.BookingId)"
+                     data-deadline="@(Model.PendingRequest?.AcceptanceDeadlineUtc.ToString("o"))"
+                     data-server="@(Model.PendingRequest?.ServerUtc.ToString("o"))">
+                    <div class="request-top">
+                        <div>
+                            <strong id="request-name">@(Model.PendingRequest?.RiderName ?? "Rider")</strong>
+                            <span class="request-rating post-tabular" id="request-rating">★ @(Model.PendingRequest?.RiderRating.ToString("0.0") ?? "4.9")</span>
+                        </div>
+                        <span class="post-tabular request-payout" id="request-payout">@((Model.PendingRequest?.GuaranteedPayout ?? 0m).ToString("C", money))</span>
+                    </div>
+                    <p id="request-pickup">@(Model.PendingRequest?.PickupLabel)</p>
+                    <p class="post-tabular" id="request-passengers">@(Model.PendingRequest?.Passengers ?? 0) passenger(s)</p>
+                    <div class="countdown" aria-live="polite">
+                        <div class="countdown-bar"><span id="countdown-fill"></span></div>
+                        <span class="post-tabular" id="countdown-label">30s</span>
+                    </div>
+                    <div class="request-actions">
+                        <button type="button" class="request-accept" id="accept-request">Accept Request</button>
+                        <button type="button" class="request-decline" id="decline-request">Decline</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ride-card post-card" id="trip-controls" @(Model.ActiveBooking == null ? "hidden" : null)
+                 data-booking-id="@(Model.ActiveBooking?.BookingId)"
+                 data-status="@(Model.ActiveBooking?.Status.ToString())">
+                <h2>Trip status</h2>
+                <p id="trip-status-label">@(Model.ActiveBooking?.Status.ToString() ?? "—") · @(Model.ActiveBooking?.RiderName)</p>
+                <p class="post-lede" id="trip-pickup">@(Model.ActiveBooking?.PickupLabel)</p>
+                <div class="trip-steps">
+                    <button type="button" class="trip-step" data-advance="Arrived">Mark Arrived</button>
+                    <button type="button" class="trip-step" data-advance="Start">Start Trip</button>
+                    <button type="button" class="trip-step" data-advance="Complete">Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <aside class="ride-aside">
+            <section class="ride-card ride-preview">
+                <header>
+                    <h2>Live route</h2>
+                    <span class="ride-chip" id="map-chip">@(Model.IsOnline ? "Online" : "Offline")</span>
+                </header>
+                <div class="ride-map">
+                    <svg id="active-map" viewBox="0 0 600 385" role="img" aria-labelledby="active-map-title">
+                        <title id="active-map-title">Live route map</title>
+                        <g id="active-map-basemap"></g>
+                        <g id="active-map-route"></g>
+                    </svg>
+                </div>
+                <dl class="ride-metrics">
+                    <div><dt>Distance</dt><dd class="post-tabular">@(Model.DistanceKm > 0 ? $"{Model.DistanceKm:0.0} km" : "—")</dd></div>
+                    <div><dt>Duration</dt><dd class="post-tabular">@(Model.DurationMin > 0 ? $"{Model.DurationMin:0} min" : "—")</dd></div>
+                </dl>
+            </section>
+            <p id="dispatch-status" class="dispatch-status" role="status" aria-live="polite"></p>
+        </aside>
+    </div>
+
+    <script id="active-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        originPlaceId = Model.OriginPlaceId,
+        destinationPlaceId = Model.DestinationPlaceId,
+        places = Model.Places,
+        routes = Model.Routes,
+        pending = Model.PendingRequest,
+        active = Model.ActiveBooking
+    }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))</script>
+</section>
+
+@section Scripts {
+    <script src="~/js/driver-active-trip.js" asp-append-version="true" defer></script>
+}

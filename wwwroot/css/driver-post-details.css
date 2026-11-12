@@ -1,0 +1,207 @@
+.post-field-block {
+    display: grid;
+    gap: .35rem;
+    font-weight: 700;
+    margin-bottom: .85rem;
+}
+
+.post-textarea {
+    width: 100%;
+    border: 1px solid var(--ride-border);
+    border-radius: 16px;
+    background: #F8FAFC;
+    color: var(--ride-ink);
+    padding: .75rem .9rem;
+    resize: vertical;
+    min-height: 7rem;
+    font: inherit;
+    font-weight: 500;
+}
+
+.post-textarea:focus {
+    border-color: #99E0D5;
+    background: var(--ride-tint);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(15 118 110 / .15);
+}
+
+.post-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1.1rem;
+}
+
+.post-chip {
+    border: 1px solid var(--ride-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ride-muted);
+    font-weight: 700;
+    font-size: .82rem;
+    padding: .4rem .75rem;
+}
+
+.post-chip:hover {
+    background: var(--ride-tint);
+    color: var(--ride-hover);
+}
+
+.post-chip.is-active {
+    background: #CCFBF1;
+    border-color: #0F766E;
+    color: #115E59;
+}
+
+.post-luggage {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.post-luggage legend {
+    margin-bottom: .55rem;
+}
+
+.post-luggage-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+}
+
+.post-pill {
+    cursor: pointer;
+}
+
+.post-pill input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.post-pill span {
+    display: inline-flex;
+    border: 1px solid var(--ride-border);
+    border-radius: 999px;
+    background: #F8FAFC;
+    padding: .45rem .85rem;
+    font-weight: 700;
+}
+
+.post-pill:has(input:checked) span {
+    background: #F0FDFA;
+    border-color: #0F766E;
+    color: #115E59;
+    box-shadow: 0 0 0 1px #0F766E;
+}
+
+.post-hint {
+    margin: .65rem 0 0;
+    font-size: .88rem;
+}
+
+.post-nav-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+}
+
+.post-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: .55rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--ride-border);
+    background: #fff;
+    color: var(--ride-hover);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.post-secondary:hover {
+    background: var(--ride-tint);
+    color: var(--ride-hover);
+}
+
+.post-nav-actions .post-cta {
+    flex: 1;
+    min-width: 12rem;
+}
+
+.post-trip-meta {
+    margin: 0 0 1rem;
+}
+
+.post-trip-meta div {
+    display: grid;
+    gap: .15rem;
+    padding: .45rem 0;
+    border-bottom: 1px solid var(--ride-border);
+}
+
+.post-trip-meta dt {
+    color: var(--ride-muted);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.post-trip-meta dd {
+    margin: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.post-earnings-status {
+    margin: 0;
+    color: var(--ride-muted);
+    font-weight: 600;
+}
+
+.post-earnings dl {
+    margin: 0;
+}
+
+.post-earnings dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .35rem 0;
+}
+
+.post-earnings dt {
+    color: var(--ride-muted);
+    font-weight: 600;
+}
+
+.post-earnings dd {
+    margin: 0;
+    font-weight: 800;
+}
+
+.post-earnings-seat {
+    border-top: 1px solid var(--ride-border);
+    margin-top: .35rem;
+    padding-top: .55rem !important;
+}
+
+.post-earnings-total {
+    border-top: 1px solid var(--ride-border);
+    margin-top: .25rem;
+    padding-top: .55rem !important;
+}
+
+.post-earnings-total dd {
+    color: #0F766E;
+    font-size: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .post-nav-actions .post-cta {
+        width: 100%;
+    }
+}

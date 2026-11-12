@@ -1,0 +1,175 @@
+@model DashLane.Models.PostRouteViewModel
+@{
+    ViewData["Title"] = "Route & Stops";
+    ViewData["Step"] = 2;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-post-route.css" asp-append-version="true" />
+}
+
+<section class="ride-page post-ride-page" id="driver-post-route"
+         data-initial-origin="@Model.OriginPlaceId"
+         data-initial-destination="@Model.DestinationPlaceId">
+    <partial name="_PostRideSteps" />
+
+    <form class="ride-grid" method="post" asp-action="PostRoute" id="post-route-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="StopsJson" id="StopsJson" />
+        <input type="hidden" asp-for="DistanceKm" id="DistanceKm" />
+        <input type="hidden" asp-for="DurationMin" id="DurationMin" />
+
+        <div class="ride-selector">
+            <header>
+                <h1>Route &amp; Stops</h1>
+                <p>Set your corridor, departure, and optional pickups along the way.</p>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="post-alert post-alert-amber" role="alert">@Model.Error</div>
+            }
+
+            <div class="ride-card post-card post-route-card">
+                <h2>Origin &amp; destination</h2>
+                <div class="post-waypoint-shell">
+                    <div class="post-waypoint-rail" aria-hidden="true"></div>
+
+                    <div class="post-waypoint-block">
+                        <label for="OriginPlaceId">Origin</label>
+                        <div class="ride-stop ride-stop-start">
+                            <select asp-for="OriginPlaceId" id="OriginPlaceId" required>
+                                <option value="">Choose origin</option>
+                                @foreach (var place in Model.Places)
+                                {
+                                    <option value="@place.Id">@place.Name · @place.Address</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="post-swap-row">
+                        <button class="post-swap" id="route-swap" type="button" aria-label="Swap origin and destination">
+                            <span aria-hidden="true">⇅</span>
+                        </button>
+                    </div>
+
+                    <div class="post-waypoint-block">
+                        <label for="DestinationPlaceId">Destination</label>
+                        <div class="ride-stop ride-stop-end">
+                            <select asp-for="DestinationPlaceId" id="DestinationPlaceId" required>
+                                <option value="">Choose destination</option>
+                                @foreach (var place in Model.Places)
+                                {
+                                    <option value="@place.Id">@place.Name · @place.Address</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-schedule">
+                    <div class="post-field">
+                        <label asp-for="DepartureDate">Departure date</label>
+                        <input asp-for="DepartureDate" class="post-input post-tabular" type="date" />
+                    </div>
+                    <div class="post-field">
+                        <label asp-for="DepartureTime">Departure time (Eastern)</label>
+                        <input asp-for="DepartureTime" class="post-input post-tabular" type="time" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="ride-card post-card">
+                <div class="post-stops-head">
+                    <div>
+                        <h2>Pickups along the way</h2>
+                        <p class="post-lede">Optional stopovers riders can request between origin and destination.</p>
+                    </div>
+                    <button class="post-add-stop" id="add-stop" type="button">+ Add Pickup Stop Along the Way</button>
+                </div>
+                <div id="stops-list" class="post-stops-list" data-max="5"></div>
+                <template id="stop-template">
+                    <div class="post-stop-row ride-card" data-stop-row>
+                        <div class="post-stop-index post-tabular" data-stop-index>1</div>
+                        <div class="post-stop-fields">
+                            <label>
+                                Address
+                                <input class="post-input" data-stop-address list="place-suggestions" placeholder="Choose or type a stop" />
+                            </label>
+                            <input type="hidden" data-stop-place />
+                            <label>
+                                ETA offset (min)
+                                <input class="post-input post-tabular" data-stop-offset type="number" min="1" max="600" value="10" />
+                            </label>
+                        </div>
+                        <div class="post-stop-actions">
+                            <button type="button" class="ride-round" data-stop-up aria-label="Move stop up">↑</button>
+                            <button type="button" class="ride-round" data-stop-down aria-label="Move stop down">↓</button>
+                            <button type="button" class="ride-round post-stop-remove" data-stop-remove aria-label="Remove stop">×</button>
+                        </div>
+                    </div>
+                </template>
+                <datalist id="place-suggestions">
+                    @foreach (var place in Model.Places)
+                    {
+                        <option value="@place.Name · @place.Address" data-id="@place.Id"></option>
+                    }
+                </datalist>
+            </div>
+
+            <button class="ride-primary post-cta" id="route-continue" type="submit">Continue to Instructions &amp; Fares</button>
+        </div>
+
+        <aside class="ride-aside" aria-label="Route map and metrics">
+            <section class="ride-card ride-preview">
+                <header>
+                    <h2>Route map</h2>
+                    <span class="ride-chip">Greater Toronto Area</span>
+                </header>
+                <div class="ride-map">
+                    <svg id="post-map" viewBox="0 0 600 385" role="img" aria-labelledby="post-map-title">
+                        <title id="post-map-title">Greater Toronto Area route map</title>
+                        <g id="post-map-basemap"></g>
+                        <g id="post-map-route"></g>
+                    </svg>
+                    <div class="ride-map-controls" role="group" aria-label="Map controls">
+                        <button class="ride-round" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+                        <button class="ride-round" type="button" data-zoom="out" aria-label="Zoom out">−</button>
+                        <button class="ride-round" type="button" data-zoom="reset" aria-label="Reset map view">↺</button>
+                    </div>
+                    <span class="ride-map-caption">Approximate route</span>
+                </div>
+                <dl class="ride-metrics">
+                    <div><dt>Total distance</dt><dd class="post-tabular" id="route-distance">—</dd></div>
+                    <div><dt>Estimated duration</dt><dd class="post-tabular" id="route-duration">—</dd></div>
+                </dl>
+            </section>
+
+            <section class="ride-card post-summary">
+                <header>
+                    <h2>Trip outline</h2>
+                    <span class="ride-chip">Live</span>
+                </header>
+                <ol class="post-outline" id="route-outline">
+                    <li>Choose origin and destination</li>
+                </ol>
+            </section>
+        </aside>
+    </form>
+
+    <script id="post-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        places = Model.Places,
+        routes = Model.Routes,
+        stops = Model.Stops.Select(stop => new { stop.Address, stop.PlaceId, stop.ArrivalOffsetMin }),
+        distanceKm = Model.DistanceKm,
+        durationMin = Model.DurationMin
+    }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))</script>
+</section>
+
+@section Scripts {
+    <script src="~/js/driver-post-route.js" asp-append-version="true" defer></script>
+}

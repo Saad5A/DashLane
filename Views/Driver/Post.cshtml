@@ -1,0 +1,42 @@
+@model DashLane.Models.DriverVerificationStatus
+@{
+    ViewData["Title"] = "Post a Ride";
+}
+
+<section class="py-4">
+    <h1 class="h3 mb-2">Post a Ride</h1>
+    <p class="text-muted mb-4">Schedule a trip for riders along your route. The full wizard arrives in Stage 2.</p>
+
+    @if (Model.RequiresLicenseVerification)
+    {
+        <div class="alert alert-warning" role="status">
+            @(Model.Message ?? "License verification is required before you can publish a ride.")
+            <div class="mt-2">
+                <a class="alert-link" asp-controller="Home" asp-action="Identity">Verify your government ID</a>
+            </div>
+        </div>
+    }
+    else if (!Model.CanPublishRides)
+    {
+        <div class="alert alert-warning" role="status">
+            @(Model.Message ?? "Complete your driver profile before publishing a ride.")
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success" role="status">
+            You’re cleared to publish rides. Stage 2 will add the route, stops, seats, and payout preview UI.
+        </div>
+    }
+
+    <dl class="row small mb-0">
+        <dt class="col-sm-4">Signup ID on file</dt>
+        <dd class="col-sm-8">@(Model.HasSignupIdDocument ? "Yes" : "No")</dd>
+        <dt class="col-sm-4">Signup ID accepted</dt>
+        <dd class="col-sm-8">@(Model.SignupIdAccepted ? "Yes" : "No")</dd>
+        <dt class="col-sm-4">License verified</dt>
+        <dd class="col-sm-8">@(Model.LicenseVerified ? "Yes" : "No")</dd>
+        <dt class="col-sm-4">Background checked</dt>
+        <dd class="col-sm-8">@(Model.BackgroundCheckVerified ? "Yes" : "No")</dd>
+    </dl>
+</section>

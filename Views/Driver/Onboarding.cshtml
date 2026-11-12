@@ -1,0 +1,210 @@
+@model DashLane.Models.DriverOnboardingViewModel
+@{
+    ViewData["Title"] = "Vehicle & License";
+    ViewData["Step"] = 1;
+    var yearMax = DateTime.UtcNow.Year + 1;
+    var tiers = new (VehicleTier Value, string Label, string Hint)[]
+    {
+        (VehicleTier.Standard, "Standard", "Everyday sedan or hatchback"),
+        (VehicleTier.Comfort, "Comfort", "Newer midsize with extra room"),
+        (VehicleTier.XL, "XL", "SUV or van · up to 6 seats"),
+        (VehicleTier.WheelchairAccessible, "Wheelchair-Accessible", "Ramp or lift equipped")
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+}
+
+<section class="ride-page post-ride-page" id="driver-onboarding">
+    <partial name="_PostRideSteps" />
+
+    <form class="ride-grid" method="post" enctype="multipart/form-data" asp-action="Onboarding" id="onboarding-form">
+        @Html.AntiForgeryToken()
+
+        <div class="ride-selector">
+            <header>
+                <h1>Vehicle &amp; License</h1>
+                <p>Register the car you’ll drive and confirm your license before posting a route.</p>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="post-alert post-alert-amber" role="alert">@Model.Error</div>
+            }
+
+            <div class="ride-card post-card">
+                <h2>Vehicle details</h2>
+                <p class="post-lede">Riders see make, model, plate, and tier when they book your posted ride.</p>
+
+                <div class="post-fields">
+                    <div class="post-field">
+                        <label asp-for="Make"></label>
+                        <input asp-for="Make" class="post-input" autocomplete="organization" placeholder="Toyota" />
+                        <span asp-validation-for="Make" class="post-field-error"></span>
+                    </div>
+                    <div class="post-field">
+                        <label asp-for="Model"></label>
+                        <input asp-for="Model" class="post-input" placeholder="Camry" />
+                        <span asp-validation-for="Model" class="post-field-error"></span>
+                    </div>
+                    <div class="post-field">
+                        <label asp-for="Year"></label>
+                        <input asp-for="Year" class="post-input post-tabular" type="number" min="1990" max="@yearMax" placeholder="2022" />
+                        <span asp-validation-for="Year" class="post-field-error"></span>
+                    </div>
+                    <div class="post-field">
+                        <label asp-for="LicensePlate"></label>
+                        <input asp-for="LicensePlate" class="post-input post-tabular" autocomplete="off" placeholder="ABCD 123" />
+                        <span asp-validation-for="LicensePlate" class="post-field-error"></span>
+                    </div>
+                </div>
+
+                <fieldset class="post-tier-group">
+                    <legend>Vehicle tier</legend>
+                    <div class="post-tiers" role="radiogroup" aria-label="Vehicle tier">
+                        @foreach (var tier in tiers)
+                        {
+                            <label class="post-tier ride-card">
+                                <input type="radio" asp-for="Tier" value="@tier.Value" data-tier="@tier.Value" />
+                                <span class="post-tier-name">@tier.Label</span>
+                                <span class="post-tier-hint">@tier.Hint</span>
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+
+                <div class="post-controls">
+                    <div class="post-control">
+                        <span class="post-control-label">Passenger capacity</span>
+                        <div class="ride-stepper post-stepper" data-stepper>
+                            <button type="button" class="ride-round" data-step="-1" aria-label="Fewer seats">−</button>
+                            <output id="capacity-output" class="post-tabular" aria-live="polite">@Model.PassengerCapacity</output>
+                            <button type="button" class="ride-round" data-step="1" aria-label="More seats">+</button>
+                            <input type="hidden" asp-for="PassengerCapacity" id="PassengerCapacity" />
+                        </div>
+                    </div>
+                    <label class="ride-toggle post-toggle">
+                        <input asp-for="IsWheelchairAccessible" id="IsWheelchairAccessible" />
+                        Wheelchair accessible
+                    </label>
+                </div>
+            </div>
+
+            <div class="ride-card post-card">
+                <h2>Security verification</h2>
+                <p class="post-lede">Badges carry over from signup. License upload appears only when still required.</p>
+
+                <div class="post-badges" aria-label="Verification badges">
+                    @if (Model.PhoneVerified)
+                    {
+                        <span class="post-badge post-badge-trust">Phone Verified</span>
+                    }
+                    else
+                    {
+                        <span class="post-badge post-badge-muted">Phone not verified</span>
+                    }
+                    @if (Model.ProfilePhotoUploaded)
+                    {
+                        <span class="post-badge post-badge-trust">Profile Photo Uploaded</span>
+                    }
+                    else
+                    {
+                        <span class="post-badge post-badge-muted">Profile photo missing</span>
+                    }
+                    @if (Model.LicenseVerified && !Model.RequiresLicenseVerification)
+                    {
+                        <span class="post-badge post-badge-trust">Driver's License Verified</span>
+                    }
+                </div>
+
+                @if (Model.RequiresLicenseVerification)
+                {
+                    <div class="post-alert post-alert-amber" role="status">
+                        You didn’t complete government ID verification at signup. Enter your license details and upload front and back photos to continue.
+                    </div>
+
+                    <div class="post-fields post-fields-license">
+                        <div class="post-field">
+                            <label asp-for="LicenseNumber"></label>
+                            <input asp-for="LicenseNumber" class="post-input post-tabular" autocomplete="off" />
+                        </div>
+                        <div class="post-field">
+                            <label asp-for="LicenseExpiry"></label>
+                            <input asp-for="LicenseExpiry" class="post-input post-tabular" type="date" />
+                        </div>
+                        <div class="post-field">
+                            <label asp-for="LicenseFront">License front</label>
+                            <input asp-for="LicenseFront" class="post-file" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/*,application/pdf" />
+                        </div>
+                        <div class="post-field">
+                            <label asp-for="LicenseBack">License back</label>
+                            <input asp-for="LicenseBack" class="post-file" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/*,application/pdf" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="ride-primary post-cta" type="submit">Save &amp; continue to Route</button>
+        </div>
+
+        <aside class="ride-aside">
+            <div class="ride-card post-summary">
+                <header>
+                    <h2>Driver readiness</h2>
+                    <span class="ride-chip">Live summary</span>
+                </header>
+                <dl>
+                    <div>
+                        <dt>Vehicle</dt>
+                        <dd id="summary-vehicle">@(Model.HasExistingVehicle ? $"{Model.Make} {Model.Model}" : "Not saved yet")</dd>
+                    </div>
+                    <div>
+                        <dt>Plate</dt>
+                        <dd class="post-tabular" id="summary-plate">@(string.IsNullOrWhiteSpace(Model.LicensePlate) ? "—" : Model.LicensePlate)</dd>
+                    </div>
+                    <div>
+                        <dt>Tier</dt>
+                        <dd id="summary-tier">@TierLabel(Model.Tier)</dd>
+                    </div>
+                    <div>
+                        <dt>Seats</dt>
+                        <dd class="post-tabular" id="summary-seats">@Model.PassengerCapacity</dd>
+                    </div>
+                    <div>
+                        <dt>Phone</dt>
+                        <dd>@(Model.PhoneVerified ? "Verified" : "Needed")</dd>
+                    </div>
+                    <div>
+                        <dt>License</dt>
+                        <dd id="summary-license">@(Model.RequiresLicenseVerification ? "Upload required" : "Verified")</dd>
+                    </div>
+                    <div>
+                        <dt>Background</dt>
+                        <dd>@(Model.BackgroundCheckVerified ? "Cleared" : "Pending")</dd>
+                    </div>
+                </dl>
+                <p class="post-summary-note">
+                    Next you’ll set origin, destination, and pickups along the way.
+                </p>
+            </div>
+        </aside>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/driver-onboarding.js" asp-append-version="true"></script>
+}
+
+@functions {
+    static string TierLabel(VehicleTier tier) => tier switch
+    {
+        VehicleTier.Comfort => "Comfort",
+        VehicleTier.XL => "XL",
+        VehicleTier.WheelchairAccessible => "Wheelchair-Accessible",
+        _ => "Standard"
+    };
+}

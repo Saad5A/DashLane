@@ -1,0 +1,159 @@
+@model DashLane.Models.PublishRideViewModel
+@{
+    ViewData["Title"] = "Publish & Dispatch";
+    ViewData["Step"] = 4;
+    var toronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
+    var departureLocal = TimeZoneInfo.ConvertTimeFromUtc(Model.DepartureUtc, toronto);
+    var money = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/ride-request.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-publish.css" asp-append-version="true" />
+}
+
+<section class="ride-page post-ride-page" id="driver-publish">
+    <partial name="_PostRideSteps" />
+
+    <form class="ride-grid" method="post" asp-action="Publish" id="publish-form">
+        @Html.AntiForgeryToken()
+
+        <div class="ride-selector">
+            <header>
+                <h1>Publish &amp; Dispatch</h1>
+                <p>Review your trip, accept the punctuality policy, and post the ride live.</p>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="post-alert post-alert-amber" role="alert">@Model.Error</div>
+            }
+
+            <div class="ride-card post-card">
+                <div class="publish-head">
+                    <h2>Final trip review</h2>
+                    @if (Model.LicenseVerified)
+                    {
+                        <span class="post-badge post-badge-trust">License Verified</span>
+                    }
+                </div>
+
+                <ol class="publish-timeline">
+                    <li>
+                        <strong>Origin</strong>
+                        <span>@Model.OriginAddress</span>
+                        <span class="post-tabular publish-eta">@departureLocal.ToString("ddd MMM d · h:mm tt") ET</span>
+                    </li>
+                    @foreach (var stop in Model.Stops)
+                    {
+                        <li>
+                            <strong>Pickup along the way</strong>
+                            <span>@stop.Address</span>
+                            <span class="post-tabular publish-eta">+@stop.ArrivalOffsetMin min</span>
+                        </li>
+                    }
+                    <li>
+                        <strong>Destination</strong>
+                        <span>@Model.DestinationAddress</span>
+                        <span class="post-tabular publish-eta">~@Model.DurationMin.ToString("0") min total</span>
+                    </li>
+                </ol>
+
+                <dl class="publish-facts">
+                    <div>
+                        <dt>Driver</dt>
+                        <dd>@Model.DriverName</dd>
+                    </div>
+                    <div>
+                        <dt>Vehicle</dt>
+                        <dd>@Model.VehicleLabel · <span class="post-tabular">@Model.LicensePlate</span></dd>
+                    </div>
+                    <div>
+                        <dt>Seats</dt>
+                        <dd class="post-tabular">@Model.AvailableSeats</dd>
+                    </div>
+                    <div>
+                        <dt>Payout</dt>
+                        <dd class="post-tabular">@Model.EstimatedPricePerSeat.ToString("C", money)/seat · @Model.EstimatedTotalEarnings.ToString("C", money) total</dd>
+                    </div>
+                    <div>
+                        <dt>Luggage</dt>
+                        <dd>@(Model.LuggageAllowance ?? "—")</dd>
+                    </div>
+                    <div>
+                        <dt>Auto-approve</dt>
+                        <dd>@(Model.AutoApproveRiders ? "On" : "Off")</dd>
+                    </div>
+                </dl>
+
+                @if (!string.IsNullOrWhiteSpace(Model.PickupInstructions))
+                {
+                    <div class="publish-notes">
+                        <h3>Pickup instructions</h3>
+                        <p>@Model.PickupInstructions</p>
+                    </div>
+                }
+            </div>
+
+            <div class="ride-card post-card">
+                <h2>Driver punctuality policy</h2>
+                <p class="post-lede">
+                    Drivers must start toward pickup promptly after accepting. A <strong>5-minute arrival grace</strong>
+                    applies before lateness flags. Late cancellations after the free window may incur rider compensation fees.
+                </p>
+                <label class="publish-policy">
+                    <input asp-for="AcceptPunctualityPolicy" />
+                    <span>I accept DashLane’s Driver Punctuality &amp; Cancellation Policy, including the 5-minute arrival grace rule.</span>
+                </label>
+            </div>
+
+            <button class="ride-primary post-cta" type="submit">Post Ride Live</button>
+            <a class="publish-back" asp-action="PostDetails">Back to Instructions &amp; Fares</a>
+        </div>
+
+        <aside class="ride-aside">
+            <section class="ride-card ride-preview">
+                <header>
+                    <h2>Route preview</h2>
+                    <span class="ride-chip">Ready to publish</span>
+                </header>
+                <div class="ride-map">
+                    <svg id="publish-map" viewBox="0 0 600 385" role="img" aria-labelledby="publish-map-title">
+                        <title id="publish-map-title">Route preview map</title>
+                        <g id="publish-map-basemap"></g>
+                        <g id="publish-map-route"></g>
+                    </svg>
+                </div>
+                <dl class="ride-metrics">
+                    <div><dt>Distance</dt><dd class="post-tabular">@Model.DistanceKm.ToString("0.0") km</dd></div>
+                    <div><dt>Duration</dt><dd class="post-tabular">@Model.DurationMin.ToString("0") min</dd></div>
+                </dl>
+            </section>
+
+            <section class="ride-card post-summary">
+                <header>
+                    <h2>Earnings summary</h2>
+                    <span class="ride-chip">CAD</span>
+                </header>
+                <dl>
+                    <div><dt>Per seat</dt><dd class="post-tabular">@Model.EstimatedPricePerSeat.ToString("C", money)</dd></div>
+                    <div><dt>Seats listed</dt><dd class="post-tabular">@Model.AvailableSeats</dd></div>
+                    <div><dt>Trip total</dt><dd class="post-tabular">@Model.EstimatedTotalEarnings.ToString("C", money)</dd></div>
+                </dl>
+            </section>
+        </aside>
+    </form>
+
+    <script id="publish-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        originPlaceId = Model.OriginPlaceId,
+        destinationPlaceId = Model.DestinationPlaceId,
+        places = RideRouteCatalog.View.Places,
+        routes = RideRouteCatalog.View.Routes
+    }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))</script>
+</section>
+
+@section Scripts {
+    <script src="~/js/driver-publish.js" asp-append-version="true" defer></script>
+}

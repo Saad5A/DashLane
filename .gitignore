@@ -364,6 +364,8 @@ FodyWeavers.xsd
 
 # Local accounts, uploads, and editor files
 App_Data/
+wwwroot/uploads/licenses/*
+!wwwroot/uploads/licenses/.gitkeep
 identifier.sqlite
 .DS_Store
 .idea/
