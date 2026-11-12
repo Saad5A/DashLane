@@ -1,0 +1,25 @@
+.trip-heading { margin-bottom: 1.15rem; overflow-wrap: anywhere; }
+.trip-timeline { display: grid; gap: .4rem; list-style: none; padding: 0; margin: 0; counter-reset: stage; }
+.trip-timeline li { display: flex; align-items: center; gap: .65rem; color: var(--text-2); counter-increment: stage; padding: .35rem .6rem; border-radius: 999px; }
+.trip-timeline li::before { content: counter(stage); display: grid; place-items: center; width: 1.55rem; height: 1.55rem; background: var(--surface-2); border-radius: 50%; }
+.trip-timeline li[data-done]::before { background: var(--ok-soft); color: var(--ok); content: "✓"; }
+.trip-timeline li[aria-current] { background: var(--accent-soft); color: var(--accent-text); font-weight: 800; }
+.trip-timeline li[aria-current]::before { background: var(--accent); color: var(--accent-ink); }
+.trip-amber, .trip-rose { border-radius: 999px; padding: .4rem .75rem; }
+.ride-page .trip-amber { background: var(--accent-soft); color: var(--accent-text); }
+.ride-page .trip-rose { background: var(--err-soft); color: var(--err); }
+button.trip-rose:hover:not(:disabled) { background: var(--surface-3); }
+.trip-chat-list { max-height: 13rem; overflow-y: auto; padding-left: 1.3rem; overflow-wrap: anywhere; }
+.trip-chat-list li { padding: .2rem 0; white-space: pre-wrap; }
+.trip-stars { display: flex; flex-wrap: wrap; gap: .6rem; }
+.trip-stars span { color: var(--accent-text); }
+#review-form { padding: 0; }
+#trip-map { aspect-ratio: 480 / 280; cursor: default; }
+#trip dialog p { margin: .5rem 0; }
+#trip dialog[open] { display: grid; gap: .55rem; }
+@media print {
+    body:has(#trip) * { visibility: hidden; }
+    #trip-receipt, #trip-receipt * { visibility: visible !important; }
+    #trip-receipt { position: absolute; top: 0; left: 0; width: 100%; box-shadow: none; }
+    #receipt-actions, #receipt-actions * { display: none !important; }
+}
