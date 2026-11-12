@@ -188,13 +188,13 @@
             for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, value);
             parent.append(el);
         };
-        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, fill: "#EDF4EC" });
+        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, class: "ride-map-land" });
         const route = routes.find((item) =>
             item.pickupId === payload.originPlaceId && item.destinationId === payload.destinationPlaceId);
         if (!route) return;
-        for (const [stroke, width] of [["#fff", 9], ["#0F766E", 5]]) {
+        for (const [className, width] of [["ride-map-route-edge", 9], ["ride-map-route", 5]]) {
             add(overlay, "polyline", {
-                points: line(route.points), fill: "none", stroke,
+                points: line(route.points), fill: "none", class: className,
                 "stroke-width": width, "stroke-linecap": "round", "stroke-linejoin": "round"
             });
         }
@@ -202,14 +202,13 @@
             const [x, y] = project(point);
             add(overlay, "circle", {
                 cx: x, cy: y, r: 8,
-                fill: index ? "#0F766E" : "#fff",
-                stroke: index ? "#fff" : "#0F766E",
+                class: index ? "ride-map-destination" : "ride-map-pickup",
                 "stroke-width": 3
             });
         });
         for (const place of places) {
             const [x, y] = project(place);
-            add(base, "circle", { cx: x, cy: y, r: 3.5, fill: "#62756B", stroke: "#fff", "stroke-width": 1.5 });
+            add(base, "circle", { cx: x, cy: y, r: 3.5, class: "ride-map-stop", "stroke-width": 1.5 });
         }
     }
 })();

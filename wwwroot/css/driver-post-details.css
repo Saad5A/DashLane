@@ -1,28 +1,29 @@
 .post-field-block {
     display: grid;
     gap: .35rem;
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: .85rem;
 }
 
 .post-textarea {
     width: 100%;
-    border: 1px solid var(--ride-border);
-    border-radius: 16px;
-    background: #F8FAFC;
-    color: var(--ride-ink);
-    padding: .75rem .9rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    background: var(--bg-raised);
+    color: var(--text);
+    padding: .75rem 12px;
     resize: vertical;
     min-height: 7rem;
     font: inherit;
     font-weight: 500;
+    box-shadow: 0 1px 2px rgba(20, 18, 12, 0.04);
 }
 
 .post-textarea:focus {
-    border-color: #99E0D5;
-    background: var(--ride-tint);
+    border-color: rgba(214, 140, 0, 0.6);
+    background: var(--surface);
     outline: none;
-    box-shadow: 0 0 0 3px rgb(15 118 110 / .15);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .post-chip-row {
@@ -33,24 +34,24 @@
 }
 
 .post-chip {
-    border: 1px solid var(--ride-border);
+    border: 1px solid var(--line-2);
     border-radius: 999px;
-    background: #fff;
-    color: var(--ride-muted);
+    background: var(--surface);
+    color: var(--text-2);
     font-weight: 700;
     font-size: .82rem;
     padding: .4rem .75rem;
 }
 
 .post-chip:hover {
-    background: var(--ride-tint);
-    color: var(--ride-hover);
+    background: var(--accent-soft);
+    color: var(--accent-text);
 }
 
 .post-chip.is-active {
-    background: #CCFBF1;
-    border-color: #0F766E;
-    color: #115E59;
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-text);
 }
 
 .post-luggage {
@@ -81,23 +82,24 @@
 
 .post-pill span {
     display: inline-flex;
-    border: 1px solid var(--ride-border);
+    border: 1px solid var(--line-2);
     border-radius: 999px;
-    background: #F8FAFC;
+    background: var(--bg-raised);
     padding: .45rem .85rem;
     font-weight: 700;
 }
 
 .post-pill:has(input:checked) span {
-    background: #F0FDFA;
-    border-color: #0F766E;
-    color: #115E59;
-    box-shadow: 0 0 0 1px #0F766E;
+    background: linear-gradient(180deg, rgba(255, 176, 0, 0.06), rgba(255, 176, 0, 0.02));
+    border-color: var(--accent-line);
+    color: var(--accent-text);
+    box-shadow: 0 0 0 3px rgba(255, 176, 0, 0.05);
 }
 
 .post-hint {
     margin: .65rem 0 0;
     font-size: .88rem;
+    color: var(--text-2);
 }
 
 .post-nav-actions {
@@ -111,19 +113,21 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    min-height: 46px;
     padding: .55rem 1.1rem;
-    border-radius: 999px;
-    border: 1px solid var(--ride-border);
-    background: #fff;
-    color: var(--ride-hover);
-    font-weight: 800;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 500;
     text-decoration: none;
+    box-shadow: var(--edge);
 }
 
 .post-secondary:hover {
-    background: var(--ride-tint);
-    color: var(--ride-hover);
+    background: var(--surface-3);
+    border-color: var(--line-3);
+    color: var(--text);
 }
 
 .post-nav-actions .post-cta {
@@ -139,11 +143,11 @@
     display: grid;
     gap: .15rem;
     padding: .45rem 0;
-    border-bottom: 1px solid var(--ride-border);
+    border-bottom: 1px solid var(--line-2);
 }
 
 .post-trip-meta dt {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-size: .78rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -158,7 +162,7 @@
 
 .post-earnings-status {
     margin: 0;
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-weight: 600;
 }
 
@@ -174,34 +178,40 @@
 }
 
 .post-earnings dt {
-    color: var(--ride-muted);
+    color: var(--text-2);
     font-weight: 600;
 }
 
 .post-earnings dd {
     margin: 0;
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .post-earnings-seat {
-    border-top: 1px solid var(--ride-border);
+    border-top: 1px solid var(--line-2);
     margin-top: .35rem;
     padding-top: .55rem !important;
 }
 
 .post-earnings-total {
-    border-top: 1px solid var(--ride-border);
+    border-top: 1px solid var(--line-2);
     margin-top: .25rem;
     padding-top: .55rem !important;
 }
 
 .post-earnings-total dd {
-    color: #0F766E;
+    color: var(--accent-text);
     font-size: 1.25rem;
 }
 
 @media (max-width: 900px) {
     .post-nav-actions .post-cta {
         width: 100%;
+    }
+}
+
+@media (max-width: 720px) {
+    .post-textarea {
+        font-size: 16px;
     }
 }
