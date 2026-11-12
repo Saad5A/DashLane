@@ -238,25 +238,25 @@
             parent.append(element);
         }
 
-        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, fill: "#EDF4EC" });
+        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, class: "ride-map-land" });
         add(base, "path", {
             d: "M0 385 L45 385 L78 350 L124 334 L164 314 L215 283 L250 264 L290 258 L329 225 L375 211 L410 190 L470 186 L500 171 L535 157 L600 136 V385 Z",
-            fill: "#D7EBF1", stroke: "#C0DEE8", "stroke-width": 2
+            class: "ride-map-water", "stroke-width": 2
         });
         for (const route of routes.slice(0, Math.ceil(routes.length / 2))) {
-            add(base, "polyline", { points: line(route.points), fill: "none", stroke: "#FFFFFF",
+            add(base, "polyline", { points: line(route.points), fill: "none", class: "ride-map-road-edge",
                 "stroke-width": 7, "stroke-linecap": "round", "stroke-linejoin": "round" });
-            add(base, "polyline", { points: line(route.points), fill: "none", stroke: "#D4DDD5",
+            add(base, "polyline", { points: line(route.points), fill: "none", class: "ride-map-road",
                 "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" });
         }
-        add(base, "text", { x: 380, y: 300, fill: "#4F7281", "font-size": 15, "font-style": "italic" }, "Lake Ontario");
+        add(base, "text", { x: 380, y: 300, class: "ride-map-water-label", "font-size": 15, "font-style": "italic" }, "Lake Ontario");
         const labels = { oakville: "Oakville", "port-credit": "Port Credit", "square-one": "Mississauga",
             pearson: "Pearson", union: "Toronto" };
         for (const place of places) {
             const [x, y] = project(place);
-            add(base, "circle", { cx: x, cy: y, r: 4, fill: "#62756B", stroke: "#fff", "stroke-width": 2 });
-            add(base, "text", { x: x + 9, y: y - 8, fill: "#34473E", "font-size": 15, "font-weight": 700,
-                stroke: "#EDF4EC", "stroke-width": 4, "paint-order": "stroke" }, labels[place.id]);
+            add(base, "circle", { cx: x, cy: y, r: 4, class: "ride-map-stop", "stroke-width": 2 });
+            add(base, "text", { x: x + 9, y: y - 8, class: "ride-map-label", "font-size": 15, "font-weight": 700,
+                "stroke-width": 4, "paint-order": "stroke" }, labels[place.id]);
         }
 
         function setView(x, y, width) {
@@ -311,13 +311,13 @@
             const [x, y] = project(point);
             add(overlay, "circle", {
                 cx: x, cy: y, r: 11,
-                fill: filled ? "#0F766E" : "#fff",
-                stroke: filled ? "#fff" : "#0F766E",
+                class: filled ? "ride-map-destination" : "ride-map-pickup",
                 "stroke-width": 3
             });
             add(overlay, "text", {
-                x, y: y + 4, fill: filled ? "#fff" : "#0F766E",
-                "font-size": 10, "font-weight": 800, "text-anchor": "middle"
+                x, y: y + 4,
+                class: filled ? "ride-map-pin-text" : "ride-map-pin-text-hollow",
+                "font-size": 10, "text-anchor": "middle"
             }, label);
         }
 
@@ -332,9 +332,9 @@
                     : "Greater Toronto Area route map";
 
                 if (route) {
-                    for (const [stroke, width] of [["#fff", 9], ["#0F766E", 5]]) {
+                    for (const [className, width] of [["ride-map-route-edge", 9], ["ride-map-route", 5]]) {
                         add(overlay, "polyline", {
-                            points: line(route.points), fill: "none", stroke,
+                            points: line(route.points), fill: "none", class: className,
                             "stroke-width": width, "stroke-linecap": "round", "stroke-linejoin": "round"
                         });
                     }
