@@ -1,0 +1,120 @@
+@model DashboardViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Your dashboard";
+    ViewData["Dashboard"] = true;
+    var vehicle = Model.VehicleSummary;
+    var cad = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+<div class="dashboard">
+    <section class="dash-welcome" aria-labelledby="welcome-title">
+        <div>
+            <p class="dash-eyebrow">Your DashLane account</p>
+            <h1 id="welcome-title">Welcome back, @Model.FullName</h1>
+            <p class="dash-intro">Your next journey starts here. Ride your way, or share the road.</p>
+        </div>
+        <a class="dash-member" asp-controller="Home" asp-action="Review">
+            @if (Model.ProfilePhotoUrl != null) { <img src="@Model.ProfilePhotoUrl" alt="Your profile photo" width="48" height="48" /> }
+            else { <span class="dash-avatar" aria-hidden="true">@Model.FullName.FirstOrDefault()</span> }
+            <span>@Model.Email<small>@Model.TotalTripsCount completed trips · View profile</small></span>
+        </a>
+        <div class="dash-badges">
+            <span class="tag @(Model.IsPhoneVerified ? "tag-ok" : "tag-accent")">@(Model.IsPhoneVerified ? "Phone Verified" : "Phone not verified")</span>
+            <span class="tag @(Model.ProfilePhotoUrl != null ? "tag-ok" : "tag-accent")">@(Model.ProfilePhotoUrl != null ? "Profile Photo complete" : "Profile Photo missing")</span>
+            <span class="tag @(Model.IsIdVerified ? "tag-ok" : "tag-accent")">@(Model.IsIdVerified ? "ID Verified" : "ID awaiting verification")</span>
+            <span class="tag @(Model.IsAgeVerified ? "tag-ok" : "tag-accent")">@(Model.IsAgeVerified ? "Age 18+ confirmed" : "Age not confirmed")</span>
+            <span class="tag">@(Model.RatingCount > 0 ? $"★ {Model.AverageRating.ToString("0.00")} · {Model.RatingCount} ratings" : "No ratings yet")</span>
+        </div>
+    </section>
+
+    <section class="dash-trip" aria-labelledby="trip-title">
+        <span class="dash-symbol" aria-hidden="true">@Icon.Get("car", 24)</span>
+        @if (Model.HasActiveTrip)
+        {
+            <div class="dash-trip-copy">
+                <p class="dash-eyebrow">@(Model.IsPostedTrip ? "Your posted ride" : "Your active trip") · @Model.TripStatus</p>
+                <h2 id="trip-title">@Model.Origin <span aria-label="to">→</span> @Model.Destination</h2>
+                <p>
+                    @if (Model.DepartureTime.HasValue) { <span>@Model.DepartureTime.Value.ToString("MMM d, yyyy · HH:mm") UTC · </span> }
+                    @if (Model.QuotedFare.HasValue) { <span>@Model.QuotedFare.Value.ToString("C", cad) CAD @(Model.IsPostedTrip ? "per seat" : "quoted fare")</span> }
+                </p>
+            </div>
+            <a class="btn btn-primary" asp-controller="@(Model.IsPostedTrip ? "Driver" : "Rides")" asp-action="@(Model.IsPostedTrip ? "ActiveTrip" : "Status")" asp-route-id="@Model.ActiveTripId">View trip &amp; live status →</a>
+        }
+        else
+        {
+            <div class="dash-trip-copy"><p class="dash-eyebrow">Ready when you are</p><h2 id="trip-title">A clear road ahead.</h2><p>No active or upcoming trips. Choose your next journey below.</p></div>
+            <a class="btn btn-secondary" asp-controller="Rides" asp-action="Request">Plan a ride →</a>
+        }
+    </section>
+
+    <div class="dash-actions">
+        <section class="dash-card dash-hero" aria-labelledby="rider-title">
+            <div class="dash-card-top"><span class="tag tag-accent">Rider service</span><span class="dash-caption">Your route. Your ride.</span></div>
+            <h2 id="rider-title">Request a ride.<br />Leave the rest to us.</h2>
+            <p>Compare vehicle tiers and confirm your upfront fare before booking. Your confirmed price stays locked.</p>
+            <div class="dash-tray">
+                <div class="dash-route-line"><span class="dash-dot"></span><div><small>PICKUP &amp; DESTINATION</small><strong>Where are you headed?</strong></div></div>
+                <p>Choose your stops and compare live options in the ride planner.</p>
+                <div class="dash-tiers"><span>Standard</span><span>Comfort</span><span>XL</span><span>Wheelchair-Accessible</span></div>
+            </div>
+            <a class="btn btn-primary btn-lg dash-cta" asp-controller="Rides" asp-action="Request">Request a Ride <span aria-hidden="true">→</span></a>
+        </section>
+        <section class="dash-card dash-hero dash-driver" aria-labelledby="driver-title">
+            <div class="dash-card-top"><span class="tag">Driver service</span><span class="dash-caption">Share the road.</span></div>
+            <h2 id="driver-title">Post a ride.<br />Make the journey count.</h2>
+            <p>Share your route, add pickups along the way, and set the available seats for your next commute.</p>
+            <div class="dash-tray">
+                @if (vehicle != null)
+                {
+                    <small>REGISTERED VEHICLE</small>
+                    <strong>@vehicle.Year @vehicle.Make @vehicle.Model</strong>
+                    <p>@vehicle.LicensePlate · @(vehicle.Tier == VehicleTier.WheelchairAccessible ? "Wheelchair-Accessible" : vehicle.Tier.ToString())</p>
+                    <span class="tag @(Model.IsDriverVerified ? "tag-ok" : "tag-accent")">@(Model.IsDriverVerified ? "Driver verified" : "Driver verification incomplete")</span>
+                    <p>@(vehicle.IsWheelchairAccessible ? "Wheelchair-accessible vehicle" : "No wheelchair access registered")</p>
+                }
+                else
+                {
+                    <small>YOUR DRIVER PROFILE</small><strong>Get ready to host your first ride.</strong>
+                    <p>Register your vehicle and complete your licence details to begin driver onboarding.</p>
+                }
+            </div>
+            <a class="btn btn-secondary btn-lg dash-cta" asp-controller="Driver" asp-action="@(Model.HasRegisteredVehicle ? "PostRoute" : "Onboarding")">@(Model.HasRegisteredVehicle ? "Post a New Ride" : "Complete Driver Onboarding") <span aria-hidden="true">→</span></a>
+        </section>
+    </div>
+
+    <div class="dash-snapshot">
+        <section class="dash-card" aria-labelledby="recent-title">
+            <h2 class="dash-section-title" id="recent-title">Recent Trips &amp; Receipts</h2>
+            @if (Model.RecentTrips.Count == 0)
+            {
+                <div class="dash-empty"><span class="dash-symbol" aria-hidden="true">@Icon.Get("car", 24)</span><h3>Your journey starts here.</h3><p>Completed and cancelled trips will appear here. Rider payment details are available from each trip.</p></div>
+            }
+            else
+            {
+                <div class="dash-table-wrap"><table class="dash-table"><caption class="visually-hidden">Your three most recent trips; posted ride amounts are per seat.</caption><thead><tr><th scope="col">Trip</th><th scope="col">Fare (CAD)</th></tr></thead><tbody>
+                @foreach (var item in Model.RecentTrips)
+                {
+                    <tr><td><a asp-controller="@(item.IsPostedTrip ? "Driver" : "Rides")" asp-action="@(item.IsPostedTrip ? "ActiveTrip" : "Status")" asp-route-id="@item.Id">@item.Origin → @item.Destination</a><small>@item.Date.ToString("MMM d, yyyy") UTC · @item.Role · @item.Status</small></td><td>@item.Fare.ToString("C", cad)@if (item.IsPostedTrip) { <small>per seat</small> }</td></tr>
+                }
+                </tbody></table></div>
+            }
+        </section>
+        <section class="dash-card" aria-labelledby="preferences-title">
+            <h2 class="dash-section-title" id="preferences-title">Places &amp; Preferences</h2>
+            <dl class="dash-preferences"><div><dt>Home city</dt><dd>@(string.IsNullOrWhiteSpace(Model.HomeCity) ? "Not added yet" : Model.HomeCity)</dd></div><div><dt>Preferred language</dt><dd>@Model.LanguagePreference</dd></div><div><dt>Wheelchair access</dt><dd>@(Model.RequiresWheelchairAccess ? "Requested on your latest ride" : "Not selected on your latest ride")</dd></div></dl>
+            <p class="dash-caption">Saved places aren't available yet. Choose accessibility options for each booking in the ride planner.</p>
+            <a class="dash-text-link" asp-controller="Home" asp-action="AboutYou">Manage profile →</a>
+        </section>
+        <section class="dash-card" aria-labelledby="guarantee-title">
+            <h2 class="dash-section-title" id="guarantee-title">The DashLane Guarantee</h2>
+            <ul class="dash-guarantees"><li><strong>2-minute free cancellation</strong><p>Cancel free before assignment or within 2 minutes of assignment. See the policy for late-driver exceptions and fees.</p></li><li><strong>Upfront fare lock</strong><p>The fare you confirm stays locked on your booking.</p></li><li><strong>Support along the way</strong><p>Find trip tools, community standards, and guidance in our Help Centre.</p></li></ul>
+            <div class="dash-policy-links"><a asp-controller="Rides" asp-action="Policy">Fare &amp; cancellation policy →</a><a asp-controller="Home" asp-action="Help">Help Centre →</a></div>
+        </section>
+    </div>
+</div>
