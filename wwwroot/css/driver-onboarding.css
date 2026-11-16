@@ -1,0 +1,339 @@
+body:has(.post-ride-page.rider-workflow) {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.post-progress {
+    padding: .85rem 1.15rem;
+    margin-bottom: 1.5rem;
+}
+
+.post-progress ol {
+    display: flex;
+    gap: .65rem 1.1rem;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.post-progress li {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    color: var(--text-2);
+    font-size: .84rem;
+    font-weight: 700;
+}
+
+.post-progress li span {
+    display: grid;
+    place-items: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+}
+
+.post-progress [aria-current="step"] {
+    color: var(--accent-text);
+}
+
+.post-progress [aria-current="step"] span {
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+.post-card,
+.post-summary,
+.post-placeholder {
+    padding: 1.15rem 1.25rem 1.3rem;
+}
+
+.post-card h2,
+.post-summary h2,
+.post-placeholder h1 {
+    margin: 0 0 .35rem;
+}
+
+.post-lede {
+    margin: 0 0 1rem;
+    font-size: .95rem;
+    color: var(--text-2);
+}
+
+.post-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem 1rem;
+}
+
+.post-field {
+    display: grid;
+    gap: .3rem;
+    min-width: 0;
+}
+
+.post-field label {
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+.post-input,
+.post-file {
+    width: 100%;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r);
+    background: var(--bg-raised);
+    color: var(--text);
+    min-height: 42px;
+    padding: .55rem 12px;
+    box-shadow: 0 1px 2px rgba(20, 18, 12, 0.04);
+}
+
+.post-file {
+    padding: .45rem .65rem;
+    font-size: .9rem;
+}
+
+.post-input:focus,
+.post-file:focus {
+    border-color: rgba(214, 140, 0, 0.6);
+    background: var(--surface);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.post-field-error {
+    color: var(--err);
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.post-tabular {
+    font-variant-numeric: tabular-nums;
+}
+
+.post-tier-group {
+    margin: 1.15rem 0 0;
+    border: 0;
+    padding: 0;
+}
+
+.post-tier-group legend {
+    margin-bottom: .65rem;
+}
+
+.post-tiers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.post-tier {
+    display: grid;
+    gap: .2rem;
+    padding: .85rem 1rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.post-tier input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.post-tier:hover {
+    box-shadow: var(--edge), var(--lift);
+}
+
+.post-tier:has(input:checked) {
+    background: linear-gradient(180deg, rgba(255, 176, 0, 0.06), rgba(255, 176, 0, 0.02));
+    border-color: var(--accent-line);
+    box-shadow: 0 0 0 3px rgba(255, 176, 0, 0.05);
+}
+
+.post-tier-name {
+    font-family: var(--sans);
+    font-weight: 600;
+}
+
+.post-tier-hint {
+    color: var(--text-2);
+    font-size: .84rem;
+}
+
+.post-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .85rem;
+    margin-top: 1.1rem;
+}
+
+.post-control {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.post-control-label {
+    font-weight: 700;
+}
+
+.post-stepper {
+    background: var(--surface-2);
+}
+
+.post-stepper output {
+    min-width: 1.4rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.post-toggle {
+    user-select: none;
+}
+
+.post-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0 0 1rem;
+}
+
+.post-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--r-xs);
+    padding: .2rem .55rem;
+    font-size: 12px;
+    font-weight: 500;
+    min-height: 22px;
+}
+
+.post-badge-trust {
+    background: var(--ok-soft);
+    color: var(--ok);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.post-badge-muted {
+    background: var(--surface-2);
+    color: var(--text-2);
+    border: 1px solid var(--line-2);
+}
+
+.post-alert {
+    border-radius: var(--r);
+    padding: .85rem 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.post-alert-amber {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    border: 1px solid rgba(255, 176, 0, 0.2);
+}
+
+.post-fields-license {
+    margin-top: .25rem;
+}
+
+.post-cta {
+    min-height: 46px;
+    border-radius: 12px;
+    background: var(--text);
+    color: var(--surface);
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 20px -10px rgba(0, 0, 0, 0.5);
+}
+
+.post-cta:hover {
+    background: #2a2825;
+    color: var(--surface);
+}
+
+.post-cta:active {
+    transform: scale(.985);
+}
+
+.post-summary header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.post-summary dl {
+    margin: 0;
+}
+
+.post-summary dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .4rem 0;
+    border-bottom: 1px solid var(--line-2);
+}
+
+.post-summary dt {
+    color: var(--text-2);
+    font-size: .84rem;
+    font-weight: 600;
+}
+
+.post-summary dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+.post-summary-note {
+    margin: .85rem 0 0;
+    font-size: .88rem;
+    color: var(--text-2);
+}
+
+.post-placeholder {
+    max-width: 40rem;
+}
+
+@media (max-width: 900px) {
+    .post-ride-page .ride-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .post-ride-page .ride-aside {
+        position: static;
+    }
+
+    .post-fields,
+    .post-tiers {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ride-map-pin-text {
+    fill: var(--accent-ink);
+    font-weight: 700;
+}
+
+.ride-map-pin-text-hollow {
+    fill: var(--accent-text);
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .post-input,
+    .post-file {
+        font-size: 16px;
+        min-height: 46px;
+    }
+}

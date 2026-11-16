@@ -1,0 +1,14 @@
+﻿@model IReadOnlyList<RideMapPoint>
+@{
+    var inv=System.Globalization.CultureInfo.InvariantCulture;
+    var minLat=Model.Min(p=>p.Latitude); var maxLat=Model.Max(p=>p.Latitude);
+    var minLon=Model.Min(p=>p.Longitude); var maxLon=Model.Max(p=>p.Longitude);
+    double X(RideMapPoint p)=>30+(p.Longitude-minLon)/Math.Max(.001,maxLon-minLon)*420;
+    double Y(RideMapPoint p)=>240-(p.Latitude-minLat)/Math.Max(.001,maxLat-minLat)*210;
+    var points=string.Join(" ",Model.Select(p=>X(p).ToString("0.0",inv)+","+Y(p).ToString("0.0",inv)));
+}
+<div class="ride-map"><svg viewBox="0 0 480 280" role="img" aria-label="Schematic route preview, not a navigation map">
+    <polyline points="@points" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="@X(Model[0]).ToString(inv)" cy="@Y(Model[0]).ToString(inv)" r="8" fill="currentColor" />
+    <circle cx="@X(Model[^1]).ToString(inv)" cy="@Y(Model[^1]).ToString(inv)" r="8" fill="currentColor" />
+</svg><p class="ride-map-note">Schematic route · not for navigation</p></div>

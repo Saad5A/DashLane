@@ -105,6 +105,8 @@ public class RideBooking
     public DateTime? AssignedUtc { get; set; }
     public DateTime? PickupEtaUtc { get; set; }
     public DateTime? ArrivedUtc { get; set; }
+    public DateTime? StartedUtc { get; set; }
+    public DateTime? CompletedUtc { get; set; }
     public DateTime? CancelledUtc { get; set; }
     public decimal? CancellationFee { get; set; }
     public string? CancellationReason { get; set; }

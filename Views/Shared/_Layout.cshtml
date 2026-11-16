@@ -9,6 +9,7 @@
     }
     var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) &&
         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+    var isRides = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Rides", StringComparison.OrdinalIgnoreCase);
 }
 <html lang="en">
 <head>
@@ -35,7 +36,7 @@
                             <a class="nav-link text-dark @(isHome ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index" aria-current="@(isHome ? "page" : null)">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Rides" asp-action="Request">Request a Ride</a>
+                            <a class="nav-link text-dark @(isRides ? "active" : "")" asp-controller="Rides" asp-action="Request" aria-current="@(isRides ? "page" : null)">Request a Ride</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Driver" asp-action="Onboarding">Post a Ride</a>

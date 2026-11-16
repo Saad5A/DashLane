@@ -20,6 +20,8 @@ public class DashLaneContext : DbContext
     public DbSet<Promotion> Promotions => Set<Promotion>();
     public DbSet<TripMessage> TripMessages => Set<TripMessage>();
     public DbSet<TripIncident> TripIncidents => Set<TripIncident>();
+    public DbSet<RideFareRate> FareRates => Set<RideFareRate>();
+    public DbSet<RideFareSnapshot> FareSnapshots => Set<RideFareSnapshot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +44,13 @@ public class DashLaneContext : DbContext
         modelBuilder.Entity<DispatchAttempt>().HasKey(attempt => new { attempt.RideBookingId, attempt.DriverProfileId });
         modelBuilder.Entity<ReviewFeedback>().HasIndex(review => new { review.RideBookingId, review.IsDriver }).IsUnique();
         modelBuilder.Entity<Promotion>().HasIndex(promotion => promotion.Code).IsUnique();
+        modelBuilder.Entity<RideFareRate>().HasKey(rate => rate.Tier);
+        modelBuilder.Entity<RideFareSnapshot>().HasKey(snapshot => snapshot.RideBookingId);
+        modelBuilder.Entity<RideFareSnapshot>().HasOne(snapshot => snapshot.RideBooking)
+            .WithOne().HasForeignKey<RideFareSnapshot>(snapshot => snapshot.RideBookingId);
+        modelBuilder.Entity<TripMessage>().Property(message => message.Text).HasMaxLength(500);
+        modelBuilder.Entity<TripIncident>().Property(incident => incident.Text).HasMaxLength(500);
+        modelBuilder.Entity<ReviewFeedback>().Property(review => review.Comment).HasMaxLength(500);
 
         modelBuilder.Entity<Member>(member =>
         {

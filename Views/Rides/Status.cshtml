@@ -1,0 +1,69 @@
+@model TripStatusViewModel
+@{
+    ViewData["Title"]="Trip Status";
+    var active=Model.Status is "Assigned" or "Arrived" or "InProgress";
+    var terminal=Model.Status is "Completed" or "Cancelled";
+    var autoRefresh=ViewData["AutoRefresh"] as bool? == true;
+    var stage=Model.Status switch { "Requested"=>0,"Assigned" or "Arrived"=>1,"InProgress"=>2,"Completed"=>3,_=>-1 };
+    var stages=new[]{"Searching","Driver assigned","En route","Completed"};
+    var seconds=Model.FreeCancellationUntilUtc is DateTime until ? Math.Max(0,(int)Math.Ceiling((until-Model.ServerUtc).TotalSeconds)) : 0;
+    var remaining=TimeSpan.FromSeconds(seconds).ToString(@"m\:ss");
+    var etaSeconds=Model.PickupEtaUtc is DateTime eta ? Math.Max(0,(int)Math.Ceiling((eta-Model.ServerUtc).TotalSeconds)) : 0;
+    var cad=System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-confirm.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-status.css" asp-append-version="true" />
+    @if(autoRefresh) { <meta http-equiv="refresh" content="10" /> }
+}
+<section class="ride-page rider-workflow ride-status-command stitch-status">
+    <partial name="_RideReturnLinks" />
+    <partial name="_RideSteps" model="4" />
+    <header class="ride-page-heading"><div><span class="ride-eyebrow">Every step of your journey</span><h1>@(Model.Status == "Cancelled" ? "Your trip was cancelled." : Model.Status == "Completed" ? "You've arrived." : "Your ride, in view.")</h1><p class="trip-status-booking">Booking @Model.Id</p></div><span class="ride-chip @(Model.Status == "Cancelled" ? "is-danger" : "is-ok")">@(Model.Status == "Arrived" ? "Driver at pickup" : stage>=0 ? stages[stage] : Model.Status)</span></header>
+    @if(TempData["RideNotice"] is string notice) { <p class="ride-notice mb-3" role="status">@notice</p> }
+    <div class="ride-grid"><div class="ride-selector">
+        <section class="ride-card ride-panel ride-hero-card trip-status-hero"><div class="ride-card-label"><span class="ride-chip ride-service-pill">@(stage==0 ? "Searching for Driver" : stage==1 ? "Driver Assigned" : stage==2 ? "En Route" : Model.Status)</span><span class="ride-help">Step 04 of 04</span></div><div class="ride-section-heading"><h2>Your journey, in motion.</h2><span class="ride-help">Updated @Model.ServerUtc.ToString("HH:mm:ss") UTC</span></div><ol class="trip-timeline" aria-label="Trip progress">
+            @for(var i=0;i<stages.Length;i++) { <li class="@(i<stage ? "is-done" : "")" aria-current="@(i==stage ? "step" : null)"><span class="trip-stage-node">@if(i<stage) { @Icon.Get("check",14) } else { @(i+1) }</span><span>@stages[i]</span></li> }
+            </ol>
+            @if(Model.Status == "Cancelled") { <p class="ride-notice">Cancellation: @Model.CancellationReason · Fee: @Model.CancellationFee?.ToString("C",cad) CAD</p> }
+            @if(Model.AcceptanceDeadlineUtc.HasValue) { <p class="ride-help">Waiting for driver acceptance. Current offer expires at @Model.AcceptanceDeadlineUtc.Value.ToString("HH:mm:ss") UTC.</p> }
+            @if(Model.PickupEtaUtc.HasValue) { <div class="ride-route-summary"><p>@Icon.Get("car",16) Pickup ETA: <strong class="tabular-nums">@Model.PickupEtaUtc.Value.ToString("HH:mm") UTC</strong><span class="ride-chip ride-service-pill tabular-nums">@(etaSeconds > 0 ? TimeSpan.FromSeconds(etaSeconds).ToString(@"m\:ss") + " remaining" : Model.Status == "Arrived" ? "At pickup" : "ETA reached")</span></p></div> }
+            @if(Model.StartedUtc.HasValue) { <p class="ride-help">Started @Model.StartedUtc.Value.ToString("u")</p> } @if(Model.CompletedUtc.HasValue) { <p class="ride-help">Completed @Model.CompletedUtc.Value.ToString("u")</p> }
+            <div class="trip-refresh"><a class="ride-secondary" asp-controller="Rides" asp-action="Status" asp-route-id="@Model.Id">@Icon.Get("arrow-right",14) Refresh status</a>
+                @if(!terminal) { <a asp-controller="Rides" asp-action="Status" asp-route-id="@Model.Id" asp-route-autoRefresh="@(!autoRefresh)">@(autoRefresh ? "Pause automatic refresh" : "Enable automatic refresh")</a> }
+            </div><p class="ride-help">@(autoRefresh ? "Refreshing every 10 seconds. Pause before writing a message or report." : "Status and cancellation time reflect the last refresh. Enable automatic refresh for updates every 10 seconds.")</p>
+            @if(Model.CanAdvance) { <details><summary class="ride-help">Trip stage controls</summary><form class="trip-form" asp-controller="Rides" asp-action="Advance" asp-route-id="@Model.Id" method="post"><input type="hidden" name="ExpectedStatus" value="@Model.Status" /><button class="ride-secondary" type="submit">Advance to next stage</button><p class="ride-help">Development mode allows simulated progression. In production, only the assigned driver may advance the trip.</p></form></details> }
+        </section>
+        <section class="ride-card ride-panel trip-driver-card"><div class="ride-card-label"><h2>Your driver &amp; vehicle</h2><span class="ride-chip ride-service-pill">@Model.Status</span></div><div class="confirm-profile"><span class="confirm-avatar">@Icon.Get("car",26)</span><div class="confirm-profile-info"><h3>@(Model.Driver ?? "Finding your driver")</h3><p>@(Model.Vehicle ?? "Details appear after a driver accepts.")</p></div>@if(Model.Plate != null) { <span class="confirm-plate">@Model.Plate</span> }</div>
+            @if(!string.IsNullOrWhiteSpace(Model.PickupInstructions)) { <div class="confirm-note"><strong>Pickup instructions</strong><p>@Model.PickupInstructions</p></div> }
+            @if(Model.DriverPosition != null) { <p class="ride-help tabular-nums">Last reported position: @Model.DriverPosition.Latitude.ToString("0.0000"), @Model.DriverPosition.Longitude.ToString("0.0000")</p> }
+            @if(Model.IsDriver && active) { <details><summary>Update reported location</summary><form class="trip-form" asp-controller="Rides" asp-action="Location" asp-route-id="@Model.Id" method="post"><div class="ride-field-row"><label class="ride-field">Latitude<input class="ride-input" name="Latitude" type="number" step="any" min="-90" max="90" required /></label><label class="ride-field">Longitude<input class="ride-input" name="Longitude" type="number" step="any" min="-180" max="180" required /></label></div><button class="ride-secondary" type="submit">Update location</button></form></details> }
+        </section>
+        <section class="ride-card ride-panel trip-chat-card"><div class="ride-section-heading"><h2>Stay in touch</h2>@Icon.Get("message",20)</div>
+            @if(Model.Messages.Count == 0) { <p class="ride-muted">No messages yet. Chat is available from assignment until the trip ends.</p> } else { <ol class="trip-chat-list">@foreach(var message in Model.Messages) { <li><strong>@message.Sender</strong><small> · @message.CreatedUtc.ToString("HH:mm") UTC</small><p>@message.Text</p></li> }</ol> }
+            @if(active) { <form class="trip-form" asp-controller="Rides" asp-action="Chat" asp-route-id="@Model.Id" method="post"><div class="ride-field"><label for="chat-text">Message your @(Model.IsDriver ? "rider" : "driver")</label><textarea class="ride-input" id="chat-text" name="Text" maxlength="500" required placeholder="A quick update about your pickup…"></textarea></div><button class="ride-secondary" type="submit">Send message</button></form> }
+        </section>
+        <section class="ride-card ride-panel trip-safety-card"><div class="ride-section-heading"><h2 class="ride-heading-icon">@Icon.Get("shield",20) Support along the way</h2><span class="ride-chip ride-service-pill">Safety &amp; SOS</span><a asp-controller="Rides" asp-action="Policy" asp-fragment="safety">Safety policy</a></div><div class="trip-safety-grid">
+            @if(active) { <details><summary>Emergency SOS simulation</summary><p class="ride-help mt-3">This records a simulated notification and trip coordinates. It does not contact emergency services. Call 911 in a real emergency.</p><form class="trip-form" asp-controller="Rides" asp-action="Sos" asp-route-id="@Model.Id" method="post"><button class="ride-secondary trip-danger" type="submit">Record simulated SOS</button></form></details> }
+            <details><summary>Report an incident</summary><form class="trip-form" asp-controller="Rides" asp-action="Incident" asp-route-id="@Model.Id" method="post"><div class="ride-field"><label for="incident-text">Tell us what happened</label><textarea class="ride-input" id="incident-text" name="Text" maxlength="500" required></textarea></div><button class="ride-secondary" type="submit">Save incident report</button></form></details>
+        </div></section>
+        @if(Model.Status == "Completed") {
+            <section class="ride-card ride-panel ride-hero-card trip-review-card"><span class="ride-chip ride-service-pill">A little feedback, a better journey</span><h2>How was your trip?</h2>@if(Model.Reviewed) { <p class="ride-chip is-ok">@Icon.Get("check",14) Your review was saved. Thank you.</p> } else { <p class="ride-muted">A little feedback goes a long way.</p><form class="trip-form" asp-controller="Rides" asp-action="Review" asp-route-id="@Model.Id" method="post"><fieldset class="trip-stars"><legend>Star rating</legend>@for(var i=1;i<=5;i++) { <label for="rating-@i"><input type="radio" id="rating-@i" name="Rating" value="@i" required /><span aria-hidden="true">★</span><span class="visually-hidden">@i stars</span><span aria-hidden="true">@i</span></label> }</fieldset><div class="ride-field"><label for="review-comment">Share your experience (optional)</label><textarea class="ride-input" id="review-comment" name="Comment" maxlength="500" placeholder="What made the journey work for you?"></textarea></div><button class="ride-primary" type="submit">Save review</button></form> }</section>
+        }
+    </div><aside class="ride-aside">
+        @if(Model.CancellationQuote.HasValue) {
+            <section class="ride-card ride-panel trip-cancel-card"><h2>Plans changed?</h2><div class="trip-countdown">
+                @if(seconds>0 && Model.CancellationQuote==0) { <span class="ride-help">Free cancellation remaining</span><strong class="tabular-nums">@remaining</strong><time class="ride-help" datetime="@Model.FreeCancellationUntilUtc?.ToString("o")">Free window ends at @Model.FreeCancellationUntilUtc?.ToString("HH:mm:ss") UTC</time> }
+                else { <strong class="tabular-nums">@Model.CancellationQuote.Value.ToString("C",cad)</strong><span class="ride-help">@(Model.DriverLate ? "Your driver is late. Cancellation is free." : Model.Status == "Requested" ? "Free cancellation before driver assignment." : Model.CancellationQuote==0 ? "Cancellation is currently free." : "Current cancellation fee · CAD")</span> }
+                <span class="ride-help">As of the last refresh. The server rechecks the fee when you confirm.</span>
+            </div><details><summary>Cancel this ride</summary><form class="trip-form" asp-controller="Rides" asp-action="Cancel" asp-route-id="@Model.Id" method="post"><input type="hidden" name="ExpectedFee" value="@Model.CancellationQuote.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" /><p class="ride-help">Confirm cancellation at the current fee of @Model.CancellationQuote.Value.ToString("C",cad) CAD.</p><button class="ride-secondary trip-danger" type="submit">Confirm cancellation</button></form></details><a class="ride-help" asp-controller="Rides" asp-action="Policy" asp-fragment="cancellation">Read the 2-minute cancellation policy</a></section>
+        }
+        <section class="ride-card ride-summary trip-route-card"><div class="trip-map-label"><h2>Map &amp; route</h2><span class="ride-chip ride-service-pill">Last reported trip data</span></div><partial name="_RideMap" model="@(new RideMapPoint[] { Model.Pickup, Model.Destination })" /></section>
+        <section class="ride-card ride-summary trip-receipt-card"><div class="ride-section-heading"><h2>Fare &amp; receipt</h2><span class="ride-chip">Price locked</span></div><partial name="_RideReceipt" model="Model" />@if(Model.Paid.HasValue && !Model.IsDriver) { <div class="ride-action-row"><a class="ride-secondary" asp-controller="Rides" asp-action="Receipt" asp-route-id="@Model.Id">View receipt</a><a asp-controller="Rides" asp-action="Receipt" asp-route-id="@Model.Id" asp-route-download="true">Download</a></div> }</section>
+    </aside></div>
+    @if (terminal) {
+        <section class="ride-card ride-panel trip-return-card"><h2>@(Model.Status == "Completed" ? "Your next journey starts at Home." : "Ready when you are.")</h2><div class="ride-action-row"><a class="ride-primary" asp-controller="Home" asp-action="Index">Back to Home @Icon.Get("arrow-right",16)</a><a class="ride-secondary" asp-controller="Home" asp-action="Activity">Recent Trips &amp; Receipts</a><a class="ride-secondary" asp-controller="Rides" asp-action="Request">Request another ride</a></div></section>
+    }
+</section>

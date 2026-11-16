@@ -1,0 +1,12 @@
+﻿@model VehicleTier
+<svg width="46" height="34" viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+@if(Model==VehicleTier.WheelchairAccessible) {
+    <circle cx="21" cy="5" r="2.5" /><path d="M19 10v9h9l4 8 3-1M19 13h8M19 19l-1-9M15 15a8 8 0 1 0 10 11" />
+} else if(Model==VehicleTier.XL) {
+    <path d="M4 23V12l4-5h21l5 10h2v6h-4M12 23h12M5 16h28M12 8v8M22 8v8M28 8l4 8M17 19h3" /><circle cx="8" cy="23" r="4" /><circle cx="28" cy="23" r="4" />
+} else if(Model==VehicleTier.Comfort) {
+    <path d="M3 22v-7l5-2 5-7h13l6 7 5 2v7h-4M11 22h14M8 13h24M19 7v6M4 17h4M33 17h3M16 17h4" /><circle cx="8" cy="22" r="3.5" /><circle cx="29" cy="22" r="3.5" />
+} else {
+    <path d="M4 22v-7l5-2 5-6h10l6 6 6 3v6h-4M12 22h12M9 13h21M19 8v5M5 17h3M32 18h3" /><circle cx="8" cy="22" r="3.5" /><circle cx="28" cy="22" r="3.5" />
+}
+</svg>

@@ -17,6 +17,9 @@ body.dashboard-shell { display: block; margin-bottom: 0; }
 .dash-trip { padding: 24px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-lg); display: flex; align-items: center; gap: 18px; }
 .dash-symbol { background: var(--accent-soft); color: var(--accent-text); border-radius: 50%; width: 44px; height: 44px; display: inline-grid; place-items: center; flex-shrink: 0; }
 .dash-trip-copy { flex: 1; min-width: 0; }
+.dash-active-title { font-family:var(--sans); font-size:13px; font-weight:600; color:var(--accent-text); margin:8px 0; }
+.dash-trip-badges { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+.tabular-nums { font-variant-numeric:tabular-nums; }
 .dash-trip h2 { font-size: 18px; font-weight: 600; letter-spacing: -.02em; margin: 6px 0; overflow-wrap: anywhere; }
 .dash-trip-copy > p:last-child { color: var(--text-2); font-size: 12.5px; }
 .dash-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }

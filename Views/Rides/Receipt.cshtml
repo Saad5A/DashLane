@@ -1,0 +1,8 @@
+﻿@model TripStatusViewModel
+@{ ViewData["Title"]="Test payment receipt"; }
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ride-checkout.css" asp-append-version="true" />
+}
+<section class="ride-page rider-workflow ride-receipt-page"><header class="ride-page-heading"><div><span class="ride-eyebrow">For your records</span><h1>Your trip receipt</h1><p class="trip-status-booking">Booking @Model.Id</p></div><span class="ride-chip is-ok">Test payment recorded</span></header><div class="ride-card ride-panel ride-hero-card"><h2>DashLane · payment summary</h2><partial name="_RideReceipt" model="Model" /><p class="ride-help">This is a simulated payment receipt. No real money was charged.</p><div class="ride-action-row"><a class="ride-secondary" asp-controller="Rides" asp-action="Status" asp-route-id="@Model.Id">Back to trip</a><a class="ride-secondary" asp-controller="Rides" asp-action="Receipt" asp-route-id="@Model.Id" asp-route-download="true">Download text receipt</a></div></div></section>

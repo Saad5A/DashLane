@@ -1,0 +1,39 @@
+@model DashLane.Models.DriverVerificationStatus
+@{
+    ViewData["Title"] = "Post a Ride";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
+}
+
+<section class="ride-page rider-workflow post-ride-page">
+    <div class="ride-card post-placeholder">
+        <h1>Post a Ride</h1>
+        <p class="post-lede">Schedule a trip for riders along your route.</p>
+
+        @if (Model.RequiresLicenseVerification)
+        {
+            <div class="post-alert post-alert-amber" role="status">
+                @(Model.Message ?? "License verification is required before you can publish a ride.")
+                <div class="mt-2">
+                    <a asp-controller="Home" asp-action="Identity">Verify your government ID</a>
+                </div>
+            </div>
+        }
+        else if (!Model.CanPublishRides)
+        {
+            <div class="post-alert post-alert-amber" role="status">
+                @(Model.Message ?? "Complete your driver profile before publishing a ride.")
+            </div>
+        }
+        else
+        {
+            <div class="post-badge post-badge-trust mb-3">You’re cleared to publish rides.</div>
+        }
+
+        <a class="ride-primary post-cta" asp-action="Onboarding">Continue to Vehicle &amp; License</a>
+    </div>
+</section>

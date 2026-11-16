@@ -20,7 +20,16 @@ public static class FareSchedule
         decimal surgeMultiplier = 1m)
     {
         var rate = Find(tier) ?? throw new ArgumentOutOfRangeException(nameof(tier));
-        var surge = surgeMultiplier <= 0 ? 1m : surgeMultiplier;
+        return EstimateTripFare(new RideFareRate { Tier = rate.Tier, BaseFee = rate.BaseFee,
+            PerKm = rate.PerKm, PerMin = rate.PerMin, Minimum = rate.Minimum, Capacity = rate.Capacity },
+            distanceKm, durationMin, surgeMultiplier);
+    }
+
+    public static decimal EstimateTripFare(RideFareRate rate, decimal distanceKm, decimal durationMin,
+        decimal surgeMultiplier = 1m)
+    {
+        if (distanceKm <= 0 || durationMin <= 0) throw new ArgumentOutOfRangeException(nameof(distanceKm));
+        var surge = Math.Clamp(surgeMultiplier, 1m, 2m);
         return Money(Math.Max(rate.Minimum,
             (rate.BaseFee + distanceKm * rate.PerKm + durationMin * rate.PerMin) * surge));
     }

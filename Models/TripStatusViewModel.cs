@@ -30,7 +30,9 @@ public record TripStatusViewModel(Guid Id, string Status, bool IsDriver, string?
     string? PickupInstructions, DateTime? AcceptanceDeadlineUtc, DateTime? PickupEtaUtc, DateTime ServerUtc,
     bool DriverLate, decimal? CancellationQuote, decimal? CancellationFee, string? CancellationReason,
     decimal LockedFare, decimal Surge, decimal Discount, decimal? IncludedTax, decimal? Paid, string? PaymentMethod,
-    string? PaymentReference, bool Reviewed, IReadOnlyList<TripChatLine> Messages, bool CanAdvance);
+    string? PaymentReference, bool Reviewed, IReadOnlyList<TripChatLine> Messages, bool CanAdvance,
+    DateTime? StartedUtc = null, DateTime? CompletedUtc = null, RideFareSnapshot? FareBreakdown = null,
+    DateTime? FreeCancellationUntilUtc = null);
 
 public record TripChatLine(string Sender, string Text, DateTime CreatedUtc);
 public record TripTextInput([Required, StringLength(500)] string Text);

@@ -1,0 +1,38 @@
+﻿.rider-workflow .confirm-driver { padding: 20px; display: grid; gap: 16px; border: 1px solid var(--ride-border); border-radius: 20px; background: var(--ride-card); }
+.rider-workflow .confirm-driver:has(input:checked) { border-color: var(--ride-primary); background: var(--ride-tint); }
+.confirm-profile { display: flex; align-items: center; gap: 14px; }
+.confirm-profile input { margin-left: auto; }
+.confirm-profile img, .confirm-avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--ride-selected); }
+.confirm-avatar { display: grid; place-items: center; color: var(--ride-primary); font: 700 22px "Manrope", sans-serif; }
+.confirm-profile-info { flex: 1; min-width: 0; }
+.confirm-profile-info p { font-size: 12px; color: var(--ride-muted); }
+.confirm-star { color: var(--ride-star); }
+.confirm-specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.confirm-specs dt { color: var(--ride-muted); font-size: 11px; font-weight: 400; }
+.confirm-specs dd { margin: 4px 0 0; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.confirm-plate { padding: 4px 8px; border: 1px solid var(--ride-border); border-radius: 6px; background: var(--ride-card); font-family: "Geist Mono", monospace; }
+.confirm-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.confirm-note { padding: 12px 14px; background: var(--ride-field); border: 1px solid var(--ride-border); border-radius: 14px; color: var(--ride-muted); font-size: 12px; }
+@media (max-width: 420px) { .confirm-specs { grid-template-columns: minmax(0, 1fr); } .confirm-profile { gap: 10px; } }
+
+.confirm-driver { box-shadow: var(--edge); }
+.rider-workflow .confirm-driver:has(input:checked) { border-color: var(--accent-line); background: var(--accent-soft); }
+.confirm-profile img, .confirm-avatar { border: 1px solid var(--accent-line); box-shadow: 0 0 0 4px var(--surface); }
+.confirm-avatar { background: var(--accent-soft); color: var(--accent-text); }
+.confirm-profile-info > strong { font-family: var(--sans); font-size: 18px; font-weight: 600; letter-spacing: -.025em; }
+.confirm-tier-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--text-2); font-size: 12px; border-top: 1px solid var(--line); padding-top: 14px; }
+.confirm-tier-row > span:last-child { margin-left: auto; }
+.confirm-tier-row svg { width: 34px; height: 28px; }
+.confirm-cta-stack { display: grid; gap: 10px; }
+
+/* Stitch inspection screen: a centred stack with vehicle tray and pickup notes. */
+.stitch-confirm { max-width: 860px; }
+.stitch-confirm .ride-grid { display: block; }
+.stitch-confirm .ride-aside { position: static; margin-top: 24px; }
+.stitch-confirm .confirm-profile { padding: 8px 0; }
+.stitch-confirm .confirm-profile img, .stitch-confirm .confirm-avatar { width: 72px; height: 72px; }
+.confirm-vehicle-tray { padding: 20px; border-radius: var(--r-lg); background: var(--surface-2); }
+.stitch-confirm .confirm-policy { margin-top: 24px; background: var(--accent-soft); border-color: var(--accent-line); }
+.stitch-confirm .ride-aside .ride-map { display: none; }
+.stitch-confirm .confirm-cta-stack { grid-template-columns: 1fr 1fr; }
+@media(max-width:575px) { .stitch-confirm .confirm-cta-stack { grid-template-columns: 1fr; } }

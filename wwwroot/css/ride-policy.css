@@ -1,0 +1,10 @@
+﻿.ride-policy-nav { gap: 10px; }
+.ride-policy-nav a { padding: 10px 12px; border-radius: 999px; font-size: 13px; text-decoration: none; }
+.ride-policy-nav a:hover, .ride-policy-nav a:focus-visible { background: var(--ride-tint); }
+.ride-policy-highlight { display: flex; align-items: flex-start; gap: 12px; padding: 18px; border: 1px solid var(--ride-border); border-radius: 16px; background: var(--ride-tint); color: var(--ride-hover); font-size: 13px; }
+.ride-policy-highlight svg { flex-shrink: 0; margin-top: 2px; }
+.rider-workflow section[id] { scroll-margin-top: 24px; }
+
+.ride-policy-highlight { border-color: var(--accent-line); background: var(--accent-soft); color: var(--text); }
+.ride-policy-highlight svg { color: var(--accent-text); }
+.ride-policy-nav a:hover, .ride-policy-nav a:focus-visible { background: var(--surface-2); }

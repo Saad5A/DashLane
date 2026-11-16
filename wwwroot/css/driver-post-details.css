@@ -1,0 +1,217 @@
+.post-field-block {
+    display: grid;
+    gap: .35rem;
+    font-weight: 600;
+    margin-bottom: .85rem;
+}
+
+.post-textarea {
+    width: 100%;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    background: var(--bg-raised);
+    color: var(--text);
+    padding: .75rem 12px;
+    resize: vertical;
+    min-height: 7rem;
+    font: inherit;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(20, 18, 12, 0.04);
+}
+
+.post-textarea:focus {
+    border-color: rgba(214, 140, 0, 0.6);
+    background: var(--surface);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.post-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1.1rem;
+}
+
+.post-chip {
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-2);
+    font-weight: 700;
+    font-size: .82rem;
+    padding: .4rem .75rem;
+}
+
+.post-chip:hover {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+}
+
+.post-chip.is-active {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-text);
+}
+
+.post-luggage {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.post-luggage legend {
+    margin-bottom: .55rem;
+}
+
+.post-luggage-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+}
+
+.post-pill {
+    cursor: pointer;
+}
+
+.post-pill input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.post-pill span {
+    display: inline-flex;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: var(--bg-raised);
+    padding: .45rem .85rem;
+    font-weight: 700;
+}
+
+.post-pill:has(input:checked) span {
+    background: linear-gradient(180deg, rgba(255, 176, 0, 0.06), rgba(255, 176, 0, 0.02));
+    border-color: var(--accent-line);
+    color: var(--accent-text);
+    box-shadow: 0 0 0 3px rgba(255, 176, 0, 0.05);
+}
+
+.post-hint {
+    margin: .65rem 0 0;
+    font-size: .88rem;
+    color: var(--text-2);
+}
+
+.post-nav-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+}
+
+.post-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: .55rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: var(--edge);
+}
+
+.post-secondary:hover {
+    background: var(--surface-3);
+    border-color: var(--line-3);
+    color: var(--text);
+}
+
+.post-nav-actions .post-cta {
+    flex: 1;
+    min-width: 12rem;
+}
+
+.post-trip-meta {
+    margin: 0 0 1rem;
+}
+
+.post-trip-meta div {
+    display: grid;
+    gap: .15rem;
+    padding: .45rem 0;
+    border-bottom: 1px solid var(--line-2);
+}
+
+.post-trip-meta dt {
+    color: var(--text-2);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.post-trip-meta dd {
+    margin: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.post-earnings-status {
+    margin: 0;
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+.post-earnings dl {
+    margin: 0;
+}
+
+.post-earnings dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .35rem 0;
+}
+
+.post-earnings dt {
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+.post-earnings dd {
+    margin: 0;
+    font-weight: 700;
+}
+
+.post-earnings-seat {
+    border-top: 1px solid var(--line-2);
+    margin-top: .35rem;
+    padding-top: .55rem !important;
+}
+
+.post-earnings-total {
+    border-top: 1px solid var(--line-2);
+    margin-top: .25rem;
+    padding-top: .55rem !important;
+}
+
+.post-earnings-total dd {
+    color: var(--accent-text);
+    font-size: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .post-nav-actions .post-cta {
+        width: 100%;
+    }
+}
+
+@media (max-width: 720px) {
+    .post-textarea {
+        font-size: 16px;
+    }
+}

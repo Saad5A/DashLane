@@ -1,0 +1,7 @@
+<nav class="ride-return-links" aria-label="Return to your account">
+    <a asp-controller="Home" asp-action="Index">@Icon.Get("arrow-left",14) Home</a>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-controller="Home" asp-action="Activity">Recent Trips &amp; Receipts @Icon.Get("arrow-right",14)</a>
+    }
+</nav>

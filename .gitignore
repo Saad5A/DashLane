@@ -364,6 +364,10 @@ FodyWeavers.xsd
 
 # Local accounts, uploads, and editor files
 App_Data/
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
 identifier.sqlite
 .DS_Store
 .idea/

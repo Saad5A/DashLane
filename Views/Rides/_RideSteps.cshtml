@@ -1,0 +1,8 @@
+﻿@model int
+@{ var steps = new[] { (1, "Request", "Request"), (2, "Confirm", "Confirm"), (3, "Checkout", "Checkout"), (4, "Status", "Status") }; }
+<nav class="ride-card ride-steps" aria-label="Booking progress"><ol>
+@foreach(var (number,label,action) in steps) {
+    <li class="@(number<Model ? "is-done" : "")" aria-current="@(number == Model ? "step" : null)"><span>@if(number<Model) { @Icon.Get("check",13) } else { @number.ToString("00") }</span>
+    @if(number<Model && Model<4) { <a asp-controller="Rides" asp-action="@action" asp-route-edit="@(action == "Request" ? "true" : null)">@label</a> } else { <span>@label</span> }</li>
+}
+</ol></nav>

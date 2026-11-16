@@ -1,0 +1,9 @@
+﻿@model TripStatusViewModel
+@{ var cad=System.Globalization.CultureInfo.GetCultureInfo("en-CA"); }
+<dl class="ride-breakdown tabular-nums">
+@if(Model.FareBreakdown is {} fare) {
+    <div><dt>Base fare</dt><dd>@fare.BaseFee.ToString("C",cad)</dd></div><div><dt>Distance</dt><dd>@fare.DistanceCharge.ToString("C",cad)</dd></div><div><dt>Time</dt><dd>@fare.DurationCharge.ToString("C",cad)</dd></div><div><dt>Surge adjustment · @fare.SurgeMultiplier.ToString("0.00")×</dt><dd>@fare.SurgeCharge.ToString("C",cad)</dd></div><div><dt>Minimum adjustment</dt><dd>@fare.MinimumAdjustment.ToString("C",cad)</dd></div>
+}
+<div><dt>Locked fare</dt><dd>@Model.LockedFare.ToString("C",cad)</dd></div><div><dt>Discount</dt><dd>−@Model.Discount.ToString("C",cad)</dd></div><div><dt>Included HST</dt><dd>@(Model.IncludedTax?.ToString("C",cad) ?? "Not recorded")</dd></div><div class="ride-total"><dt>Test payment · CAD</dt><dd>@(Model.Paid?.ToString("C",cad) ?? "Not recorded")</dd></div>
+</dl>
+@if(Model.Paid.HasValue) { <p class="ride-help">@Model.PaymentMethod · @Model.PaymentReference</p> }

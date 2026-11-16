@@ -1,0 +1,58 @@
+﻿.trip-timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 8px 0 0; padding: 0; }
+.trip-timeline li { position: relative; display: grid; align-content: start; gap: 10px; color: var(--ride-muted); font-size: 11px; }
+.trip-timeline li:not(:last-child)::after { content: ""; position: absolute; height: 2px; background: var(--ride-border); left: 34px; right: -10px; top: 15px; }
+.trip-timeline li.is-done::after { background: var(--ride-primary); }
+.trip-stage-node { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--ride-track); border: 1px solid var(--ride-border); font-size: 12px; font-weight: 700; }
+.trip-timeline .is-done .trip-stage-node { background: var(--ride-selected); color: var(--ride-hover); border-color: var(--ride-selected); }
+.trip-timeline [aria-current=step] { color: var(--ride-primary); font-weight: 700; }
+.trip-timeline [aria-current=step] .trip-stage-node { color: var(--ride-card); border-color: var(--ride-primary); background: var(--ride-primary); box-shadow: 0 0 0 4px var(--ride-tint); }
+.trip-countdown { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--ride-border); border-radius: 16px; background: var(--ride-tint); }
+.trip-countdown strong { font-size: 30px; letter-spacing: -.04em; font-family: "Manrope", sans-serif; color: var(--ride-primary); }
+.trip-danger { color: var(--ride-danger-ink); background: var(--ride-danger-bg); border-color: var(--ride-danger-bg); }
+.trip-danger:hover { color: var(--ride-danger-ink); background: var(--ride-card); border-color: var(--ride-danger-ink); }
+.trip-safety-grid { display: grid; gap: 14px; }
+.trip-safety-grid details { padding: 14px 0; border-top: 1px solid var(--ride-border); }
+.trip-safety-grid summary { font-size: 13px; font-weight: 600; cursor: pointer; }
+.trip-safety-grid details[open] { display: grid; gap: 12px; }
+.trip-form { display: grid; gap: 12px; margin-top: 12px; }
+.trip-chat-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; max-height: 240px; overflow-y: auto; }
+.trip-chat-list li { padding: 12px; background: var(--ride-field); border-radius: 14px; overflow-wrap: anywhere; }
+.trip-chat-list p { white-space: pre-wrap; font-size: 13px; margin-top: 4px; }
+.trip-chat-list small { font-size: 10px; color: var(--ride-muted); }
+.trip-stars { display: flex; gap: 8px; flex-wrap: wrap; border: 0; padding: 0; }
+.trip-stars legend { flex-basis: 100%; margin-bottom: 12px; }
+.trip-stars label { display: flex; gap: 6px; align-items: center; border: 1px solid var(--ride-border); border-radius: 999px; padding: 10px 12px; cursor: pointer; }
+.trip-stars label:has(input:checked) { border-color: var(--ride-star); background: var(--ride-warn-bg); }
+.trip-stars span { color: var(--ride-star); }
+.trip-refresh { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+@media (max-width: 420px) { .trip-timeline { grid-template-columns: 1fr; } .trip-timeline li { grid-template-columns: 32px 1fr; align-items: center; } .trip-timeline li::after { display: none; } }
+
+.ride-status-command > .ride-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.ride-status-command > .ride-grid > .ride-selector, .ride-status-command > .ride-grid > .ride-aside { display: contents; }
+.trip-status-hero { grid-column: 1/-1; order: 0; }
+.trip-route-card { order: 1; }
+.trip-driver-card { order: 2; }
+.trip-chat-card { order: 3; }
+.trip-safety-card { order: 4; }
+.trip-cancel-card { order: 5; }
+.trip-review-card { order: 6; }
+.trip-receipt-card { order: 7; }
+.trip-status-hero .trip-timeline { padding: 14px 0; max-width: 900px; }
+.trip-timeline .is-done .trip-stage-node { background: var(--ok-soft); border-color: var(--ok-soft); color: var(--ok); }
+.trip-timeline [aria-current=step] .trip-stage-node { color: var(--accent-ink); background: var(--accent); border-color: var(--accent-line); box-shadow: 0 0 0 4px var(--accent-soft); }
+.trip-timeline li.is-done::after { background: var(--accent-line); }
+.trip-countdown { border-color: var(--accent-line); background: var(--accent-soft); }
+.trip-countdown strong { color: var(--text); }
+.trip-review-card .trip-stars label:has(input:checked) { border-color: var(--accent-line); background: var(--accent-soft); }
+@media(max-width:991px) { .ride-status-command > .ride-grid { grid-template-columns: minmax(0,1fr); } }
+
+/* Stitch command layout: map-led canvas with the dispatch and control cards below. */
+.stitch-status > .ride-grid { position: relative; gap: 22px; }
+.stitch-status .trip-route-card { grid-column: 1/-1; order: -2; min-height: 440px; padding: 20px; }
+.stitch-status .trip-route-card .ride-map { min-height: 360px; display: grid; align-content: center; }
+.stitch-status .trip-route-card .ride-map svg { max-height: 340px; }
+.stitch-status .trip-status-hero { order: -3; padding: 20px 26px; }
+.stitch-status .trip-driver-card { grid-column: 1/-1; order: -1; padding: 28px; }
+.stitch-status .trip-driver-card .confirm-profile { border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+.trip-map-label { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+@media(max-width:575px) { .stitch-status .trip-route-card { min-height: 300px; } .stitch-status .trip-route-card .ride-map { min-height: 220px; } }

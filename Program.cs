@@ -43,6 +43,10 @@ builder.Services.AddHttpClient("nominatim", client =>
 builder.Services.AddDbContext<DashLaneContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DashLane")));
 builder.Services.AddScoped<MembershipService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<RideService>();
+builder.Services.AddScoped<DriverService>();
+builder.Services.AddHostedService<DispatchExpiryWorker>();
 builder.Services.AddScoped<OtpSender>();
 builder.Services.AddScoped<IdVerifier>();
 builder.Services.AddLocalization();
