@@ -1,4 +1,15 @@
 ﻿<!DOCTYPE html>
+@inject MembershipService NavbarMembership
+@{
+    Member? navbarMember = null;
+    if (User.Identity?.IsAuthenticated == true &&
+        int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var navbarMemberId))
+    {
+        navbarMember = await NavbarMembership.FindAsync(navbarMemberId);
+    }
+    var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+}
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,6 +18,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DashLane.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="@(ViewData["Dashboard"] as bool? == true ? "dashboard-shell" : "")">
     <header>
@@ -19,27 +31,30 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Dashboard" aria-current="@(ViewData["Dashboard"] as bool? == true ? "page" : null)">Dashboard</a></li>
-                        }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(isHome ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index" aria-current="@(isHome ? "page" : null)">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Rides" asp-action="Request">Request a Ride</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Driver" asp-action="Onboarding">Post a Ride</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
-                    @if (ViewData["Dashboard"] as bool? == true)
-                    {
-                        <div class="dash-nav-account">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Help">Help Centre</a>
-                            <form asp-controller="Home" asp-action="SignOut" method="post">
-                                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
-                            </form>
-                        </div>
-                    }
                 </div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="nav-account-cluster">
+                        <a class="nav-activity" asp-controller="Home" asp-action="Activity" aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Activity" ? "page" : null)">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l3 2 3-2 3 2 3-2v18l-3-2-3 2-3-2-3 2V3Z" /><path d="M9 9h6M9 13h6M9 17h3" /></svg>
+                            <span>Activity</span>
+                        </a>
+                        <partial name="_ProfileMenu" model="@(navbarMember ?? new Member { FullName = User.Identity?.Name ?? "" })" />
+                    </div>
+                }
             </div>
         </nav>
     </header>

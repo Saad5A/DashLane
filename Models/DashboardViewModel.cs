@@ -29,7 +29,7 @@ public class DashboardViewModel
 }
 
 public record DashboardVehicleViewModel(string Make, string Model, int? Year,
-    string LicensePlate, VehicleTier Tier, bool IsWheelchairAccessible);
+    string LicensePlate, VehicleTier Tier, bool IsWheelchairAccessible, int PassengerCapacity);
 
 public record RecentTripItemViewModel(Guid Id, DateTime Date, string Origin,
     string Destination, string Role, decimal Fare, string Status, bool IsPostedTrip);
