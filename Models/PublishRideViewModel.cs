@@ -33,6 +33,7 @@ public class PublishRideViewModel
 
 public class ActiveTripViewModel
 {
+    public decimal CompletedEarnings { get; set; }
     public Guid PostedRideId { get; set; }
     public bool IsOnline { get; set; }
     public PostedRideStatus RideStatus { get; set; }

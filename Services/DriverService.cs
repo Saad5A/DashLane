@@ -21,7 +21,7 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
         if (member == null)
             return new(true, false, false, false, false, false, "Sign in to post a ride.");
 
-        var driver = await db.DriverProfiles.AsNoTracking()
+        var driver = await db.DriverProfiles.AsNoTracking().Include(item => item.Vehicle)
             .SingleOrDefaultAsync(item => item.MemberId == memberId, ct);
 
         var hasDocument = !string.IsNullOrWhiteSpace(member.DocumentFileName);
@@ -338,6 +338,17 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
             .ThenInclude(driver => driver.Member)
             .SingleOrDefaultAsync(ride => ride.Id == id && ride.Driver.MemberId == memberId, ct);
 
+    public async Task<decimal?> CompletedEarningsAsync(int memberId, CancellationToken ct)
+    {
+        var driver = await FindByMemberAsync(memberId, ct);
+        if (driver == null) return null;
+        // SQLite does not aggregate decimal values; sum persisted fares after materialization.
+        var fares = await db.RideBookings.AsNoTracking()
+            .Where(booking => booking.DriverProfileId == driver.Id && booking.Status == RideStatus.Completed)
+            .Select(booking => booking.Fare).ToListAsync(ct);
+        return FareSchedule.Money(fares.Sum());
+    }
+
     public async Task<ActiveTripViewModel?> BuildActiveTripAsync(Guid postedRideId, int memberId, CancellationToken ct)
     {
         var ride = await FindPostedRideAsync(postedRideId, memberId, ct);
@@ -354,6 +365,7 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
 
         return new ActiveTripViewModel
         {
+            CompletedEarnings = await CompletedEarningsAsync(memberId, ct) ?? 0m,
             PostedRideId = ride.Id,
             IsOnline = ride.Driver.Availability == DriverAvailability.Available ||
                        ride.Driver.Availability == DriverAvailability.Dispatched ||

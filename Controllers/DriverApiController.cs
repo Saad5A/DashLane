@@ -11,6 +11,14 @@ namespace DashLane.Controllers;
 [Route("api/driver")]
 public class DriverApiController(DriverService drivers, RideService rides, MembershipService membership) : ControllerBase
 {
+    [HttpGet("earnings")]
+    public async Task<IActionResult> Earnings(CancellationToken ct)
+    {
+        if (await CurrentMemberIdAsync() is not int memberId) return Unauthorized();
+        var earnings = await drivers.CompletedEarningsAsync(memberId, ct);
+        return earnings == null ? NotFound() : Ok(new { completedEarnings = earnings.Value });
+    }
+
     [HttpGet("verification")]
     public async Task<ActionResult<DriverVerificationStatus>> Verification(CancellationToken ct)
     {

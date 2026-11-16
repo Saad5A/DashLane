@@ -15,7 +15,12 @@ public class DriverController(DriverService drivers, MembershipService membershi
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     [HttpGet]
-    public IActionResult Post() => RedirectToAction(nameof(Onboarding));
+    public async Task<IActionResult> Post(CancellationToken ct)
+    {
+        if (await CurrentMemberIdAsync() is not int memberId) return Challenge();
+        return RedirectToAction(await drivers.FindByMemberAsync(memberId, ct) is { Vehicle: not null }
+            ? nameof(PostRoute) : nameof(Onboarding));
+    }
 
     [HttpGet]
     public async Task<IActionResult> Onboarding(CancellationToken ct)
@@ -64,9 +69,10 @@ public class DriverController(DriverService drivers, MembershipService membershi
     {
         if (await CurrentMemberIdAsync() is not int memberId)
             return Challenge();
-        if (await drivers.FindByMemberAsync(memberId, ct) is not { Vehicle: not null })
+        if (await drivers.FindByMemberAsync(memberId, ct) is not { Vehicle: not null } profile)
             return RedirectToAction(nameof(Onboarding));
 
+        ViewData["VehicleTier"] = profile.Vehicle.Tier;
         ViewData["Step"] = 2;
         return View(BuildPostRouteModel(ReadDraft()));
     }
@@ -77,13 +83,19 @@ public class DriverController(DriverService drivers, MembershipService membershi
     {
         if (await CurrentMemberIdAsync() is not int memberId)
             return Challenge();
-        if (await drivers.FindByMemberAsync(memberId, ct) is not { Vehicle: not null })
+        if (await drivers.FindByMemberAsync(memberId, ct) is not { Vehicle: not null } profile)
             return RedirectToAction(nameof(Onboarding));
 
+        ViewData["VehicleTier"] = profile.Vehicle.Tier;
         ViewData["Step"] = 2;
         input.Places = RideRouteCatalog.View.Places;
         input.Routes = RideRouteCatalog.View.Routes;
         MergeStopsFromJson(input);
+        if (!TryValidateModel(input) || !ModelState.IsValid)
+        {
+            input.Error = "Check your route, stops, and departure details.";
+            return View(input);
+        }
 
         if (string.IsNullOrWhiteSpace(input.OriginPlaceId) || string.IsNullOrWhiteSpace(input.DestinationPlaceId))
         {
@@ -195,6 +207,12 @@ public class DriverController(DriverService drivers, MembershipService membershi
         model.LuggageAllowance = input.LuggageAllowance;
         model.AvailableSeats = input.AvailableSeats;
         model.AutoApproveRiders = input.AutoApproveRiders;
+
+        if (!ModelState.IsValid)
+        {
+            model.Error = "Check the highlighted instructions and seat details.";
+            return View(model);
+        }
 
         if (!LuggageOptions.All.Contains(input.LuggageAllowance))
         {
