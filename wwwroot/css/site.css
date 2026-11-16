@@ -34,7 +34,7 @@ body {
   flex: 0 0 40px;
   width: 40px;
   height: 40px;
-  margin-left: 16px;
+  margin-left: 0;
   border-radius: 50%;
   border: 1px solid var(--accent-line, rgba(214, 140, 0, .45));
   background: var(--accent-soft, rgba(255, 176, 0, .14));
@@ -47,7 +47,65 @@ body {
 .navbar .navbar-profile:hover { color: var(--accent-ink, #1f1500); background: var(--accent-2, #ffcb52); }
 .navbar-profile:focus-visible { outline: 2px solid var(--accent-text, #a85b00); outline-offset: 3px; }
 @media (max-width: 575px) {
-  .navbar-profile { order: 2; }
+  .nav-account-cluster { order: 2; margin-left: auto; }
   .navbar-toggler { order: 3; }
   .navbar-collapse { order: 4; }
 }
+
+.nav-account-cluster {
+  --nav-surface: var(--surface, #ffffff);
+  --nav-soft: var(--surface-2, #f4f3ef);
+  --nav-ink: var(--text, #121110);
+  --nav-muted: var(--text-2, #57544d);
+  --nav-line: var(--line-2, rgba(20, 18, 12, .11));
+  --nav-gold: var(--accent-text, #a85b00);
+  --nav-gold-soft: var(--accent-soft, rgba(255, 176, 0, .14));
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  font: 14px var(--sans, "Geist", system-ui, sans-serif);
+}
+.navbar .nav-activity { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 9999px; background: var(--nav-soft); color: var(--nav-ink); border: 1px solid var(--nav-line); text-decoration: none; white-space: nowrap; font-size: 13px; font-weight: 500; }
+.navbar .nav-activity:hover, .navbar .nav-activity[aria-current="page"] { background: var(--nav-gold-soft); border-color: var(--accent-line, rgba(214, 140, 0, .45)); }
+.profile-menu-trigger { display: inline-flex; align-items: center; gap: 8px; padding: 3px; border: 0; border-radius: 999px; background: transparent; color: var(--nav-ink); }
+.navbar .profile-menu-trigger .navbar-profile { width: 38px; height: 38px; flex-basis: 38px; }
+.profile-chevron { transition: transform .18s ease; }
+.profile-menu-trigger[aria-expanded="true"] .profile-chevron { transform: rotate(180deg); }
+.profile-menu-trigger:hover .navbar-profile { background: var(--accent-2, #ffcb52); }
+.profile-menu-trigger:focus-visible, .navbar .nav-activity:focus-visible { outline: 2px solid var(--nav-gold); outline-offset: 3px; }
+.dashlane-profile-menu .profile-popover { min-width: min(280px, calc(100vw - 24px)); max-width: calc(100vw - 24px); margin-top: 10px; padding: 12px; border: 1px solid var(--nav-line); border-radius: 16px; background: var(--nav-surface); color: var(--nav-ink); box-shadow: var(--edge, inset 0 1px 0 rgba(255, 255, 255, .9)), var(--lift, 0 1px 2px rgba(20, 18, 12, .04), 0 12px 32px -16px rgba(20, 18, 12, .18)); z-index: 1050; }
+.profile-popover-title { padding: 4px 8px; margin: 0; font-weight: 600; font-size: 14px; }
+.profile-popover-subtitle { padding: 0 8px 12px; margin: 0; color: var(--nav-muted); font-size: 12px; }
+.profile-popover .profile-step { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border: 1px solid transparent; border-radius: 10px; font-size: 13px; color: var(--nav-ink); text-decoration: none; }
+.profile-step-node { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; flex-shrink: 0; border: 1px solid var(--nav-line); border-radius: 50%; font-size: 11px; color: var(--nav-muted); }
+.profile-step-node.is-done { background: var(--ok-soft, rgba(34, 197, 94, .12)); color: var(--ok, #15803d); }
+.profile-popover .profile-step.is-current { background: var(--nav-gold-soft); }
+.profile-step.is-current .profile-step-node { color: var(--nav-gold); border-color: var(--accent-line, rgba(214, 140, 0, .45)); }
+.profile-step-status { margin-left: auto; color: var(--nav-muted); font-size: 11px; }
+.profile-popover .profile-step:hover, .profile-popover .profile-step:focus { background: var(--nav-soft); color: var(--nav-ink); }
+.profile-popover .dropdown-divider { border-color: var(--nav-line); opacity: 1; }
+.profile-popover .profile-signout { display: flex; align-items: center; gap: 10px; border-radius: 10px; padding: 11px 10px; font-size: 13px; color: var(--nav-ink); }
+.profile-popover .profile-signout:hover, .profile-popover .profile-signout:focus { background: var(--nav-soft); color: var(--nav-ink); }
+@media (max-width: 575px) { .nav-account-cluster { gap: 7px; } .navbar .nav-activity { padding: 8px 10px; gap: 5px; font-size: 12px; } .profile-menu-trigger { gap: 5px; } .navbar-toggler { padding-inline: 6px; margin-left: 6px; } }
+@media (prefers-reduced-motion: reduce) { .profile-chevron { transition: none; } }
+
+.activity-page { padding: 36px 0; }
+.activity-back { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 26px; }
+.activity-page h1 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -.045em; font-weight: 600; margin: 10px 0; }
+.activity-page header > p:last-child { color: var(--text-2); max-width: 640px; }
+.activity-count { margin-top: 26px; font-size: 12px; color: var(--text-2); }
+.activity-list { display: grid; gap: 12px; margin-top: 14px; }
+.activity-trip, .activity-empty { padding: 24px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--edge), var(--lift); }
+.activity-trip { display: flex; justify-content: space-between; gap: 24px; }
+.activity-trip-main { min-width: 0; }
+.activity-trip h2 { font-size: 17px; line-height: 1.4; margin: 8px 0 12px; font-weight: 600; overflow-wrap: anywhere; }
+.activity-meta { font-size: 12px; color: var(--text-2); }
+.activity-trip-details { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.activity-trip-details strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.activity-trip-details small { color: var(--text-2); font-size: 11px; }
+.activity-trip-details a { color: var(--accent-text); font-size: 12px; margin-top: 8px; }
+.activity-empty { margin-top: 28px; display: grid; justify-items: start; gap: 16px; }
+.activity-empty h2 { font-size: 22px; }
+.activity-empty p { color: var(--text-2); }
+@media (max-width: 575px) { .activity-trip { flex-direction: column; gap: 14px; padding: 20px; } .activity-trip-details { text-align: left; align-items: flex-start; } }

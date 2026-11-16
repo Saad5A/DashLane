@@ -63,6 +63,29 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Dashboard() => RedirectToActionPermanent(nameof(Index));
 
+    [Authorize]
+    [HttpGet]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<IActionResult> Activity()
+    {
+        var member = await CurrentMember();
+        var ct = HttpContext.RequestAborted;
+        var bookings = await _db.RideBookings.AsNoTracking()
+            .Where(r => r.RiderId == member.Id ||
+                (r.AssignedUtc != null && r.Driver != null && r.Driver.MemberId == member.Id))
+            .OrderByDescending(r => r.RequestedUtc).ToListAsync(ct);
+        var posted = await _db.PostedRides.AsNoTracking()
+            .Where(r => r.Driver.MemberId == member.Id)
+            .OrderByDescending(r => r.DepartureTime).ToListAsync(ct);
+        var trips = bookings.Select(r => new RecentTripItemViewModel(r.Id, r.RequestedUtc,
+                DashboardPlace(r.PickupLatitude, r.PickupLongitude), DashboardPlace(r.DestinationLatitude, r.DestinationLongitude),
+                r.RiderId == member.Id ? "Rider" : "Driver", r.Fare, r.Status.ToString(), false))
+            .Concat(posted.Select(r => new RecentTripItemViewModel(r.Id, r.DepartureTime,
+                r.OriginAddress, r.DestinationAddress, "Driver", r.EstimatedPricePerSeat, r.Status.ToString(), true)))
+            .OrderByDescending(r => r.Date).ToList();
+        return View(new ActivityViewModel(trips));
+    }
+
     private async Task<IActionResult> MemberHomeAsync(Member member)
     {
         var ct = HttpContext.RequestAborted;
@@ -712,7 +735,7 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View(new ErrorViewModel { RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
     private static readonly (string Action, string Label)[] SetupSteps =

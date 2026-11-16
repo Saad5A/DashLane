@@ -1,0 +1,51 @@
+@model Member
+@{
+    var parts = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = parts.Length == 0 ? "?" : string.Concat(parts[0][..1], parts.Length > 1 ? parts[^1][..1] : "").ToUpperInvariant();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var steps = new[]
+    {
+        ("About you", "AboutYou", Model.DateOfBirth.HasValue && !string.IsNullOrWhiteSpace(Model.LegalName)),
+        ("Profile", "Profile", Model.ProfileCompletedUtc.HasValue),
+        ("Phone", "Contact", Model.PhoneVerified),
+        ("Identity", "Identity", !string.IsNullOrWhiteSpace(Model.DocumentFileName)),
+        ("Review", "Review", Model.OnboardingCompletedUtc.HasValue)
+    };
+    var firstPending = Array.FindIndex(steps, step => !step.Item3);
+}
+<div class="dropdown dashlane-profile-menu">
+    <button class="profile-menu-trigger" id="profile-menu-trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="profile-menu-popover" aria-label="Open account menu">
+        <span class="navbar-profile">
+            @if (!string.IsNullOrWhiteSpace(Model.PhotoFileName))
+            {
+                <img src="@Url.Action("Photo", "Home")" alt="" width="38" height="38" />
+            }
+            else
+            {
+                <span aria-hidden="true">@initials</span>
+            }
+        </span>
+        @Icon.Get("chevron-down", 14, "profile-chevron")
+    </button>
+    <div class="dropdown-menu dropdown-menu-end profile-popover" id="profile-menu-popover" aria-labelledby="profile-menu-trigger">
+        <p class="profile-popover-title">Account &amp; setup</p>
+        <p class="profile-popover-subtitle">Edit your details and review your setup.</p>
+        @for (var i = 0; i < steps.Length; i++)
+        {
+            var (label, action, done) = steps[i];
+            var isCurrent = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+            var highlighted = isCurrent || (firstPending == i && !steps.Any(s => s.Item2 == currentAction));
+            <a class="dropdown-item profile-step @(highlighted ? "is-current" : "")" asp-controller="Home" asp-action="@action" aria-current="@(isCurrent ? "page" : null)">
+                <span class="profile-step-node @(done ? "is-done" : "")" aria-hidden="true">@if (done) { @Icon.Get("check", 13) } else { @(i + 1) }</span>
+                <span>@label</span><span class="profile-step-status">@(done ? "done" : "pending")</span>
+            </a>
+        }
+        <hr class="dropdown-divider my-2" />
+        <form asp-controller="Home" asp-action="SignOut" asp-antiforgery="false" method="post">
+            @Html.AntiForgeryToken()
+            <button class="dropdown-item profile-signout" type="submit">@Icon.Get("log-out", 17) <span>Sign out</span></button>
+        </form>
+    </div>
+</div>

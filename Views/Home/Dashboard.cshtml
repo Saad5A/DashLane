@@ -102,6 +102,7 @@
     <div class="dash-snapshot">
         <section class="dash-card" aria-labelledby="recent-title">
             <h2 class="dash-section-title" id="recent-title">Recent Trips &amp; Receipts</h2>
+            <a class="dash-text-link" asp-controller="Home" asp-action="Activity">View all activity →</a>
             @if (Model.RecentTrips.Count == 0)
             {
                 <div class="dash-empty"><span class="dash-symbol" aria-hidden="true">@Icon.Get("car", 24)</span><h3>Your journey starts here.</h3><p>Completed and cancelled trips will appear here. Rider payment details are available from each trip.</p></div>

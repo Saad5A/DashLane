@@ -1,0 +1,33 @@
+@model ActivityViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Activity";
+    ViewData["Dashboard"] = true;
+    var cad = System.Globalization.CultureInfo.GetCultureInfo("en-CA");
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+<section class="activity-page" aria-labelledby="activity-title">
+    <a class="activity-back" asp-controller="Home" asp-action="Index">@Icon.Get("arrow-left", 16) Back to Home</a>
+    <header><p class="dash-eyebrow">Your journeys, in one place</p><h1 id="activity-title">Recent Trips &amp; Receipts</h1><p>All your bookings and posted rides, newest first. Open a booking for trip and payment details.</p></header>
+    @if (Model.Trips.Count == 0)
+    {
+        <div class="activity-empty"><span class="dash-symbol">@Icon.Get("car", 24)</span><h2>No trips yet</h2><p>Your bookings and posted rides will appear here.</p><a class="btn btn-primary" asp-controller="Rides" asp-action="Request">Request a Ride</a></div>
+    }
+    else
+    {
+        <p class="activity-count">@Model.Trips.Count @(Model.Trips.Count == 1 ? "trip" : "trips") · Amounts in CAD. Posted ride amounts are per seat.</p>
+        <div class="activity-list">
+            @foreach (var trip in Model.Trips)
+            {
+                <article class="activity-trip">
+                    <div class="activity-trip-main"><p class="activity-meta">@trip.Date.ToString("MMM d, yyyy · HH:mm") UTC · @trip.Role @(trip.IsPostedTrip ? "· Posted ride" : "· Booking")</p><h2>@trip.Origin <span aria-label="to">→</span> @trip.Destination</h2><span class="tag @(trip.Status == "Completed" ? "tag-ok" : trip.Status == "Cancelled" ? "tag-err" : "tag-accent")">@trip.Status</span></div>
+                    <div class="activity-trip-details"><strong>@trip.Fare.ToString("C", cad)</strong><small>@(trip.IsPostedTrip ? "per seat" : "booking fare")</small><a asp-controller="@(trip.IsPostedTrip ? "Driver" : "Rides")" asp-action="@(trip.IsPostedTrip ? "ActiveTrip" : "Status")" asp-route-id="@trip.Id">@(trip.IsPostedTrip ? "View posted ride" : "Trip & payment details") →</a></div>
+                </article>
+            }
+        </div>
+    }
+</section>

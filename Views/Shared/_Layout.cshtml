@@ -7,10 +7,6 @@
     {
         navbarMember = await NavbarMembership.FindAsync(navbarMemberId);
     }
-    var navbarName = navbarMember?.FullName ?? User.Identity?.Name ?? "";
-    var navbarParts = navbarName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-    var navbarInitials = navbarParts.Length == 0 ? "?" :
-        string.Concat(navbarParts.Take(1).Concat(navbarParts.Length > 1 ? navbarParts.TakeLast(1) : Array.Empty<string>()).Select(p => p[..1])).ToUpperInvariant();
     var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) &&
         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
 }
@@ -51,16 +47,13 @@
                 </div>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a class="navbar-profile" asp-controller="Home" asp-action="Profile" title="Edit profile" aria-label="Edit your profile">
-                        @if (!string.IsNullOrWhiteSpace(navbarMember?.PhotoFileName))
-                        {
-                            <img src="@Url.Action("Photo", "Home")" alt="" width="40" height="40" />
-                        }
-                        else
-                        {
-                            <span aria-hidden="true">@navbarInitials</span>
-                        }
-                    </a>
+                    <div class="nav-account-cluster">
+                        <a class="nav-activity" asp-controller="Home" asp-action="Activity" aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Activity" ? "page" : null)">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l3 2 3-2 3 2 3-2v18l-3-2-3 2-3-2-3 2V3Z" /><path d="M9 9h6M9 13h6M9 17h3" /></svg>
+                            <span>Activity</span>
+                        </a>
+                        <partial name="_ProfileMenu" model="@(navbarMember ?? new Member { FullName = User.Identity?.Name ?? "" })" />
+                    </div>
                 }
             </div>
         </nav>
