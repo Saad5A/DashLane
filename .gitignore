@@ -377,3 +377,9 @@ stitch_dashlane_ride_sharing_frontend/
 .env
 .env.local
 *.env.local
+
+# Local runtime database and user uploads
+*.db
+*.db-shm
+*.db-wal
+wwwroot/uploads/
