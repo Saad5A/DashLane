@@ -18,11 +18,6 @@
             <h1 id="welcome-title">Welcome back, @Model.FullName</h1>
             <p class="dash-intro">Your next journey starts here. Ride your way, or share the road.</p>
         </div>
-        <a class="dash-member" asp-controller="Home" asp-action="Review">
-            @if (Model.ProfilePhotoUrl != null) { <img src="@Model.ProfilePhotoUrl" alt="Your profile photo" width="48" height="48" /> }
-            else { <span class="dash-avatar" aria-hidden="true">@Model.FullName.FirstOrDefault()</span> }
-            <span>@Model.Email<small>@Model.TotalTripsCount completed trips · View profile</small></span>
-        </a>
         <div class="dash-badges">
             <span class="tag @(Model.IsPhoneVerified ? "tag-ok" : "tag-accent")">@(Model.IsPhoneVerified ? "Phone Verified" : "Phone not verified")</span>
             <span class="tag @(Model.ProfilePhotoUrl != null ? "tag-ok" : "tag-accent")">@(Model.ProfilePhotoUrl != null ? "Profile Photo complete" : "Profile Photo missing")</span>
@@ -61,30 +56,46 @@
             <div class="dash-tray">
                 <div class="dash-route-line"><span class="dash-dot"></span><div><small>PICKUP &amp; DESTINATION</small><strong>Where are you headed?</strong></div></div>
                 <p>Choose your stops and compare live options in the ride planner.</p>
-                <div class="dash-tiers"><span>Standard</span><span>Comfort</span><span>XL</span><span>Wheelchair-Accessible</span></div>
+                <div class="dash-tiers" aria-label="Choose a vehicle tier">
+                    @foreach (var tier in RideRouteCatalog.View.Tiers)
+                    {
+                        <a class="dash-tier" asp-controller="Rides" asp-action="Request" asp-route-tier="@tier.Tier">
+                            <partial name="_VehicleTierIcon" model="tier.Tier" />
+                            <strong>@tier.Name</strong>
+                            <span>@(tier.Tier == VehicleTier.WheelchairAccessible ? "Ramp access" : tier.Tier == VehicleTier.Comfort ? "Extra legroom" : tier.Capacity)</span>
+                        </a>
+                    }
+                </div>
             </div>
             <a class="btn btn-primary btn-lg dash-cta" asp-controller="Rides" asp-action="Request">Request a Ride <span aria-hidden="true">→</span></a>
         </section>
-        <section class="dash-card dash-hero dash-driver" aria-labelledby="driver-title">
+        <section class="dash-card dash-hero dash-driver @(Model.HasRegisteredVehicle ? "dash-driver-registered" : "dash-driver-setup")" aria-labelledby="driver-title">
             <div class="dash-card-top"><span class="tag">Driver service</span><span class="dash-caption">Share the road.</span></div>
             <h2 id="driver-title">Post a ride.<br />Make the journey count.</h2>
             <p>Share your route, add pickups along the way, and set the available seats for your next commute.</p>
-            <div class="dash-tray">
+            <div class="dash-tray dash-driver-tray">
                 @if (vehicle != null)
                 {
-                    <small>REGISTERED VEHICLE</small>
-                    <strong>@vehicle.Year @vehicle.Make @vehicle.Model</strong>
-                    <p>@vehicle.LicensePlate · @(vehicle.Tier == VehicleTier.WheelchairAccessible ? "Wheelchair-Accessible" : vehicle.Tier.ToString())</p>
-                    <span class="tag @(Model.IsDriverVerified ? "tag-ok" : "tag-accent")">@(Model.IsDriverVerified ? "Driver verified" : "Driver verification incomplete")</span>
-                    <p>@(vehicle.IsWheelchairAccessible ? "Wheelchair-accessible vehicle" : "No wheelchair access registered")</p>
+                    <div class="dash-vehicle-heading">
+                        <span class="dash-symbol"><partial name="_VehicleTierIcon" model="vehicle.Tier" /></span>
+                        <div><small>REGISTERED VEHICLE</small><strong>@vehicle.Year @vehicle.Make @vehicle.Model</strong></div>
+                    </div>
+                    <div class="dash-vehicle-badges"><span class="dash-plate">@vehicle.LicensePlate</span><span class="tag @(Model.IsDriverVerified ? "tag-ok" : "tag-accent")">@Icon.Get("shield", 13) @(Model.IsDriverVerified ? "Verified" : "Verification incomplete")</span></div>
+                    <div class="dash-vehicle-specs"><div><small>PASSENGER CAPACITY</small><strong>@vehicle.PassengerCapacity seats</strong></div><div><small>VEHICLE TIER</small><strong>@(vehicle.Tier == VehicleTier.WheelchairAccessible ? "Wheelchair-Accessible" : vehicle.Tier.ToString())</strong></div></div>
+                    <p>@(vehicle.IsWheelchairAccessible ? "Ramp access registered" : "No wheelchair access registered") · Set available seats when posting.</p>
                 }
                 else
                 {
                     <small>YOUR DRIVER PROFILE</small><strong>Get ready to host your first ride.</strong>
                     <p>Register your vehicle and complete your licence details to begin driver onboarding.</p>
+                    <ol class="dash-readiness" aria-label="Driver onboarding steps">
+                        <li><span class="dash-readiness-icon">@Icon.Get("car", 22)</span><strong>1. Vehicle Details</strong><span>Make, model &amp; seats</span></li>
+                        <li><span class="dash-readiness-icon">@Icon.Get("id-card", 22)</span><strong>2. Licence Check</strong><span>Your driving credentials</span></li>
+                        <li><span class="dash-readiness-icon">@Icon.Get("map-pin", 22)</span><strong>3. Set Route &amp; Stops</strong><span>Your journey, shared</span></li>
+                    </ol>
                 }
             </div>
-            <a class="btn btn-secondary btn-lg dash-cta" asp-controller="Driver" asp-action="@(Model.HasRegisteredVehicle ? "PostRoute" : "Onboarding")">@(Model.HasRegisteredVehicle ? "Post a New Ride" : "Complete Driver Onboarding") <span aria-hidden="true">→</span></a>
+            <a class="btn @(Model.HasRegisteredVehicle ? "btn-primary" : "btn-secondary dash-driver-onboard") btn-lg dash-cta" asp-controller="Driver" asp-action="@(Model.HasRegisteredVehicle ? "PostRoute" : "Onboarding")">@(Model.HasRegisteredVehicle ? "Post a Ride" : "Complete Driver Onboarding") <span aria-hidden="true">→</span></a>
         </section>
     </div>
 

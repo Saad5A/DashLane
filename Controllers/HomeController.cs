@@ -100,7 +100,7 @@ public class HomeController : Controller
             TotalTripsCount = await trips.CountAsync(r => r.Status == RideStatus.Completed, ct) +
                 await posted.CountAsync(r => r.Status == PostedRideStatus.Completed, ct),
             VehicleSummary = vehicle == null ? null : new(vehicle.Make, vehicle.Model, vehicle.Year,
-                vehicle.Plate, vehicle.Tier, vehicle.WheelchairAccessible),
+                vehicle.Plate, vehicle.Tier, vehicle.WheelchairAccessible, vehicle.PassengerCapacity),
             LanguagePreference = string.IsNullOrWhiteSpace(member.PreferredLanguage) ? "Not specified" : member.PreferredLanguage,
             HomeCity = member.HomeCity,
             // No dedicated stored accessibility preference exists; use the member's latest rider selection.

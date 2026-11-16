@@ -19,9 +19,15 @@ public class RidesController(RideService rides, TimeProvider clock, MembershipSe
     public IActionResult Policy() => View();
 
     [HttpGet]
-    public new IActionResult Request(bool edit = false)
+    public new IActionResult Request(bool edit = false, VehicleTier? tier = null)
     {
         var model = RideRouteCatalog.View;
+        if (tier.HasValue && Enum.IsDefined(tier.Value))
+        {
+            // Reuse the planner's existing initial-selection support without choosing a route for the rider.
+            model = model with { Initial = new RideSelection("", "", tier.Value, 1,
+                tier.Value == VehicleTier.WheelchairAccessible, 0m, 1m, null) };
+        }
         if (edit && ReadDraft() is { } draft)
         {
             var scheduledLocal = draft.ScheduledUtc is DateTime utc

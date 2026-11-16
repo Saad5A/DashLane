@@ -1,4 +1,17 @@
 ﻿<!DOCTYPE html>
+@inject MembershipService NavbarMembership
+@{
+    Member? navbarMember = null;
+    if (User.Identity?.IsAuthenticated == true &&
+        int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var navbarMemberId))
+    {
+        navbarMember = await NavbarMembership.FindAsync(navbarMemberId);
+    }
+    var navbarName = navbarMember?.FullName ?? User.Identity?.Name ?? "";
+    var navbarParts = navbarName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var navbarInitials = navbarParts.Length == 0 ? "?" :
+        string.Concat(navbarParts.Take(1).Concat(navbarParts.Length > 1 ? navbarParts.TakeLast(1) : Array.Empty<string>()).Select(p => p[..1])).ToUpperInvariant();
+}
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -47,6 +60,19 @@
                         </div>
                     }
                 </div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="navbar-profile" asp-controller="Home" asp-action="Profile" title="Edit profile" aria-label="Edit your profile">
+                        @if (!string.IsNullOrWhiteSpace(navbarMember?.PhotoFileName))
+                        {
+                            <img src="@Url.Action("Photo", "Home")" alt="" width="40" height="40" />
+                        }
+                        else
+                        {
+                            <span aria-hidden="true">@navbarInitials</span>
+                        }
+                    </a>
+                }
             </div>
         </nav>
     </header>
