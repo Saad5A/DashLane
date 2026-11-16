@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using DashLane.Models;
 using DashLane.Services;
+using DashLane.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -19,41 +21,121 @@ public class HomeController : Controller
     private readonly GoogleAuthOptions _google;
     private readonly OtpSender _otp;
     private readonly IdVerifier _idVerifier;
+    private readonly DashLaneContext _db;
 
     public HomeController(
         ILogger<HomeController> logger,
         MembershipService membership,
         GoogleAuthOptions google,
         OtpSender otp,
-        IdVerifier idVerifier)
+        IdVerifier idVerifier,
+        DashLaneContext db)
     {
         _logger = logger;
         _membership = membership;
         _google = google;
         _otp = otp;
         _idVerifier = idVerifier;
+        _db = db;
     }
 
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Index()
     {
-        var stats = await _membership.NetworkStatsAsync();
-        string? continueAction = null;
         if (User.Identity?.IsAuthenticated == true)
         {
             var member = await CurrentMember();
-            var open = FirstOpenStep(member);
-            continueAction = member.CompletedSteps == 0 && open == 1 ? nameof(Community) : SetupSteps[open - 1].Action;
+            return member.OnboardingCompletedUtc.HasValue
+                ? await Dashboard()
+                : ResumeSetup(member);
         }
-
+        var stats = await _membership.NetworkStatsAsync();
         return View(new HomeIndexViewModel
         {
-            ContinueAction = continueAction,
             MemberCount = stats.Members,
             PhoneVerifiedCount = stats.PhoneVerified,
             DocumentsSubmittedCount = stats.DocumentsSubmitted,
             CompletedCount = stats.Completed
         });
     }
+
+    [Authorize]
+    [HttpGet]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public async Task<IActionResult> Dashboard()
+    {
+        var member = await CurrentMember();
+        if (!member.OnboardingCompletedUtc.HasValue) return ResumeSetup(member);
+        var ct = HttpContext.RequestAborted;
+        var driver = await _db.DriverProfiles.AsNoTracking().Include(d => d.Vehicle)
+            .SingleOrDefaultAsync(d => d.MemberId == member.Id, ct);
+        var trips = _db.RideBookings.AsNoTracking().Where(r => r.RiderId == member.Id ||
+            (r.AssignedUtc != null && r.Driver != null && r.Driver.MemberId == member.Id));
+        var active = await trips.Where(r => r.Status != RideStatus.Completed && r.Status != RideStatus.Cancelled)
+            .OrderByDescending(r => r.RequestedUtc).FirstOrDefaultAsync(ct);
+        var posted = _db.PostedRides.AsNoTracking().Where(r => r.Driver.MemberId == member.Id);
+        var upcoming = await posted.Where(r => r.Status == PostedRideStatus.InProgress ||
+            r.Status == PostedRideStatus.Active || (r.Status == PostedRideStatus.Scheduled && r.DepartureTime >= DateTime.UtcNow))
+            .OrderBy(r => r.DepartureTime).FirstOrDefaultAsync(ct);
+        // IsDriver identifies the review author: drivers rate riders and riders rate drivers.
+        var ratings = await _db.ReviewFeedback.AsNoTracking()
+            .Where(r => r.RideBooking.Status == RideStatus.Completed &&
+                ((r.IsDriver && r.RideBooking.RiderId == member.Id) ||
+                 (!r.IsDriver && r.RideBooking.Driver != null && r.RideBooking.Driver.MemberId == member.Id)))
+            .Select(r => r.Rating).ToListAsync(ct);
+        var recent = await trips.Where(r => r.Status == RideStatus.Completed || r.Status == RideStatus.Cancelled)
+            .OrderByDescending(r => r.RequestedUtc).Take(3).ToListAsync(ct);
+        var recentPosts = await posted.Where(r => r.Status == PostedRideStatus.Completed || r.Status == PostedRideStatus.Cancelled)
+            .OrderByDescending(r => r.DepartureTime).Take(3).ToListAsync(ct);
+        var vehicle = driver?.Vehicle;
+        var model = new DashboardViewModel
+        {
+            FullName = member.FullName, Email = member.Email,
+            ProfilePhotoUrl = string.IsNullOrWhiteSpace(member.PhotoFileName) ? null : Url.Action(nameof(Photo)),
+            IsPhoneVerified = member.PhoneVerified,
+            IsAgeVerified = member.DateOfBirth is DateOnly dob && Age(dob) >= 18,
+            IsIdVerified = member.DocumentCheckDecision == "accept",
+            IsDriverVerified = driver is { LicenseVerified: true, BackgroundCheckVerified: true } && member.PhoneVerified,
+            AverageRating = ratings.Count == 0 ? 0 : ratings.Average(), RatingCount = ratings.Count,
+            TotalTripsCount = await trips.CountAsync(r => r.Status == RideStatus.Completed, ct) +
+                await posted.CountAsync(r => r.Status == PostedRideStatus.Completed, ct),
+            VehicleSummary = vehicle == null ? null : new(vehicle.Make, vehicle.Model, vehicle.Year,
+                vehicle.Plate, vehicle.Tier, vehicle.WheelchairAccessible),
+            LanguagePreference = string.IsNullOrWhiteSpace(member.PreferredLanguage) ? "Not specified" : member.PreferredLanguage,
+            HomeCity = member.HomeCity,
+            // No dedicated stored accessibility preference exists; use the member's latest rider selection.
+            RequiresWheelchairAccess = await _db.RideBookings.AsNoTracking().Where(r => r.RiderId == member.Id)
+                .OrderByDescending(r => r.RequestedUtc).Select(r => r.RequiresWheelchairAccess).FirstOrDefaultAsync(ct),
+            RecentTrips = recent.Select(r => new RecentTripItemViewModel(r.Id, r.RequestedUtc,
+                DashboardPlace(r.PickupLatitude, r.PickupLongitude), DashboardPlace(r.DestinationLatitude, r.DestinationLongitude),
+                r.RiderId == member.Id ? "Rider" : "Driver", r.Fare, r.Status.ToString(), false))
+                .Concat(recentPosts.Select(r => new RecentTripItemViewModel(r.Id, r.DepartureTime,
+                    r.OriginAddress, r.DestinationAddress, "Driver", r.EstimatedPricePerSeat, r.Status.ToString(), true)))
+                .OrderByDescending(r => r.Date).Take(3).ToList()
+        };
+        if (active != null)
+        {
+            model.ActiveTripId = active.Id;
+            model.Origin = DashboardPlace(active.PickupLatitude, active.PickupLongitude);
+            model.Destination = DashboardPlace(active.DestinationLatitude, active.DestinationLongitude);
+            model.TripStatus = active.Status.ToString();
+            model.DepartureTime = active.PickupEtaUtc;
+            model.QuotedFare = active.QuotedFare ?? active.Fare;
+        }
+        else if (upcoming != null)
+        {
+            model.ActiveTripId = upcoming.Id; model.IsPostedTrip = true;
+            model.Origin = upcoming.OriginAddress; model.Destination = upcoming.DestinationAddress;
+            model.TripStatus = upcoming.Status.ToString(); model.DepartureTime = upcoming.DepartureTime;
+            model.QuotedFare = upcoming.EstimatedPricePerSeat;
+        }
+        return View("Dashboard", model);
+    }
+
+    private static string DashboardPlace(double latitude, double longitude) =>
+        RideRouteCatalog.View.Places.FirstOrDefault(p => Math.Abs(p.Latitude - latitude) < .001 &&
+            Math.Abs(p.Longitude - longitude) < .001)?.Name ??
+        FormattableString.Invariant($"{latitude:0.0000}, {longitude:0.0000}");
 
     [HttpGet]
     public async Task<IActionResult> SignIn()
@@ -528,9 +610,7 @@ public class HomeController : Controller
 
         member.OnboardingCompletedUtc = DateTime.UtcNow;
         await _membership.SaveAsync(member);
-        ViewData["Notice"] = Text.T("Your profile is saved. The ride feed is not available yet.");
-        ViewData["NoticeKind"] = "ok";
-        return View("Review", member);
+        return RedirectToAction(nameof(Dashboard));
     }
 
     [Authorize]
@@ -669,6 +749,7 @@ public class HomeController : Controller
 
     private IActionResult ResumeSetup(Member member)
     {
+        if (member.OnboardingCompletedUtc.HasValue) return RedirectToAction(nameof(Dashboard));
         var open = FirstOpenStep(member);
         if (open == 5)
         {

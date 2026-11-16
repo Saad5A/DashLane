@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/DashLane.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="@(ViewData["Dashboard"] as bool? == true ? "dashboard-shell" : "")">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -20,6 +20,10 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Dashboard" aria-current="@(ViewData["Dashboard"] as bool? == true ? "page" : null)">Dashboard</a></li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
@@ -33,6 +37,15 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    @if (ViewData["Dashboard"] as bool? == true)
+                    {
+                        <div class="dash-nav-account">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Help">Help Centre</a>
+                            <form asp-controller="Home" asp-action="SignOut" method="post">
+                                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>
