@@ -31,10 +31,14 @@ public class PostRouteViewModel
     [DataType(DataType.Time)]
     public TimeOnly? DepartureTime { get; set; }
 
+    [MaxLength(5)]
     public List<PostRouteStopInput> Stops { get; set; } = [];
 
     /// <summary>JSON mirror of ordered stops for clients that serialize the builder.</summary>
     public string? StopsJson { get; set; }
+
+    [Range(1, 6)]
+    public int AvailableSeats { get; set; } = 1;
 
     public decimal DistanceKm { get; set; }
     public decimal DurationMin { get; set; }

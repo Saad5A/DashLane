@@ -73,6 +73,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
             return RedirectToAction(nameof(Onboarding));
 
         ViewData["VehicleTier"] = profile.Vehicle.Tier;
+        ViewData["MaxSeats"] = profile.Vehicle.PassengerCapacity;
         ViewData["Step"] = 2;
         return View(BuildPostRouteModel(ReadDraft()));
     }
@@ -87,6 +88,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
             return RedirectToAction(nameof(Onboarding));
 
         ViewData["VehicleTier"] = profile.Vehicle.Tier;
+        ViewData["MaxSeats"] = profile.Vehicle.PassengerCapacity;
         ViewData["Step"] = 2;
         input.Places = RideRouteCatalog.View.Places;
         input.Routes = RideRouteCatalog.View.Routes;
@@ -124,9 +126,20 @@ public class DriverController(DriverService drivers, MembershipService membershi
             return View(input);
         }
 
-        var stops = NormalizeStops(input.Stops, input.OriginPlaceId, input.DestinationPlaceId);
+        var stops = NormalizeStops(input.Stops);
         input.Stops = stops;
-        var metrics = MeasureRoute(origin.Id, destination.Id, stops, corridor);
+        (decimal DistanceKm, decimal DurationMin) metrics;
+        try { metrics = DriverRoutePlanner.Measure(origin.Id, destination.Id, stops); }
+        catch (ArgumentException error) { input.Error = error.Message; return View(input); }
+        if (input.AvailableSeats > profile.Vehicle.PassengerCapacity)
+        {
+            input.Error = $"Choose up to {profile.Vehicle.PassengerCapacity} seats for your registered vehicle.";
+            return View(input);
+        }
+        var payout = drivers.EstimatePayout(new EstimatePayoutRequest {
+            Tier = profile.Vehicle.Tier, DistanceKm = metrics.DistanceKm,
+            DurationMin = metrics.DurationMin, AvailableSeats = input.AvailableSeats
+        });
         input.DistanceKm = metrics.DistanceKm;
         input.DurationMin = metrics.DurationMin;
 
@@ -166,11 +179,11 @@ public class DriverController(DriverService drivers, MembershipService membershi
                 index)).ToArray(),
             previous?.PickupInstructions,
             previous?.LuggageAllowance,
-            previous?.AvailableSeats ?? 1,
+            input.AvailableSeats,
             previous?.AutoApproveRiders ?? true,
-            previous?.EstimatedPricePerSeat ?? 0m,
-            previous?.EstimatedTotalEarnings ?? 0m,
-            previous?.Tier);
+            payout.EstimatedPricePerSeat,
+            payout.EstimatedTotalEarnings,
+            profile.Vehicle.Tier);
 
         TempData[DraftKey] = JsonSerializer.Serialize(draft);
         return RedirectToAction(nameof(PostDetails));
@@ -365,6 +378,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
             OriginAddress = draft.OriginAddress,
             DestinationAddress = draft.DestinationAddress,
             DepartureUtc = draft.DepartureUtc,
+            Stops = draft.Stops,
             StopCount = draft.Stops.Count
         };
     }
@@ -382,6 +396,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
 
         model.OriginPlaceId = draft.OriginPlaceId;
         model.DestinationPlaceId = draft.DestinationPlaceId;
+        model.AvailableSeats = draft.AvailableSeats;
         model.DistanceKm = draft.DistanceKm;
         model.DurationMin = draft.DurationMin;
         model.Stops = draft.Stops
@@ -417,7 +432,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
     }
 
     private static List<PostRouteStopInput> NormalizeStops(
-        IEnumerable<PostRouteStopInput>? stops, string originId, string destinationId)
+        IEnumerable<PostRouteStopInput>? stops)
     {
         var places = RideRouteCatalog.View.Places.ToDictionary(place => place.Id);
         var cleaned = new List<PostRouteStopInput>();
@@ -433,8 +448,6 @@ public class DriverController(DriverService drivers, MembershipService membershi
 
             if (string.IsNullOrWhiteSpace(address))
                 continue;
-            if (placeId is not null && (placeId == originId || placeId == destinationId))
-                continue;
 
             cleaned.Add(new PostRouteStopInput
             {
@@ -445,39 +458,6 @@ public class DriverController(DriverService drivers, MembershipService membershi
         }
 
         return cleaned.Take(5).ToList();
-    }
-
-    private static (decimal DistanceKm, decimal DurationMin) MeasureRoute(
-        string originId, string destinationId, IReadOnlyList<PostRouteStopInput> stops, RidePreview corridor)
-    {
-        var ids = new List<string> { originId };
-        ids.AddRange(stops.Select(stop => stop.PlaceId).Where(id => !string.IsNullOrWhiteSpace(id))!);
-        ids.Add(destinationId);
-
-        decimal distance = 0;
-        decimal duration = 0;
-        var chained = true;
-        for (var i = 0; i < ids.Count - 1; i++)
-        {
-            var segment = RideRouteCatalog.Find(ids[i], ids[i + 1]);
-            if (segment == null)
-            {
-                chained = false;
-                break;
-            }
-
-            distance += segment.DistanceKm;
-            duration += segment.DurationMin;
-        }
-
-        if (chained && ids.Count > 2)
-            return (FareSchedule.Money(distance), duration);
-
-        var unknownStops = stops.Count(stop => string.IsNullOrWhiteSpace(stop.PlaceId));
-        var knownExtra = Math.Max(0, stops.Count - unknownStops);
-        return (
-            FareSchedule.Money(corridor.DistanceKm + knownExtra * 3.5m + unknownStops * 4m),
-            corridor.DurationMin + stops.Sum(stop => Math.Max(5, stop.ArrivalOffsetMin / 2)) + unknownStops * 4);
     }
 
     private PostedRideDraft? ReadDraft() => TempData.Peek(DraftKey) is string json

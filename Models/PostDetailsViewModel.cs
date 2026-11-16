@@ -31,6 +31,7 @@ public class PostDetailsViewModel
     public string OriginAddress { get; set; } = "";
     public string DestinationAddress { get; set; } = "";
     public DateTime DepartureUtc { get; set; }
+    public IReadOnlyList<PostedRideStopDraft> Stops { get; set; } = [];
     public int StopCount { get; set; }
 }
 

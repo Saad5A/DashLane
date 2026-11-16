@@ -93,3 +93,15 @@ public record PostedRideResult(
     decimal EstimatedPricePerSeat,
     bool AutoApproveRiders,
     bool RequiresLicenseVerification);
+
+public class DriverRoutePreviewRequest
+{
+    [Required, StringLength(40)]
+    public string OriginPlaceId { get; init; } = "";
+    [Required, StringLength(40)]
+    public string DestinationPlaceId { get; init; } = "";
+    [MaxLength(5)]
+    public List<PostRouteStopInput> Stops { get; init; } = [];
+    [Range(1, 6)]
+    public int AvailableSeats { get; init; } = 1;
+}

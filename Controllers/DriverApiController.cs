@@ -27,6 +27,27 @@ public class DriverApiController(DriverService drivers, RideService rides, Membe
         return Ok(await drivers.VerificationStatusAsync(memberId, ct));
     }
 
+    [HttpPost("route-preview")]
+    public async Task<IActionResult> RoutePreview(DriverRoutePreviewRequest request, CancellationToken ct)
+    {
+        if (await CurrentMemberIdAsync() is not int memberId) return Unauthorized();
+        if (await drivers.FindByMemberAsync(memberId, ct) is not { Vehicle: not null } profile)
+            return BadRequest(new { message = "Register your vehicle before planning a route." });
+        if (request.AvailableSeats > profile.Vehicle.PassengerCapacity)
+            return BadRequest(new { message = "Seat count exceeds your registered vehicle capacity." });
+        try
+        {
+            var metrics = DriverRoutePlanner.Measure(request.OriginPlaceId, request.DestinationPlaceId, request.Stops);
+            var payout = drivers.EstimatePayout(new EstimatePayoutRequest {
+                Tier = profile.Vehicle.Tier, DistanceKm = metrics.DistanceKm,
+                DurationMin = metrics.DurationMin, AvailableSeats = request.AvailableSeats
+            });
+            return Ok(new { metrics.DistanceKm, metrics.DurationMin,
+                payout.EstimatedPricePerSeat, payout.EstimatedTotalEarnings });
+        }
+        catch (ArgumentException error) { return BadRequest(new { message = error.Message }); }
+    }
+
     [HttpPost("estimate-payout")]
     public async Task<ActionResult<EstimatePayoutResult>> EstimatePayout(EstimatePayoutRequest request, CancellationToken ct)
     {

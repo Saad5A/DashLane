@@ -363,6 +363,13 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
         var corridor = originPlace != null && destinationPlace != null
             ? RideRouteCatalog.Find(originPlace.Id, destinationPlace.Id) : null;
 
+        (decimal DistanceKm, decimal DurationMin) metrics = (corridor?.DistanceKm ?? 0, corridor?.DurationMin ?? 0);
+        if (originPlace != null && destinationPlace != null)
+        {
+            try { metrics = DriverRoutePlanner.Measure(originPlace.Id, destinationPlace.Id,
+                stops.Select(stop => new PostRouteStopInput { Address = stop.Address, PlaceId = stop.PlaceId }).ToArray()); }
+            catch (ArgumentException) { /* Older free-text stops retain their direct corridor preview. */ }
+        }
         return new ActiveTripViewModel
         {
             CompletedEarnings = await CompletedEarningsAsync(memberId, ct) ?? 0m,
@@ -376,8 +383,8 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
             OriginPlaceId = originPlace?.Id ?? "",
             DestinationPlaceId = destinationPlace?.Id ?? "",
             DepartureUtc = ride.DepartureTime,
-            DistanceKm = corridor?.DistanceKm ?? 0,
-            DurationMin = corridor?.DurationMin ?? 0,
+            DistanceKm = metrics.DistanceKm,
+            DurationMin = metrics.DurationMin,
             AvailableSeats = ride.AvailableSeats,
             EstimatedPricePerSeat = ride.EstimatedPricePerSeat,
             EstimatedTotalEarnings = FareSchedule.Money(ride.EstimatedPricePerSeat * ride.AvailableSeats),
@@ -531,7 +538,7 @@ public class DriverService(DashLaneContext db, TimeProvider clock, IWebHostEnvir
         try
         {
             var labels = JsonSerializer.Deserialize<string[]>(json) ?? [];
-            return labels.Select((address, index) => new PostedRideStopDraft(address, null, (index + 1) * 10, index))
+            return labels.Select((address, index) => new PostedRideStopDraft(address, MatchPlace(address)?.Id, (index + 1) * 10, index))
                 .ToArray();
         }
         catch (JsonException)
