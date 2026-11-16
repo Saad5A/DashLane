@@ -21,6 +21,11 @@ body {
   margin-bottom: 60px;
 }
 
+.navbar .nav-link[aria-current="page"] {
+  background: var(--surface-2, #f4f3ef);
+  border-radius: var(--r-sm, 8px);
+}
+
 /* Shared authenticated profile trigger; fallbacks match DESIGN.md account tokens. */
 .navbar .navbar-profile {
   display: inline-flex;

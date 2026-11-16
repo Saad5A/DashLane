@@ -5,7 +5,6 @@ body.dashboard-shell { display: block; margin-bottom: 0; }
 .dashboard-shell .navbar { max-width: 1200px; min-height: 60px; margin: auto !important; box-shadow: none; border: 0 !important; }
 .dashboard-shell .navbar-brand { color: var(--text); font-weight: 600; letter-spacing: -.02em; }
 .dashboard-shell .navbar-nav { gap: 6px; }
-.dash-nav-account { display: flex; align-items: center; gap: 12px; }
 .dashboard-shell .nav-link { border-radius: var(--r-sm); font-size: 13px; }
 .dashboard-shell .nav-link:hover, .dashboard-shell .nav-link[aria-current="page"] { background: var(--surface-2); }
 .dashboard-shell > footer.footer { position: static; margin-top: 48px; line-height: 1.5; padding: 24px var(--gutter); background: var(--surface-2); font-size: 12.5px; }

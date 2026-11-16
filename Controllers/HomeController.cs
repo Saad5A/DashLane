@@ -39,6 +39,7 @@ public class HomeController : Controller
         _db = db;
     }
 
+    [HttpGet]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public async Task<IActionResult> Index()
     {
@@ -46,7 +47,7 @@ public class HomeController : Controller
         {
             var member = await CurrentMember();
             return member.OnboardingCompletedUtc.HasValue
-                ? await Dashboard()
+                ? await MemberHomeAsync(member)
                 : ResumeSetup(member);
         }
         var stats = await _membership.NetworkStatsAsync();
@@ -59,13 +60,11 @@ public class HomeController : Controller
         });
     }
 
-    [Authorize]
     [HttpGet]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public async Task<IActionResult> Dashboard()
+    public IActionResult Dashboard() => RedirectToActionPermanent(nameof(Index));
+
+    private async Task<IActionResult> MemberHomeAsync(Member member)
     {
-        var member = await CurrentMember();
-        if (!member.OnboardingCompletedUtc.HasValue) return ResumeSetup(member);
         var ct = HttpContext.RequestAborted;
         var driver = await _db.DriverProfiles.AsNoTracking().Include(d => d.Vehicle)
             .SingleOrDefaultAsync(d => d.MemberId == member.Id, ct);
@@ -610,7 +609,7 @@ public class HomeController : Controller
 
         member.OnboardingCompletedUtc = DateTime.UtcNow;
         await _membership.SaveAsync(member);
-        return RedirectToAction(nameof(Dashboard));
+        return RedirectToAction(nameof(Index));
     }
 
     [Authorize]
@@ -749,7 +748,7 @@ public class HomeController : Controller
 
     private IActionResult ResumeSetup(Member member)
     {
-        if (member.OnboardingCompletedUtc.HasValue) return RedirectToAction(nameof(Dashboard));
+        if (member.OnboardingCompletedUtc.HasValue) return RedirectToAction(nameof(Index));
         var open = FirstOpenStep(member);
         if (open == 5)
         {

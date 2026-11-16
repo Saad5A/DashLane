@@ -11,6 +11,8 @@
     var navbarParts = navbarName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     var navbarInitials = navbarParts.Length == 0 ? "?" :
         string.Concat(navbarParts.Take(1).Concat(navbarParts.Length > 1 ? navbarParts.TakeLast(1) : Array.Empty<string>()).Select(p => p[..1])).ToUpperInvariant();
+    var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
 }
 <html lang="en">
 <head>
@@ -33,12 +35,8 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Dashboard" aria-current="@(ViewData["Dashboard"] as bool? == true ? "page" : null)">Dashboard</a></li>
-                        }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(isHome ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index" aria-current="@(isHome ? "page" : null)">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Rides" asp-action="Request">Request a Ride</a>
@@ -50,15 +48,6 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
-                    @if (ViewData["Dashboard"] as bool? == true)
-                    {
-                        <div class="dash-nav-account">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Help">Help Centre</a>
-                            <form asp-controller="Home" asp-action="SignOut" method="post">
-                                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
-                            </form>
-                        </div>
-                    }
                 </div>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
