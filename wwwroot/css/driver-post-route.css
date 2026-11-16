@@ -5,18 +5,15 @@
 .post-waypoint-shell {
     position: relative;
     display: grid;
-    gap: .35rem;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    column-gap: 12px;
+    row-gap: 16px;
     padding: .15rem 0 .35rem;
 }
 
-.post-waypoint-rail {
-    position: absolute;
-    left: 1.15rem;
-    top: 2.55rem;
-    bottom: 2.55rem;
-    width: 3px;
-    border-radius: 999px;
-    background: var(--accent);
+.post-waypoint-block {
+    grid-column: 1;
+    min-width: 0;
 }
 
 .post-waypoint-block label {
@@ -26,12 +23,11 @@
 }
 
 .post-swap-row {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
     display: flex;
     justify-content: flex-end;
-    align-items: center;
-    min-height: 2.6rem;
-    position: relative;
-    z-index: 1;
 }
 
 .post-swap {
@@ -61,11 +57,37 @@
     background: var(--accent-soft);
 }
 
-.post-schedule {
+.post-ride-page .post-schedule {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .85rem 1rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
     margin-top: 1.1rem;
+}
+
+.post-schedule .ride-field {
+    display: grid;
+    grid-template-rows: 20px 48px auto;
+    align-content: start;
+    gap: 8px;
+    min-width: 0;
+}
+
+.post-schedule .ride-field > label {
+    line-height: 20px;
+    margin: 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.post-ride-page .post-schedule .post-input {
+    height: 48px;
+    min-height: 48px;
+    width: 100%;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-sizing: border-box;
 }
 
 .post-stops-head {
@@ -163,10 +185,6 @@
 }
 
 @media (max-width: 900px) {
-    .post-schedule {
-        grid-template-columns: 1fr;
-    }
-
     .post-stop-row {
         grid-template-columns: auto minmax(0, 1fr);
     }
@@ -183,4 +201,8 @@
     .post-swap span {
         transition: none;
     }
+}
+
+@media (max-width: 480px) {
+    .post-ride-page .post-schedule { grid-template-columns: minmax(0, 1fr); }
 }

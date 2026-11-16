@@ -36,7 +36,7 @@
             <header class="post-editorial-heading">
                 <span class="ride-chip">Driver service</span>
                 <h1>Instructions &amp; Fares</h1>
-                <p>Tell riders how to board, set seats, and preview your transparent DashLane payout.</p>
+                <p>Your route and seats are saved. Add boarding details and review your DashLane payout.</p>
             </header>
 
             @if (!string.IsNullOrWhiteSpace(Model.Error))
@@ -78,7 +78,7 @@
 
             <div class="ride-card post-card">
                 <h2>Seats &amp; booking</h2>
-                <p class="post-lede">Capped by your registered vehicle capacity (@Model.MaxSeats).</p>
+                <p class="post-lede">Your route-step seat count is carried forward. Adjust it here if needed, up to @Model.MaxSeats seats.</p>
 
                 <div class="post-controls">
                     <div class="post-control">

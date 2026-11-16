@@ -23,13 +23,11 @@ public class PostRouteViewModel
     [Required, StringLength(40)]
     public string DestinationPlaceId { get; set; } = "";
 
-    [Required]
-    [DataType(DataType.Date)]
-    public DateOnly? DepartureDate { get; set; }
-
-    [Required]
-    [DataType(DataType.Time)]
-    public TimeOnly? DepartureTime { get; set; }
+    [Required(ErrorMessage = "Choose a departure date and time.")]
+    [DataType(DataType.DateTime)]
+    [Display(Name = "Departure - Eastern time")]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
+    public DateTime? DepartureTime { get; set; }
 
     [MaxLength(5)]
     public List<PostRouteStopInput> Stops { get; set; } = [];
@@ -38,7 +36,7 @@ public class PostRouteViewModel
     public string? StopsJson { get; set; }
 
     [Range(1, 6)]
-    public int AvailableSeats { get; set; } = 1;
+    public int AvailableSeats { get; set; } = 3;
 
     public decimal DistanceKm { get; set; }
     public decimal DurationMin { get; set; }

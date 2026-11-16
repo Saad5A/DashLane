@@ -42,8 +42,6 @@
             <div class="ride-card post-card post-route-card">
                 <h2>Origin &amp; destination</h2>
                 <div class="post-waypoint-shell">
-                    <div class="post-waypoint-rail" aria-hidden="true"></div>
-
                     <div class="post-waypoint-block">
                         <label for="OriginPlaceId">Origin</label>
                         <div class="ride-stop ride-stop-start">
@@ -77,19 +75,16 @@
                     </div>
                 </div>
 
-                <div class="post-schedule">
-                    <div class="post-field">
-                        <label asp-for="DepartureDate">Departure date</label>
-                        <input asp-for="DepartureDate" class="post-input post-tabular" type="date" />
-                    </div>
-                    <div class="post-field">
-                        <label asp-for="DepartureTime">Departure time (Eastern)</label>
-                        <input asp-for="DepartureTime" class="post-input post-tabular" type="time" />
-                    </div>
-                    <div class="post-field">
-                        <label asp-for="AvailableSeats">Seats to offer</label>
+                <div class="ride-field-row post-schedule">
+                    <div class="ride-field">
+                        <label asp-for="AvailableSeats">Available seats</label>
                         <input asp-for="AvailableSeats" class="post-input post-tabular" type="number" min="1" max="@ViewData["MaxSeats"]" required />
                         <span asp-validation-for="AvailableSeats"></span>
+                    </div>
+                    <div class="ride-field">
+                        <label asp-for="DepartureTime">Departure &middot; Eastern time</label>
+                        <input asp-for="DepartureTime" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" class="post-input post-tabular" required />
+                        <span asp-validation-for="DepartureTime"></span>
                     </div>
                 </div>
             </div>

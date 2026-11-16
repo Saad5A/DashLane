@@ -75,7 +75,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
         ViewData["VehicleTier"] = profile.Vehicle.Tier;
         ViewData["MaxSeats"] = profile.Vehicle.PassengerCapacity;
         ViewData["Step"] = 2;
-        return View(BuildPostRouteModel(ReadDraft()));
+        return View(BuildPostRouteModel(ReadDraft(), profile.Vehicle.PassengerCapacity));
     }
 
     [HttpPost]
@@ -143,13 +143,14 @@ public class DriverController(DriverService drivers, MembershipService membershi
         input.DistanceKm = metrics.DistanceKm;
         input.DurationMin = metrics.DurationMin;
 
-        if (input.DepartureDate is not DateOnly date || input.DepartureTime is not TimeOnly time)
+        if (input.DepartureTime is not DateTime departureLocal)
         {
             input.Error = "Choose a departure date and time.";
             return View(input);
         }
 
-        var local = date.ToDateTime(time);
+        // datetime-local is a wall-clock value in Toronto, independent of the server timezone.
+        var local = DateTime.SpecifyKind(departureLocal, DateTimeKind.Unspecified);
         if (Toronto.IsInvalidTime(local) || Toronto.IsAmbiguousTime(local))
         {
             input.Error = "Choose a valid, unambiguous Eastern departure time.";
@@ -383,10 +384,11 @@ public class DriverController(DriverService drivers, MembershipService membershi
         };
     }
 
-    private PostRouteViewModel BuildPostRouteModel(PostedRideDraft? draft)
+    private PostRouteViewModel BuildPostRouteModel(PostedRideDraft? draft, int capacity)
     {
         var model = new PostRouteViewModel
         {
+            AvailableSeats = Math.Min(3, Math.Clamp(capacity, 1, 6)),
             Places = RideRouteCatalog.View.Places,
             Routes = RideRouteCatalog.View.Routes
         };
@@ -409,8 +411,7 @@ public class DriverController(DriverService drivers, MembershipService membershi
             }).ToList();
 
         var local = TimeZoneInfo.ConvertTimeFromUtc(draft.DepartureUtc, Toronto);
-        model.DepartureDate = DateOnly.FromDateTime(local);
-        model.DepartureTime = TimeOnly.FromDateTime(local);
+        model.DepartureTime = local;
         return model;
     }
 
