@@ -337,3 +337,42 @@ body:has(.post-ride-page.rider-workflow) {
         min-height: 46px;
     }
 }
+
+/* Driver-only components share the porcelain and amber rider shell. */
+.post-ride-page .post-progress { border-top: 3px solid var(--accent); }
+.post-progress .is-complete span { background: var(--accent-soft); color: var(--accent-text); }
+.post-progress a { text-decoration: none; }
+.post-progress a:hover { text-decoration: underline; }
+.post-ride-page .post-cta, .post-ride-page .post-secondary,
+.post-ride-page .request-accept, .post-ride-page .request-decline,
+.post-ride-page .trip-step { border-radius: 999px; }
+.post-ride-page .ride-preview { padding: 20px; display: grid; gap: 16px; border-top: 3px solid var(--accent); }
+.post-ride-page .ride-preview > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.post-ride-page .ride-map { position: relative; min-height: 245px; }
+.post-ride-page .ride-map svg { width: 100%; height: 260px; max-height: none; touch-action: pan-y; }
+.post-ride-page .ride-map-controls { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; }
+.post-ride-page .ride-round { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-2); border-radius: 50%; background: var(--surface); color: var(--text); }
+.post-ride-page .ride-map-caption { font-size: 11px; color: var(--text-2); }
+.post-ride-page .ride-map-land { fill: #f4f3ef; }
+.post-ride-page .ride-map-water { fill: #e5e9e6; }
+.post-ride-page .ride-map-road { fill: none; stroke: #d8d4ca; stroke-width: 3px; }
+.post-ride-page .ride-map-route-edge { stroke: white; }
+.post-ride-page .ride-map-route { stroke: #a85b00; }
+.post-ride-page .ride-map-stop { fill: #fff; stroke: #8b877e; }
+.post-ride-page .ride-map-label { fill: #57544d; stroke: #f4f3ef; }
+.post-ride-page .ride-map-pickup { fill: #fff; stroke: #a85b00; }
+.post-ride-page .ride-map-destination { fill: #ffbd21; stroke: #a85b00; }
+.post-ride-page .ride-metrics { display: grid; gap: 10px; margin: 0; font-variant-numeric: tabular-nums; }
+.post-ride-page .ride-metrics > div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line-2); padding-top: 10px; }
+.post-ride-page .ride-metrics dt { color: var(--text-2); font-weight: 500; }
+.post-ride-page .ride-metrics dd { margin: 0; font-weight: 700; text-align: right; }
+.post-ride-page .ride-stop select { width: 100%; min-height: 46px; border: 1px solid var(--line-2); border-radius: 999px; padding: 10px 16px; background: var(--surface); color: var(--text); }
+.post-ride-page .post-pill:focus-within span { outline: 3px solid var(--accent-line); outline-offset: 3px; }
+.post-ride-page .validation-summary-valid { display: none; }
+@media (max-width: 720px) {
+    .post-progress ol { display: grid; grid-template-columns: 1fr 1fr; }
+    .post-ride-page .ride-preview { padding: 16px; }
+    .post-ride-page .ride-stop select { font-size: 16px; }
+}
+
+.post-ride-page .ride-grid > .validation-summary-errors { grid-column: 1 / -1; }

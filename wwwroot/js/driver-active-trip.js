@@ -63,6 +63,7 @@
             const rider = document.getElementById("trip-status-label").textContent.split("·")[1] || "";
             document.getElementById("trip-status-label").textContent = `${statusNames[next] || next} ·${rider}`;
             refreshTripButtons();
+            refreshEarnings();
             statusEl.textContent = next === "Completed" || next === 4
                 ? "Trip completed. Nice work."
                 : `Trip updated to ${statusNames[next] || next}.`;
@@ -94,6 +95,31 @@
             statusEl.textContent = "Request declined. Waiting for the next rider.";
         }
     }
+
+    async function refreshEarnings() {
+        try {
+            const response = await fetch("/api/driver/earnings");
+            if (response.ok) document.getElementById("completed-earnings").textContent =
+                money.format((await response.json()).completedEarnings);
+        } catch { /* Keep the last server-confirmed amount. */ }
+    }
+
+    let polling = false;
+    const poll = setInterval(async () => {
+        if (polling || document.hidden || !onlineToggle.checked) return;
+        polling = true;
+        try {
+            const response = await fetch(page.dataset.pendingUrl);
+            if (response.ok) {
+                const pending = await response.json();
+                if (pending && requestCard.dataset.bookingId !== pending.bookingId) showRequest(pending);
+                else if (!pending && !requestCard.hidden) { clearInterval(countdownTimer); hideRequest(); }
+            }
+            await refreshEarnings();
+        } catch { /* Retry on the next poll. */ }
+        finally { polling = false; }
+    }, 5000);
+    window.addEventListener("pagehide", () => { clearInterval(poll); clearInterval(countdownTimer); });
 
     function showRequest(request) {
         requestEmpty.hidden = true;

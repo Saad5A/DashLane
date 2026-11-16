@@ -21,6 +21,7 @@
          data-simulate-url="@Url.Action("SimulateRequest", "DriverApi")"
          data-pending-url="@Url.Action("PendingRequest", "DriverApi")"
          data-is-online="@Model.IsOnline.ToString().ToLowerInvariant()">
+    <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
     @Html.AntiForgeryToken()
 
@@ -116,6 +117,12 @@
                     <div><dt>Distance</dt><dd class="post-tabular">@(Model.DistanceKm > 0 ? $"{Model.DistanceKm:0.0} km" : "—")</dd></div>
                     <div><dt>Duration</dt><dd class="post-tabular">@(Model.DurationMin > 0 ? $"{Model.DurationMin:0} min" : "—")</dd></div>
                 </dl>
+            </section>
+            <section class="ride-card post-summary">
+                <h2>Driver earnings &middot; CAD</h2>
+                <dl><div><dt>Completed trips &middot; all time</dt><dd id="completed-earnings" class="post-tabular" aria-live="polite">@Model.CompletedEarnings.ToString("C", money)</dd></div>
+                <div><dt>This post &middot; potential</dt><dd class="post-tabular">@Model.EstimatedTotalEarnings.ToString("C", money)</dd></div></dl>
+                <p class="post-summary-note">Completed fares recorded for your driver account. Potential earnings depend on booked seats.</p>
             </section>
             <p id="dispatch-status" class="dispatch-status" role="status" aria-live="polite"></p>
         </aside>

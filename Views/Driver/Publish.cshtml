@@ -15,10 +15,12 @@
 }
 
 <section class="ride-page rider-workflow post-ride-page" id="driver-publish">
+    <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
 
     <form class="ride-grid" method="post" asp-action="Publish" id="publish-form">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="post-alert" role="alert"></div>
 
         <div class="ride-selector">
             <header>

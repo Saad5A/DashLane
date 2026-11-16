@@ -1,5 +1,7 @@
 @model DashLane.Models.PostDetailsViewModel
 @{
+    ViewData["MapOrigin"] = Model.OriginAddress;
+    ViewData["MapDestination"] = Model.DestinationAddress;
     ViewData["Title"] = "Instructions & Fares";
     ViewData["Step"] = 3;
     var toronto = TimeZoneInfo.FindSystemTimeZoneById("America/Toronto");
@@ -19,10 +21,12 @@
          data-distance="@Model.DistanceKm.ToString(System.Globalization.CultureInfo.InvariantCulture)"
          data-duration="@Model.DurationMin.ToString(System.Globalization.CultureInfo.InvariantCulture)"
          data-max-seats="@Model.MaxSeats">
+    <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
 
     <form class="ride-grid" method="post" asp-action="PostDetails" id="post-details-form">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="post-alert" role="alert"></div>
         <input type="hidden" asp-for="EstimatedPricePerSeat" id="EstimatedPricePerSeat" />
         <input type="hidden" asp-for="EstimatedTotalEarnings" id="EstimatedTotalEarnings" />
 
@@ -102,6 +106,7 @@
         </div>
 
         <aside class="ride-aside">
+            <partial name="_DriverCoverageMap" />
             <div class="ride-card post-summary" id="earnings-summary">
                 <header>
                     <h2>Trip preview &amp; earnings</h2>

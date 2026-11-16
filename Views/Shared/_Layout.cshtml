@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 @inject MembershipService NavbarMembership
 @{
     Member? navbarMember = null;
@@ -9,6 +9,7 @@
     }
     var isHome = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase) &&
         string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+    var isDriver = ViewContext.RouteData.Values["controller"]?.ToString() == "Driver";
     var isRides = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Rides", StringComparison.OrdinalIgnoreCase);
 }
 <html lang="en">
@@ -20,6 +21,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DashLane.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    @if (isDriver) { <script src="~/js/driver-map-controls.js" asp-append-version="true" defer></script> }
 </head>
 <body class="@(ViewData["Dashboard"] as bool? == true ? "dashboard-shell" : "")">
     <header>
@@ -39,7 +41,7 @@
                             <a class="nav-link text-dark @(isRides ? "active" : "")" asp-controller="Rides" asp-action="Request" aria-current="@(isRides ? "page" : null)">Request a Ride</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Driver" asp-action="Onboarding">Post a Ride</a>
+                            <a class="nav-link text-dark @(isDriver ? "active" : "")" aria-current="@(isDriver ? "page" : null)" asp-controller="Driver" asp-action="Post">Post a Ride</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

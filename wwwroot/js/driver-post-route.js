@@ -22,6 +22,7 @@
     const outline = document.getElementById("route-outline");
     const form = document.getElementById("post-route-form");
     const map = createMap();
+    let fareVersion = 0;
     const maxStops = Number(stopsList.dataset.max || 5);
 
     function rows() {
@@ -147,6 +148,7 @@
 
         distanceLabel.textContent = metrics ? `${metrics.distanceKm.toFixed(1)} km` : "—";
         durationLabel.textContent = metrics ? `${metrics.durationMin} min` : "—";
+        updateFare(metrics);
         distanceInput.value = metrics ? String(metrics.distanceKm) : "";
         durationInput.value = metrics ? String(metrics.durationMin) : "";
         stopsJson.value = JSON.stringify(stops.map(({ address, placeId, arrivalOffsetMin }) => ({
@@ -182,6 +184,24 @@
             metrics ? `${metrics.distanceKm.toFixed(1)} km · ${metrics.durationMin} min` : undefined);
 
         map.draw(metrics?.corridor || null, stops);
+    }
+
+    async function updateFare(metrics) {
+        const version = ++fareVersion;
+        const label = document.getElementById("route-fare");
+        label.textContent = metrics ? "Calculating..." : "Choose a route";
+        if (!metrics) return;
+        try {
+            const response = await fetch("/api/driver/estimate-payout", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tier: data.tier, distanceKm: metrics.distanceKm,
+                    durationMin: metrics.durationMin, availableSeats: 1 })
+            });
+            if (!response.ok) throw new Error();
+            const quote = await response.json();
+            if (version === fareVersion) label.textContent = new Intl.NumberFormat("en-CA",
+                { style: "currency", currency: "CAD" }).format(quote.estimatedPricePerSeat);
+        } catch { if (version === fareVersion) label.textContent = "Available at next step"; }
     }
 
     swap.addEventListener("click", () => {

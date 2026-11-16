@@ -14,10 +14,12 @@
 <section class="ride-page rider-workflow post-ride-page" id="driver-post-route"
          data-initial-origin="@Model.OriginPlaceId"
          data-initial-destination="@Model.DestinationPlaceId">
+    <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
 
     <form class="ride-grid" method="post" asp-action="PostRoute" id="post-route-form">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="post-alert" role="alert"></div>
         <input type="hidden" asp-for="StopsJson" id="StopsJson" />
         <input type="hidden" asp-for="DistanceKm" id="DistanceKm" />
         <input type="hidden" asp-for="DurationMin" id="DurationMin" />
@@ -145,6 +147,7 @@
                 </div>
                 <dl class="ride-metrics">
                     <div><dt>Total distance</dt><dd class="post-tabular" id="route-distance">—</dd></div>
+                    <div><dt>Recommended fare / seat</dt><dd class="post-tabular" id="route-fare" aria-live="polite">Choose a route</dd></div>
                     <div><dt>Estimated duration</dt><dd class="post-tabular" id="route-duration">—</dd></div>
                 </dl>
             </section>
@@ -162,6 +165,7 @@
     </form>
 
     <script id="post-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+        tier = ViewData["VehicleTier"],
         places = Model.Places,
         routes = Model.Routes,
         stops = Model.Stops.Select(stop => new { stop.Address, stop.PlaceId, stop.ArrivalOffsetMin }),

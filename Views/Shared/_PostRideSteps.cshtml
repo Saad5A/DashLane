@@ -1,5 +1,6 @@
 @{
     var step = ViewData["Step"] as int? ?? 1;
+    var actions = new[] { "Onboarding", "PostRoute", "PostDetails", "Publish" };
     var labels = new[]
     {
         "Vehicle & License",
@@ -14,9 +15,10 @@
         @for (var i = 0; i < labels.Length; i++)
         {
             var n = i + 1;
-            <li aria-current="@(n == step ? "step" : null)">
+            <li class="@(n < step ? "is-complete" : "")" aria-current="@(n == step ? "step" : null)">
                 <span>@n</span>
-                @labels[i]
+                @if (n < step) { <a asp-controller="Driver" asp-action="@actions[i]">@labels[i]</a> }
+                else { @labels[i] }
             </li>
         }
     </ol>

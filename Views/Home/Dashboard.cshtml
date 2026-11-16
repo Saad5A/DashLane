@@ -95,7 +95,7 @@
                     </ol>
                 }
             </div>
-            <a class="btn @(Model.HasRegisteredVehicle ? "btn-primary" : "btn-secondary dash-driver-onboard") btn-lg dash-cta" asp-controller="Driver" asp-action="@(Model.HasRegisteredVehicle ? "PostRoute" : "Onboarding")">@(Model.HasRegisteredVehicle ? "Post a Ride" : "Complete Driver Onboarding") <span aria-hidden="true">→</span></a>
+            <a class="btn @(Model.HasRegisteredVehicle ? "btn-primary" : "btn-secondary dash-driver-onboard") btn-lg dash-cta" asp-controller="Driver" asp-action="Post">@(Model.HasRegisteredVehicle ? "Post a Ride" : "Complete Driver Onboarding") <span aria-hidden="true">→</span></a>
         </section>
     </div>
 

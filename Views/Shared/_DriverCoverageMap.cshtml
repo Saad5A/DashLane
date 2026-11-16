@@ -1,0 +1,12 @@
+@using DashLane.Services
+<section class="ride-card ride-preview" aria-label="Driver route preview">
+    <header><h2>Your journey, mapped.</h2><span class="ride-chip">Greater Toronto Area</span></header>
+    <div class="ride-map" data-driver-coverage>
+        <svg viewBox="0 0 600 385" role="img" aria-label="Supported GTA stops and selected route"></svg>
+        <script type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+            places = RideRouteCatalog.View.Places, routes = RideRouteCatalog.View.Routes,
+            origin = ViewData["MapOrigin"], destination = ViewData["MapDestination"]
+        }, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)))</script>
+    </div>
+    <p class="post-lede">Estimated road corridors. Use the controls to explore; live traffic is not included.</p>
+</section>

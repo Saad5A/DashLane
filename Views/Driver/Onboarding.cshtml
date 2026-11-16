@@ -19,10 +19,12 @@
 }
 
 <section class="ride-page rider-workflow post-ride-page" id="driver-onboarding">
+    <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
 
     <form class="ride-grid" method="post" enctype="multipart/form-data" asp-action="Onboarding" id="onboarding-form">
         @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="post-alert" role="alert"></div>
 
         <div class="ride-selector">
             <header>
@@ -151,6 +153,7 @@
         </div>
 
         <aside class="ride-aside">
+            <partial name="_DriverCoverageMap" />
             <div class="ride-card post-summary">
                 <header>
                     <h2>Driver readiness</h2>
