@@ -1,5 +1,6 @@
 @model DashLane.Models.PostDetailsViewModel
 @{
+    ViewData["MapStops"] = Model.Stops;
     ViewData["MapOrigin"] = Model.OriginAddress;
     ViewData["MapDestination"] = Model.DestinationAddress;
     ViewData["Title"] = "Instructions & Fares";
@@ -9,6 +10,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -31,7 +33,8 @@
         <input type="hidden" asp-for="EstimatedTotalEarnings" id="EstimatedTotalEarnings" />
 
         <div class="ride-selector">
-            <header>
+            <header class="post-editorial-heading">
+                <span class="ride-chip">Driver service</span>
                 <h1>Instructions &amp; Fares</h1>
                 <p>Tell riders how to board, set seats, and preview your transparent DashLane payout.</p>
             </header>

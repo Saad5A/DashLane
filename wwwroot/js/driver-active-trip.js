@@ -17,7 +17,7 @@
     const actions = { Accept: 0, Decline: 1, Arrived: 2, Start: 3, Complete: 4 };
     const statusNames = { 0: "Requested", 1: "Assigned", 2: "Arrived", 3: "InProgress", 4: "Completed", 5: "Cancelled" };
 
-    drawMap(data);
+    DriverMap.create(document.getElementById("active-map"), data).draw(data.originPlaceId, data.destinationPlaceId, data.stops);
     if (data.pending) showRequest(data.pending);
     refreshTripButtons();
 
@@ -201,40 +201,4 @@
         }
     }
 
-    function drawMap(payload) {
-        const base = document.getElementById("active-map-basemap");
-        const overlay = document.getElementById("active-map-route");
-        if (!base || !overlay) return;
-        const places = payload.places || [];
-        const routes = payload.routes || [];
-        const project = (point) => [45 + (point.longitude + 79.73) * 1430, 45 + (43.72 - point.latitude) * 1650];
-        const line = (points) => points.map((point) => project(point).join(",")).join(" ");
-        const add = (parent, tag, attrs) => {
-            const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
-            for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, value);
-            parent.append(el);
-        };
-        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, class: "ride-map-land" });
-        const route = routes.find((item) =>
-            item.pickupId === payload.originPlaceId && item.destinationId === payload.destinationPlaceId);
-        if (!route) return;
-        for (const [className, width] of [["ride-map-route-edge", 9], ["ride-map-route", 5]]) {
-            add(overlay, "polyline", {
-                points: line(route.points), fill: "none", class: className,
-                "stroke-width": width, "stroke-linecap": "round", "stroke-linejoin": "round"
-            });
-        }
-        [route.points[0], route.points.at(-1)].forEach((point, index) => {
-            const [x, y] = project(point);
-            add(overlay, "circle", {
-                cx: x, cy: y, r: 8,
-                class: index ? "ride-map-destination" : "ride-map-pickup",
-                "stroke-width": 3
-            });
-        });
-        for (const place of places) {
-            const [x, y] = project(place);
-            add(base, "circle", { cx: x, cy: y, r: 3.5, class: "ride-map-stop", "stroke-width": 1.5 });
-        }
-    }
 })();

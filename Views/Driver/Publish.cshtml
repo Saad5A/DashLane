@@ -8,6 +8,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -23,7 +24,8 @@
         <div asp-validation-summary="All" class="post-alert" role="alert"></div>
 
         <div class="ride-selector">
-            <header>
+            <header class="post-editorial-heading">
+                <span class="ride-chip">Driver service</span>
                 <h1>Publish &amp; Dispatch</h1>
                 <p>Review your trip, accept the punctuality policy, and post the ride live.</p>
             </header>
@@ -121,13 +123,8 @@
                     <h2>Route preview</h2>
                     <span class="ride-chip">Ready to publish</span>
                 </header>
-                <div class="ride-map">
-                    <svg id="publish-map" viewBox="0 0 600 385" role="img" aria-labelledby="publish-map-title">
-                        <title id="publish-map-title">Route preview map</title>
-                        <g id="publish-map-basemap"></g>
-                        <g id="publish-map-route"></g>
-                    </svg>
-                </div>
+                <div id="publish-map" class="driver-live-map driver-map-compact" aria-label="Interactive driver corridor map"></div>
+                <p class="post-map-help">Estimated road corridors, without live traffic.</p>
                 <dl class="ride-metrics">
                     <div><dt>Distance</dt><dd class="post-tabular">@Model.DistanceKm.ToString("0.0") km</dd></div>
                     <div><dt>Duration</dt><dd class="post-tabular">@Model.DurationMin.ToString("0") min</dd></div>
@@ -151,6 +148,7 @@
     <script id="publish-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
         originPlaceId = Model.OriginPlaceId,
         destinationPlaceId = Model.DestinationPlaceId,
+        stops = Model.Stops,
         places = RideRouteCatalog.View.Places,
         routes = RideRouteCatalog.View.Routes
     }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))</script>

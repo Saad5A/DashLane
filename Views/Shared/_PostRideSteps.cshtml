@@ -16,9 +16,9 @@
         {
             var n = i + 1;
             <li class="@(n < step ? "is-complete" : "")" aria-current="@(n == step ? "step" : null)">
-                <span>@n</span>
+                <span>@if(n < step) { @Icon.Get("check", 13) } else { @n.ToString("00") }</span>
                 @if (n < step) { <a asp-controller="Driver" asp-action="@actions[i]">@labels[i]</a> }
-                else { @labels[i] }
+                else { <span>@labels[i]</span> }
             </li>
         }
     </ol>

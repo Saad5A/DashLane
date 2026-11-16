@@ -5,6 +5,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -17,15 +18,18 @@
     <partial name="_DriverReturnLinks" />
     <partial name="_PostRideSteps" />
 
-    <form class="ride-grid" method="post" asp-action="PostRoute" id="post-route-form">
+    <form class="ride-grid" method="post" asp-action="PostRoute" id="post-route-form" data-preview-url="@Url.Action("RoutePreview", "DriverApi")">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="All" class="post-alert" role="alert"></div>
         <input type="hidden" asp-for="StopsJson" id="StopsJson" />
         <input type="hidden" asp-for="DistanceKm" id="DistanceKm" />
         <input type="hidden" asp-for="DurationMin" id="DurationMin" />
+        <input type="hidden" id="route-fare-value" />
+        <input type="hidden" id="route-total-value" />
 
         <div class="ride-selector">
-            <header>
+            <header class="post-editorial-heading">
+                <span class="ride-chip">Driver service</span>
                 <h1>Route &amp; Stops</h1>
                 <p>Set your corridor, departure, and optional pickups along the way.</p>
             </header>
@@ -82,6 +86,11 @@
                         <label asp-for="DepartureTime">Departure time (Eastern)</label>
                         <input asp-for="DepartureTime" class="post-input post-tabular" type="time" />
                     </div>
+                    <div class="post-field">
+                        <label asp-for="AvailableSeats">Seats to offer</label>
+                        <input asp-for="AvailableSeats" class="post-input post-tabular" type="number" min="1" max="@ViewData["MaxSeats"]" required />
+                        <span asp-validation-for="AvailableSeats"></span>
+                    </div>
                 </div>
             </div>
 
@@ -100,7 +109,10 @@
                         <div class="post-stop-fields">
                             <label>
                                 Address
-                                <input class="post-input" data-stop-address list="place-suggestions" placeholder="Choose or type a stop" />
+                                <select class="post-input" data-stop-address required>
+                                    <option value="">Choose a pickup stop</option>
+                                    @foreach (var place in Model.Places) { <option value="@place.Name · @place.Address">@place.Name - @place.Address</option> }
+                                </select>
                             </label>
                             <input type="hidden" data-stop-place />
                             <label>
@@ -115,12 +127,6 @@
                         </div>
                     </div>
                 </template>
-                <datalist id="place-suggestions">
-                    @foreach (var place in Model.Places)
-                    {
-                        <option value="@place.Name · @place.Address" data-id="@place.Id"></option>
-                    }
-                </datalist>
             </div>
 
             <button class="ride-primary post-cta" id="route-continue" type="submit">Continue to Instructions &amp; Fares</button>
@@ -132,22 +138,13 @@
                     <h2>Route map</h2>
                     <span class="ride-chip">Greater Toronto Area</span>
                 </header>
-                <div class="ride-map">
-                    <svg id="post-map" viewBox="0 0 600 385" role="img" aria-labelledby="post-map-title">
-                        <title id="post-map-title">Greater Toronto Area route map</title>
-                        <g id="post-map-basemap"></g>
-                        <g id="post-map-route"></g>
-                    </svg>
-                    <div class="ride-map-controls" role="group" aria-label="Map controls">
-                        <button class="ride-round" type="button" data-zoom="in" aria-label="Zoom in">+</button>
-                        <button class="ride-round" type="button" data-zoom="out" aria-label="Zoom out">−</button>
-                        <button class="ride-round" type="button" data-zoom="reset" aria-label="Reset map view">↺</button>
-                    </div>
-                    <span class="ride-map-caption">Approximate route</span>
-                </div>
+                <div id="post-map" class="driver-live-map" aria-label="Interactive route map of supported GTA stops"></div>
+                <p class="post-map-help">Click a stop for origin, then another for destination. Add stopovers from the supported stops below.</p>
+                <p id="route-map-status" class="post-map-help" role="status"></p>
                 <dl class="ride-metrics">
                     <div><dt>Total distance</dt><dd class="post-tabular" id="route-distance">—</dd></div>
                     <div><dt>Recommended fare / seat</dt><dd class="post-tabular" id="route-fare" aria-live="polite">Choose a route</dd></div>
+                    <div><dt>Total potential earnings</dt><dd class="post-tabular" id="route-total">Choose a route</dd></div>
                     <div><dt>Estimated duration</dt><dd class="post-tabular" id="route-duration">—</dd></div>
                 </dl>
             </section>

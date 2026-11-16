@@ -21,7 +21,11 @@
     const durationLabel = document.getElementById("route-duration");
     const outline = document.getElementById("route-outline");
     const form = document.getElementById("post-route-form");
-    const map = createMap();
+    const map = DriverMap.create(document.getElementById("post-map"), data, id => {
+        if (!origin.value || destination.value) { origin.value = id; destination.value = ""; }
+        else if (origin.value !== id) destination.value = id;
+        refreshRoute();
+    });
     let fareVersion = 0;
     const maxStops = Number(stopsList.dataset.max || 5);
 
@@ -57,7 +61,7 @@
         const address = row.querySelector("[data-stop-address]");
         const placeInput = row.querySelector("[data-stop-place]");
         const syncPlace = () => {
-            const match = resolvePlace(address.value, placeInput.value);
+            const match = resolvePlace(address.value);
             placeInput.value = match?.id || "";
             if (match) address.value = `${match.name} · ${match.address}`;
             refreshRoute();
@@ -97,60 +101,19 @@
         reindex();
     }
 
-    function findRoute(fromId, toId) {
-        return routes.find((route) => route.pickupId === fromId && route.destinationId === toId) || null;
-    }
-
-    function measure(originId, destinationId, stops) {
-        const corridor = findRoute(originId, destinationId);
-        if (!corridor) return null;
-
-        const ids = [originId, ...stops.map((stop) => stop.placeId).filter(Boolean), destinationId];
-        let distance = 0;
-        let duration = 0;
-        let chained = true;
-        for (let i = 0; i < ids.length - 1; i++) {
-            const segment = findRoute(ids[i], ids[i + 1]);
-            if (!segment) {
-                chained = false;
-                break;
-            }
-            distance += segment.distanceKm;
-            duration += segment.durationMin;
-        }
-
-        if (chained && ids.length > 2) {
-            return { corridor, distanceKm: round(distance), durationMin: duration, mode: "chained" };
-        }
-
-        const unknown = stops.filter((stop) => !stop.placeId).length;
-        const known = Math.max(0, stops.length - unknown);
-        const durationExtra = stops.reduce((sum, stop) => sum + Math.max(5, Math.floor(stop.arrivalOffsetMin / 2)), 0);
-        return {
-            corridor,
-            distanceKm: round(corridor.distanceKm + known * 3.5 + unknown * 4),
-            durationMin: corridor.durationMin + durationExtra + unknown * 4,
-            mode: "base"
-        };
-    }
-
-    function round(value) {
-        return Math.round(value * 10) / 10;
-    }
-
     function refreshRoute() {
         const originId = origin.value;
         const destinationId = destination.value;
         const stops = readStops();
         const metrics = originId && destinationId && originId !== destinationId
-            ? measure(originId, destinationId, stops)
+            ? true
             : null;
 
-        distanceLabel.textContent = metrics ? `${metrics.distanceKm.toFixed(1)} km` : "—";
-        durationLabel.textContent = metrics ? `${metrics.durationMin} min` : "—";
+        distanceLabel.textContent = metrics ? "Calculating..." : "—";
+        durationLabel.textContent = metrics ? "Calculating..." : "—";
         updateFare(metrics);
-        distanceInput.value = metrics ? String(metrics.distanceKm) : "";
-        durationInput.value = metrics ? String(metrics.durationMin) : "";
+        distanceInput.value = "0";
+        durationInput.value = "0";
         stopsJson.value = JSON.stringify(stops.map(({ address, placeId, arrivalOffsetMin }) => ({
             address, placeId, arrivalOffsetMin
         })));
@@ -172,7 +135,7 @@
 
         if (!originPlace || !destinationPlace) {
             append("Choose origin and destination");
-            map.draw(null, []);
+            map.draw(originId, destinationId, stops);
             return;
         }
 
@@ -180,28 +143,49 @@
         stops.forEach((stop, index) => {
             append(`Stop ${index + 1} · ${stop.address}`, `+${stop.arrivalOffsetMin} min`);
         });
-        append(`Destination · ${destinationPlace.name}`,
-            metrics ? `${metrics.distanceKm.toFixed(1)} km · ${metrics.durationMin} min` : undefined);
+        append(`Destination: ${destinationPlace.name}`);
 
-        map.draw(metrics?.corridor || null, stops);
+        map.draw(originId, destinationId, stops);
     }
 
     async function updateFare(metrics) {
         const version = ++fareVersion;
         const label = document.getElementById("route-fare");
-        label.textContent = metrics ? "Calculating..." : "Choose a route";
-        if (!metrics) return;
+        const total = document.getElementById("route-total");
+        const status = document.getElementById("route-map-status");
+        const fareValue = document.getElementById("route-fare-value");
+        const totalValue = document.getElementById("route-total-value");
+        const seats = Number(document.getElementById("AvailableSeats").value);
+        fareValue.value = totalValue.value = "";
+        label.textContent = total.textContent = metrics ? "Calculating..." : "Choose a route";
+        status.textContent = "";
+        if (!metrics || !document.getElementById("AvailableSeats").checkValidity()) return;
         try {
-            const response = await fetch("/api/driver/estimate-payout", {
+            const response = await fetch(form.dataset.previewUrl, {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tier: data.tier, distanceKm: metrics.distanceKm,
-                    durationMin: metrics.durationMin, availableSeats: 1 })
+                body: JSON.stringify({ originPlaceId: origin.value, destinationPlaceId: destination.value,
+                    stops: readStops().map(({ address, placeId, arrivalOffsetMin }) => ({ address, placeId, arrivalOffsetMin })),
+                    availableSeats: seats })
             });
-            if (!response.ok) throw new Error();
             const quote = await response.json();
-            if (version === fareVersion) label.textContent = new Intl.NumberFormat("en-CA",
-                { style: "currency", currency: "CAD" }).format(quote.estimatedPricePerSeat);
-        } catch { if (version === fareVersion) label.textContent = "Available at next step"; }
+            if (version !== fareVersion) return;
+            if (!response.ok) throw new Error(quote.message || "Route preview unavailable.");
+            const money = new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" });
+            label.textContent = money.format(quote.estimatedPricePerSeat);
+            total.textContent = money.format(quote.estimatedTotalEarnings);
+            fareValue.value = quote.estimatedPricePerSeat;
+            totalValue.value = quote.estimatedTotalEarnings;
+            distanceInput.value = quote.distanceKm;
+            durationInput.value = quote.durationMin;
+            distanceLabel.textContent = `${Number(quote.distanceKm).toFixed(1)} km`;
+            durationLabel.textContent = `${quote.durationMin} min`;
+            status.textContent = "Recommended fare for your registered vehicle. Potential earnings assume every listed seat is booked.";
+        } catch (error) {
+            if (version !== fareVersion) return;
+            label.textContent = total.textContent = "Review at next step";
+            distanceLabel.textContent = durationLabel.textContent = "Unavailable";
+            status.textContent = error.message || "Could not refresh estimates. Continue to obtain a server quote.";
+        }
     }
 
     swap.addEventListener("click", () => {
@@ -215,10 +199,11 @@
     addStop.addEventListener("click", () => addStopRow());
     origin.addEventListener("change", refreshRoute);
     destination.addEventListener("change", refreshRoute);
+    document.getElementById("AvailableSeats").addEventListener("input", refreshRoute);
 
     form.addEventListener("submit", () => {
         // Emit indexed fields so MVC model binding works without relying only on StopsJson.
-        rows().forEach((row) => row.querySelectorAll("[name]").forEach((input) => input.remove()));
+        form.querySelectorAll("[data-generated-stop]").forEach(input => input.remove());
         readStops().forEach((stop, index) => {
             const fields = [
                 ["Stops[" + index + "].Address", stop.address],
@@ -228,151 +213,15 @@
             for (const [name, value] of fields) {
                 const input = document.createElement("input");
                 input.type = "hidden";
+                input.dataset.generatedStop = "true";
                 input.name = name;
                 input.value = value;
                 form.append(input);
             }
         });
-        refreshRoute();
     });
 
     (data.stops || []).forEach((stop) => addStopRow(stop));
     refreshRoute();
 
-    function createMap() {
-        const svg = document.getElementById("post-map");
-        const title = document.getElementById("post-map-title");
-        const base = document.getElementById("post-map-basemap");
-        const overlay = document.getElementById("post-map-route");
-        const bounds = [0, 0, 600, 385];
-        let view = [...bounds];
-        let drawn = null;
-        let drag = null;
-        const project = (point) => [45 + (point.longitude + 79.73) * 1430, 45 + (43.72 - point.latitude) * 1650];
-        const line = (points) => points.map((point) => project(point).join(",")).join(" ");
-
-        function add(parent, tag, attrs, label) {
-            const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
-            for (const [name, value] of Object.entries(attrs)) element.setAttribute(name, value);
-            if (label) element.textContent = label;
-            parent.append(element);
-        }
-
-        add(base, "rect", { x: 0, y: 0, width: 600, height: 385, class: "ride-map-land" });
-        add(base, "path", {
-            d: "M0 385 L45 385 L78 350 L124 334 L164 314 L215 283 L250 264 L290 258 L329 225 L375 211 L410 190 L470 186 L500 171 L535 157 L600 136 V385 Z",
-            class: "ride-map-water", "stroke-width": 2
-        });
-        for (const route of routes.slice(0, Math.ceil(routes.length / 2))) {
-            add(base, "polyline", { points: line(route.points), fill: "none", class: "ride-map-road-edge",
-                "stroke-width": 7, "stroke-linecap": "round", "stroke-linejoin": "round" });
-            add(base, "polyline", { points: line(route.points), fill: "none", class: "ride-map-road",
-                "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" });
-        }
-        add(base, "text", { x: 380, y: 300, class: "ride-map-water-label", "font-size": 15, "font-style": "italic" }, "Lake Ontario");
-        const labels = { oakville: "Oakville", "port-credit": "Port Credit", "square-one": "Mississauga",
-            pearson: "Pearson", union: "Toronto" };
-        for (const place of places) {
-            const [x, y] = project(place);
-            add(base, "circle", { cx: x, cy: y, r: 4, class: "ride-map-stop", "stroke-width": 2 });
-            add(base, "text", { x: x + 9, y: y - 8, class: "ride-map-label", "font-size": 15, "font-weight": 700,
-                "stroke-width": 4, "paint-order": "stroke" }, labels[place.id]);
-        }
-
-        function setView(x, y, width) {
-            const height = width * bounds[3] / bounds[2];
-            view = [Math.max(0, Math.min(bounds[2] - width, x)),
-                Math.max(0, Math.min(bounds[3] - height, y)), width, height];
-            svg.setAttribute("viewBox", view.join(" "));
-        }
-
-        function fit(points) {
-            if (!points?.length) {
-                setView(...bounds.slice(0, 3));
-                return;
-            }
-            const projected = points.map(project);
-            const xs = projected.map((point) => point[0]);
-            const ys = projected.map((point) => point[1]);
-            const minX = Math.min(...xs);
-            const maxX = Math.max(...xs);
-            const minY = Math.min(...ys);
-            const maxY = Math.max(...ys);
-            const width = Math.min(600, Math.max(245, maxX - minX + 150, (maxY - minY + 105) * 600 / 385));
-            setView((minX + maxX - width) / 2, (minY + maxY - width * 385 / 600) / 2, width);
-        }
-
-        for (const control of page.querySelectorAll("[data-zoom]")) {
-            control.addEventListener("click", () => {
-                if (control.dataset.zoom === "reset") {
-                    fit(drawn?.points);
-                    return;
-                }
-                const [x, y, w] = view;
-                const width = Math.min(600, Math.max(180, w * (control.dataset.zoom === "in" ? 0.75 : 1.33)));
-                setView(x + (w - width) / 2, y + (w * 385 / 600 - width * 385 / 600) / 2, width);
-            });
-        }
-
-        svg.addEventListener("pointerdown", (event) => {
-            if (event.button !== 0) return;
-            drag = { x: event.clientX, y: event.clientY, view };
-            svg.setPointerCapture(event.pointerId);
-        });
-        svg.addEventListener("pointermove", (event) => {
-            if (!drag) return;
-            const [x, y, width] = drag.view;
-            const scale = width / svg.clientWidth;
-            setView(x - (event.clientX - drag.x) * scale, y - (event.clientY - drag.y) * scale, width);
-        });
-        svg.addEventListener("lostpointercapture", () => { drag = null; });
-
-        function pin(point, label, filled) {
-            const [x, y] = project(point);
-            add(overlay, "circle", {
-                cx: x, cy: y, r: 11,
-                class: filled ? "ride-map-destination" : "ride-map-pickup",
-                "stroke-width": 3
-            });
-            add(overlay, "text", {
-                x, y: y + 4,
-                class: filled ? "ride-map-pin-text" : "ride-map-pin-text-hollow",
-                "font-size": 10, "text-anchor": "middle"
-            }, label);
-        }
-
-        return {
-            draw(route, stops) {
-                drawn = route;
-                overlay.replaceChildren();
-                const originPlace = placeById[origin.value];
-                const destinationPlace = placeById[destination.value];
-                title.textContent = route && originPlace && destinationPlace
-                    ? `Route from ${originPlace.name} to ${destinationPlace.name}`
-                    : "Greater Toronto Area route map";
-
-                if (route) {
-                    for (const [className, width] of [["ride-map-route-edge", 9], ["ride-map-route", 5]]) {
-                        add(overlay, "polyline", {
-                            points: line(route.points), fill: "none", class: className,
-                            "stroke-width": width, "stroke-linecap": "round", "stroke-linejoin": "round"
-                        });
-                    }
-
-                    pin(route.points[0], "A", false);
-                    const midPoints = route.points.slice(1, -1);
-                    stops.forEach((stop, index) => {
-                        const known = stop.placeId ? placeById[stop.placeId] : null;
-                        const point = known || midPoints[Math.min(index, Math.max(0, midPoints.length - 1))] ||
-                            route.points[Math.floor(route.points.length / 2)];
-                        pin(point, String(index + 1), true);
-                    });
-                    pin(route.points.at(-1), "B", true);
-                    fit(route.points);
-                } else {
-                    fit(null);
-                }
-            }
-        };
-    }
 })();

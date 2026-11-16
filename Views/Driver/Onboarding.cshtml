@@ -13,6 +13,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -27,7 +28,8 @@
         <div asp-validation-summary="All" class="post-alert" role="alert"></div>
 
         <div class="ride-selector">
-            <header>
+            <header class="post-editorial-heading">
+                <span class="ride-chip">Driver service</span>
                 <h1>Vehicle &amp; License</h1>
                 <p>Register the car you’ll drive and confirm your license before posting a route.</p>
             </header>

@@ -4,6 +4,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -11,6 +12,7 @@
 
 <section class="ride-page rider-workflow post-ride-page">
     <partial name="_PostRideSteps" />
+    <div class="ride-grid">
     <div class="ride-card post-placeholder">
         <h1>Post a Ride</h1>
         <p class="post-lede">Schedule a trip for riders along your route.</p>
@@ -37,5 +39,6 @@
 
         <a class="ride-primary post-cta" asp-action="Onboarding">Continue to Vehicle &amp; License</a>
     </div>
-    <partial name="_DriverCoverageMap" />
+    <aside class="ride-aside"><partial name="_DriverCoverageMap" /></aside>
+    </div>
 </section>

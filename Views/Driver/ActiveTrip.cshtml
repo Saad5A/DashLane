@@ -8,6 +8,7 @@
 }
 
 @section Styles {
+    <partial name="_DriverMapAssets" />
     <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rider-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/driver-onboarding.css" asp-append-version="true" />
@@ -106,13 +107,8 @@
                     <h2>Live route</h2>
                     <span class="ride-chip" id="map-chip">@(Model.IsOnline ? "Online" : "Offline")</span>
                 </header>
-                <div class="ride-map">
-                    <svg id="active-map" viewBox="0 0 600 385" role="img" aria-labelledby="active-map-title">
-                        <title id="active-map-title">Live route map</title>
-                        <g id="active-map-basemap"></g>
-                        <g id="active-map-route"></g>
-                    </svg>
-                </div>
+                <div id="active-map" class="driver-live-map driver-map-compact" aria-label="Interactive driver corridor map"></div>
+                <p class="post-map-help">Estimated road corridors, without live traffic.</p>
                 <dl class="ride-metrics">
                     <div><dt>Distance</dt><dd class="post-tabular">@(Model.DistanceKm > 0 ? $"{Model.DistanceKm:0.0} km" : "—")</dd></div>
                     <div><dt>Duration</dt><dd class="post-tabular">@(Model.DurationMin > 0 ? $"{Model.DurationMin:0} min" : "—")</dd></div>
@@ -131,6 +127,7 @@
     <script id="active-route-data" type="application/json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
         originPlaceId = Model.OriginPlaceId,
         destinationPlaceId = Model.DestinationPlaceId,
+        stops = Model.Stops,
         places = Model.Places,
         routes = Model.Routes,
         pending = Model.PendingRequest,
